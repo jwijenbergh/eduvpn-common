@@ -4,6 +4,7 @@ package client
 import (
 	"fmt"
 	"strings"
+	"sync"
 
 	"github.com/eduvpn/eduvpn-common/internal/config"
 	"github.com/eduvpn/eduvpn-common/internal/discovery"
@@ -13,7 +14,6 @@ import (
 	"github.com/eduvpn/eduvpn-common/internal/log"
 	"github.com/eduvpn/eduvpn-common/internal/oauth"
 	"github.com/eduvpn/eduvpn-common/internal/server"
-	"github.com/eduvpn/eduvpn-common/internal/util"
 	"github.com/eduvpn/eduvpn-common/types"
 	"github.com/go-errors/errors"
 )
@@ -94,9 +94,6 @@ type Client struct {
 	// The name of the client
 	Name string `json:"-"`
 
-	// The language used for language matching
-	Language string `json:"-"` // language should not be saved
-
 	// The chosen server
 	Servers server.Servers `json:"servers"`
 
@@ -116,31 +113,10 @@ type Client struct {
 	Debug bool `json:"-"`
 
 	// The Failover monitor for the current VPN connection
-	Failover *failover.DroppedConMon `json:"-"`
+	Failover *failover.DroppedConMon
 
-	// tokenCB is the token callback
-	tokenCB func(srv server.Server, tok oauth.Token)
-}
-
-func (c *Client) ForwardTokenUpdate(srv server.Server) {
-	if c.tokenCB == nil {
-		log.Logger.Debugf("No token update callback available")
-		return
-	}
-	t := oauth.Token{}
-	o := srv.OAuth()
-	if o != nil {
-		t = o.Token()
-	} else {
-		log.Logger.Debugf("OAuth was nil when forwarding token callback")
-	}
-	log.Logger.Debugf("Running token callback")
-	c.tokenCB(srv, t)
-}
-
-// SetTokenUpdater sets the token updater callback
-func (c *Client) SetTokenUpdater(updater func(srv server.Server, tok oauth.Token)) {
-	c.tokenCB = updater
+	locationWg sync.WaitGroup
+	profileWg  sync.WaitGroup
 }
 
 // Register initializes the clientwith the following parameters:
@@ -154,7 +130,6 @@ func (c *Client) Register(
 	name string,
 	version string,
 	directory string,
-	language string,
 	stateCallback func(FSMStateID, FSMStateID, interface{}) bool,
 	debug bool,
 ) (err error) {
@@ -179,9 +154,6 @@ func (c *Client) Register(
 	http.RegisterAgent(userAgentName(name), version)
 
 	c.Name = name
-
-	// TODO: Verify language setting?
-	c.Language = language
 
 	// Initialize the logger
 	lvl := log.LevelWarning
@@ -251,7 +223,14 @@ func (c *Client) askProfile(srv server.Server) error {
 	if err != nil {
 		return err
 	}
-	return c.FSM.GoTransitionRequired(StateAskProfile, ps)
+
+	c.profileWg.Add(1)
+	if err = c.FSM.GoTransitionRequired(StateAskProfile, convertProfiles(*ps)); err != nil {
+		return err
+	}
+	c.profileWg.Wait()
+
+	return nil
 }
 
 // DiscoOrganizations gets the organizations list from the discovery server
@@ -297,7 +276,178 @@ func (c *Client) DiscoServers() (dss *types.DiscoveryServers, err error) {
 	return c.Discovery.Servers()
 }
 
-// GetTranslated gets the translation for `languages` using the current state language.
-func (c *Client) GetTranslated(languages map[string]string) string {
-	return util.GetLanguageMatched(languages, c.Language)
+// ExpiryTimes returns the different Unix timestamps regarding expiry
+// - The time starting at which the renew button should be shown, after 30 minutes and less than 24 hours
+// - The time starting at which the countdown button should be shown, less than 24 hours
+// - The list of times where notifications should be shown
+// These times are reset when the VPN gets disconnected
+func (c *Client) ExpiryTimes() (*types.Expiry, error) {
+	// Get current expiry time
+	srv, err := c.Servers.GetCurrentServer()
+	if err != nil {
+		c.logError(err)
+		return nil, err
+	}
+	b, err := srv.Base()
+	if err != nil {
+		c.logError(err)
+		return nil, err
+	}
+
+	bT := b.RenewButtonTime()
+	cT := b.CountdownTime()
+	nT := b.NotificationTimes()
+	return &types.Expiry{
+		StartTime: b.StartTime.Unix(),
+		EndTime: b.EndTime.Unix(),
+		ButtonTime: bT,
+		CountdownTime: cT,
+		NotificationTimes: nT,
+	}, nil
+}
+
+func convertProfiles(profiles server.ProfileInfo) types.Profiles {
+	m := make(map[string]types.Profile)
+	for _, p := range profiles.Info.ProfileList {
+		var protocols []types.Protocol
+		for _, protocol := range p.VPNProtoList {
+			protocols = append(protocols, getProtocol(protocol))
+		}
+		m[p.ID] = types.Profile{
+			DisplayName: map[string]string{
+				"en": p.DisplayName,
+			},
+			Protocols: protocols,
+		}
+	}
+	return types.Profiles{Map: m, Current: profiles.Current}
+}
+
+func convertGeneric(server server.InstituteAccessServer) (*types.GenericServer, error) {
+	b, err := server.Base()
+	if err != nil {
+		return nil, err
+	}
+	return &types.GenericServer{
+		DisplayName: b.DisplayName,
+		Identifier:  b.URL,
+		Profiles:    convertProfiles(b.Profiles),
+	}, nil
+}
+
+// TODO: CLEAN THIS UP
+func (c *Client) ServerList() (*types.ServerList, error) {
+	custom := c.Servers.CustomServers
+	var customServers []types.GenericServer
+	for _, v := range custom.Map {
+		if v == nil {
+			return nil, errors.New("found nil value in custom server map")
+		}
+		conv, err := convertGeneric(*v)
+		if err != nil {
+			return nil, errors.Errorf("failed to convert custom server for public type: %v", err)
+		}
+		customServers = append(customServers, *conv)
+	}
+	institute := c.Servers.InstituteServers
+	var instituteServers []types.InstituteServer
+	for _, v := range institute.Map {
+		if v == nil {
+			return nil, errors.New("found nil value in institute server map")
+		}
+		conv, err := convertGeneric(*v)
+		if err != nil {
+			return nil, errors.Errorf("failed to convert institute server for public type: %v", err)
+		}
+		instituteServers = append(instituteServers, types.InstituteServer{
+			GenericServer: *conv,
+			// TODO: delisted
+			Delisted: false,
+		})
+	}
+
+	var secureInternet *types.SecureInternetServer
+	if c.Servers.HasSecureInternet() {
+		b, err := c.Servers.SecureInternetHomeServer.Base()
+		if err == nil {
+			generic := types.GenericServer{
+				DisplayName: b.DisplayName,
+				Identifier:  b.URL,
+				Profiles:    convertProfiles(b.Profiles),
+			}
+			cc := c.Servers.SecureInternetHomeServer.CurrentLocation
+			secureInternet = &types.SecureInternetServer{
+				GenericServer: generic,
+				CountryCode:   cc,
+				// TODO: delisted
+				Delisted: false,
+			}
+		}
+
+	}
+	return &types.ServerList{
+		Institutes:     instituteServers,
+		SecureInternet: secureInternet,
+		Custom:         customServers,
+	}, nil
+}
+
+// TODO: CLEAN THIS UP
+func (c *Client) CurrentServer() (*types.CurrentServer, error) {
+	srvs := c.Servers
+
+	switch srvs.IsType {
+	case server.InstituteAccessServerType:
+		curr, err := srvs.GetInstituteAccess(srvs.InstituteServers.CurrentURL)
+		if err != nil {
+			return nil, err
+		}
+		conv, err := convertGeneric(*curr)
+		if err != nil {
+			return nil, err
+		}
+		return &types.CurrentServer{
+			Institute: &types.InstituteServer{
+				GenericServer: *conv,
+				// TODO: delisted
+				Delisted: false,
+			},
+			Type: types.SERVER_INSTITUTE_ACCESS,
+		}, nil
+	case server.CustomServerType:
+		curr, err := srvs.GetCustomServer(srvs.CustomServers.CurrentURL)
+		if err != nil {
+			return nil, err
+		}
+		conv, err := convertGeneric(*curr)
+		if err != nil {
+			return nil, err
+		}
+		return &types.CurrentServer{
+			Custom: conv,
+			Type:   types.SERVER_CUSTOM,
+		}, nil
+	case server.SecureInternetServerType:
+		b, err := c.Servers.SecureInternetHomeServer.Base()
+		if err != nil {
+			return nil, err
+		}
+		generic := types.GenericServer{
+			DisplayName: b.DisplayName,
+			Identifier:  c.Servers.SecureInternetHomeServer.HomeOrganizationID,
+			Profiles:    convertProfiles(b.Profiles),
+		}
+		cc := c.Servers.SecureInternetHomeServer.CurrentLocation
+		return &types.CurrentServer{
+			SecureInternet: &types.SecureInternetServer{
+				GenericServer: generic,
+				CountryCode:   cc,
+				// TODO: delisted
+				Delisted: false,
+			},
+			Type: types.SERVER_SECURE_INTERNET,
+		}, nil
+	default:
+		return nil, errors.New("current server not found")
+	}
 }
