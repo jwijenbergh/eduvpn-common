@@ -5,6 +5,7 @@ import (
 	"github.com/go-errors/errors"
 )
 
+// TODO: Have a dedicated type for custom servers
 type Servers struct {
 	// A custom server is just an institute access server under the hood
 	CustomServers            InstituteAccessServers   `json:"custom_servers"`
