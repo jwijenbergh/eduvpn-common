@@ -8,15 +8,15 @@ import (
 	"github.com/eduvpn/eduvpn-common/internal/log"
 	"github.com/eduvpn/eduvpn-common/internal/oauth"
 	"github.com/eduvpn/eduvpn-common/internal/server"
-	"github.com/eduvpn/eduvpn-common/types"
 	discotypes "github.com/eduvpn/eduvpn-common/types/discovery"
+	srvtypes "github.com/eduvpn/eduvpn-common/types/server"
 	"github.com/eduvpn/eduvpn-common/types/protocol"
 	"github.com/go-errors/errors"
 )
 
 // TODO: This should not be reliant on an internal type
-func getTokens(tok oauth.Token) types.Tokens {
-	return types.Tokens{
+func getTokens(tok oauth.Token) srvtypes.Tokens {
+	return srvtypes.Tokens{
 		Access:  tok.Access,
 		Refresh: tok.Refresh,
 		Expires: tok.ExpiredTimestamp.Unix(),
@@ -25,7 +25,7 @@ func getTokens(tok oauth.Token) types.Tokens {
 
 // getConfigAuth gets a config with authorization and authentication.
 // It also asks for a profile if no valid profile is found.
-func (c *Client) getConfigAuth(srv server.Server, preferTCP bool, t types.Tokens) (*types.Configuration, error) {
+func (c *Client) getConfigAuth(srv server.Server, preferTCP bool, t srvtypes.Tokens) (*srvtypes.Configuration, error) {
 	err := c.ensureLogin(srv, t)
 	if err != nil {
 		return nil, err
@@ -59,7 +59,7 @@ func (c *Client) getConfigAuth(srv server.Server, preferTCP bool, t types.Tokens
 		return nil, err
 	}
 
-	pCfg := &types.Configuration{
+	pCfg := &srvtypes.Configuration{
 		VPNConfig:      cfg.Config,
 		Protocol:       protocol.New(cfg.Type),
 		DefaultGateway: p.DefaultGateway,
@@ -71,7 +71,7 @@ func (c *Client) getConfigAuth(srv server.Server, preferTCP bool, t types.Tokens
 
 // retryConfigAuth retries the getConfigAuth function if the tokens are invalid.
 // If OAuth is cancelled, it makes sure that we only forward the error as additional info.
-func (c *Client) retryConfigAuth(srv server.Server, preferTCP bool, t types.Tokens) (*types.Configuration, error) {
+func (c *Client) retryConfigAuth(srv server.Server, preferTCP bool, t srvtypes.Tokens) (*srvtypes.Configuration, error) {
 	cfg, err := c.getConfigAuth(srv, preferTCP, t)
 	if err == nil {
 		return cfg, nil
@@ -80,7 +80,7 @@ func (c *Client) retryConfigAuth(srv server.Server, preferTCP bool, t types.Toke
 	tErr := &oauth.TokensInvalidError{}
 	if errors.As(err, &tErr) {
 		// TODO: Is passing empty tokens correct here?
-		cfg, err = c.getConfigAuth(srv, preferTCP, types.Tokens{})
+		cfg, err = c.getConfigAuth(srv, preferTCP, srvtypes.Tokens{})
 		if err == nil {
 			return cfg, nil
 		}
@@ -90,7 +90,7 @@ func (c *Client) retryConfigAuth(srv server.Server, preferTCP bool, t types.Toke
 }
 
 // getConfig gets an OpenVPN/WireGuard configuration by contacting the server, moving the FSM towards the DISCONNECTED state and then saving the local configuration file.
-func (c *Client) getConfig(srv server.Server, preferTCP bool, t types.Tokens) (*types.Configuration, error) {
+func (c *Client) getConfig(srv server.Server, preferTCP bool, t srvtypes.Tokens) (*srvtypes.Configuration, error) {
 	if c.InFSMState(StateDeregistered) {
 		return nil, errors.Errorf("getConfig attempt in '%v'", StateDeregistered)
 	}
@@ -121,7 +121,7 @@ func (c *Client) getConfig(srv server.Server, preferTCP bool, t types.Tokens) (*
 }
 
 // Cleanup cleans up the VPN connection by sending a /disconnect to the server
-func (c *Client) Cleanup(ct types.Tokens) error {
+func (c *Client) Cleanup(ct srvtypes.Tokens) error {
 	srv, err := c.Servers.GetCurrentServer()
 	if err != nil {
 		c.logError(err)
@@ -286,7 +286,7 @@ func (c *Client) AddInstituteServer(url string) (err error) {
 	c.FSM.GoTransition(StateChosenServer)
 
 	// Authorize it
-	if err = c.ensureLogin(srv, types.Tokens{}); err != nil {
+	if err = c.ensureLogin(srv, srvtypes.Tokens{}); err != nil {
 		// Removing is best effort
 		_ = c.RemoveInstituteAccess(url)
 		return err
@@ -351,7 +351,7 @@ func (c *Client) AddSecureInternetHomeServer(orgID string) (err error) {
 	c.FSM.GoTransition(StateChosenServer)
 
 	// Authorize it
-	if err = c.ensureLogin(srv, types.Tokens{}); err != nil {
+	if err = c.ensureLogin(srv, srvtypes.Tokens{}); err != nil {
 		// Removing is best effort
 		_ = c.RemoveSecureInternet()
 		return err
@@ -398,7 +398,7 @@ func (c *Client) AddCustomServer(url string) (err error) {
 	c.FSM.GoTransition(StateChosenServer)
 
 	// Authorize it
-	if err = c.ensureLogin(srv, types.Tokens{}); err != nil {
+	if err = c.ensureLogin(srv, srvtypes.Tokens{}); err != nil {
 		// removing is best effort
 		_ = c.RemoveCustomServer(url)
 		return err
@@ -411,7 +411,7 @@ func (c *Client) AddCustomServer(url string) (err error) {
 // GetConfigInstituteAccess gets a configuration for an Institute Access Server.
 // It ensures that the Institute Access Server exists by creating or using an existing one with the url.
 // `preferTCP` indicates that the client wants to use TCP (through OpenVPN) to establish the VPN tunnel.
-func (c *Client) GetConfigInstituteAccess(url string, preferTCP bool, t types.Tokens) (cfg *types.Configuration, err error) {
+func (c *Client) GetConfigInstituteAccess(url string, preferTCP bool, t srvtypes.Tokens) (cfg *srvtypes.Configuration, err error) {
 	defer func() {
 		if err != nil {
 			c.logError(err)
@@ -453,7 +453,7 @@ func (c *Client) GetConfigInstituteAccess(url string, preferTCP bool, t types.To
 // GetConfigSecureInternet gets a configuration for a Secure Internet Server.
 // It ensures that the Secure Internet Server exists by creating or using an existing one with the orgID.
 // `preferTCP` indicates that the client wants to use TCP (through OpenVPN) to establish the VPN tunnel.
-func (c *Client) GetConfigSecureInternet(orgID string, preferTCP bool, t types.Tokens) (cfg *types.Configuration, err error) {
+func (c *Client) GetConfigSecureInternet(orgID string, preferTCP bool, t srvtypes.Tokens) (cfg *srvtypes.Configuration, err error) {
 	defer func() {
 		if err != nil {
 			c.logError(err)
@@ -496,7 +496,7 @@ func (c *Client) GetConfigSecureInternet(orgID string, preferTCP bool, t types.T
 // GetConfigCustomServer gets a configuration for a Custom Server.
 // It ensures that the Custom Server exists by creating or using an existing one with the url.
 // `preferTCP` indicates that the client wants to use TCP (through OpenVPN) to establish the VPN tunnel.
-func (c *Client) GetConfigCustomServer(url string, preferTCP bool, t types.Tokens) (cfg *types.Configuration, err error) {
+func (c *Client) GetConfigCustomServer(url string, preferTCP bool, t srvtypes.Tokens) (cfg *srvtypes.Configuration, err error) {
 	defer func() {
 		if err != nil {
 			c.logError(err)
@@ -575,7 +575,7 @@ func (c *Client) RenewSession() (err error) {
 	}
 
 	server.MarkTokensForRenew(srv)
-	return c.ensureLogin(srv, types.Tokens{})
+	return c.ensureLogin(srv, srvtypes.Tokens{})
 }
 
 // ShouldRenewButton returns true if the renew button should be shown
@@ -593,7 +593,7 @@ func (c *Client) ShouldRenewButton() bool {
 
 // ensureLogin logs the user back in if needed.
 // It runs the FSM transitions to ask for user input.
-func (c *Client) ensureLogin(srv server.Server, t types.Tokens) (err error) {
+func (c *Client) ensureLogin(srv server.Server, t srvtypes.Tokens) (err error) {
 	// Relogin with oauth
 	// This moves the state to authorized
 	if !server.NeedsRelogin(srv) {

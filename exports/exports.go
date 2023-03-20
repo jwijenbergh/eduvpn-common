@@ -27,7 +27,7 @@ import (
 	"github.com/go-errors/errors"
 
 	"github.com/eduvpn/eduvpn-common/client"
-	"github.com/eduvpn/eduvpn-common/types"
+	srvtypes "github.com/eduvpn/eduvpn-common/types/server"
 )
 
 var (
@@ -35,7 +35,7 @@ var (
 	VPNState       *client.Client
 )
 
-func getTokens(tokens *C.char) (t types.Tokens, err error) {
+func getTokens(tokens *C.char) (t srvtypes.Tokens, err error) {
 	err = json.Unmarshal([]byte(C.GoString(tokens)), &t)
 	return t, err
 }
@@ -266,7 +266,7 @@ func GetConfig(_type *C.char, id *C.char, pTCP C.int, tokens *C.char) (*C.char, 
 		return nil, getCError(err)
 	}
 	t := C.GoString(_type)
-	var cfg *types.Configuration
+	var cfg *srvtypes.Configuration
 	switch t {
 	case "institute_access":
 		cfg, err = state.GetConfigInstituteAccess(C.GoString(id), preferTCPBool, tok)

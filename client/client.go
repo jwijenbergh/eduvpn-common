@@ -14,7 +14,7 @@ import (
 	"github.com/eduvpn/eduvpn-common/internal/log"
 	"github.com/eduvpn/eduvpn-common/internal/oauth"
 	"github.com/eduvpn/eduvpn-common/internal/server"
-	"github.com/eduvpn/eduvpn-common/types"
+	srvtypes "github.com/eduvpn/eduvpn-common/types/server"
 	discotypes "github.com/eduvpn/eduvpn-common/types/discovery"
 	"github.com/eduvpn/eduvpn-common/types/protocol"
 	"github.com/go-errors/errors"
@@ -283,7 +283,7 @@ func (c *Client) DiscoServers() (dss *discotypes.Servers, err error) {
 // - The time starting at which the countdown button should be shown, less than 24 hours
 // - The list of times where notifications should be shown
 // These times are reset when the VPN gets disconnected
-func (c *Client) ExpiryTimes() (*types.Expiry, error) {
+func (c *Client) ExpiryTimes() (*srvtypes.Expiry, error) {
 	// Get current expiry time
 	srv, err := c.Servers.GetCurrentServer()
 	if err != nil {
@@ -299,7 +299,7 @@ func (c *Client) ExpiryTimes() (*types.Expiry, error) {
 	bT := b.RenewButtonTime()
 	cT := b.CountdownTime()
 	nT := b.NotificationTimes()
-	return &types.Expiry{
+	return &srvtypes.Expiry{
 		StartTime:         b.StartTime.Unix(),
 		EndTime:           b.EndTime.Unix(),
 		ButtonTime:        bT,
@@ -308,30 +308,30 @@ func (c *Client) ExpiryTimes() (*types.Expiry, error) {
 	}, nil
 }
 
-func convertProfiles(profiles server.ProfileInfo) types.Profiles {
-	m := make(map[string]types.Profile)
+func convertProfiles(profiles server.ProfileInfo) srvtypes.Profiles {
+	m := make(map[string]srvtypes.Profile)
 	for _, p := range profiles.Info.ProfileList {
 		var protocols []protocol.Protocol
 		// loop through all protocol strings
 		for _, ps := range p.VPNProtoList {
 			protocols = append(protocols, protocol.New(ps))
 		}
-		m[p.ID] = types.Profile{
+		m[p.ID] = srvtypes.Profile{
 			DisplayName: map[string]string{
 				"en": p.DisplayName,
 			},
 			Protocols: protocols,
 		}
 	}
-	return types.Profiles{Map: m, Current: profiles.Current}
+	return srvtypes.Profiles{Map: m, Current: profiles.Current}
 }
 
-func convertGeneric(server server.InstituteAccessServer) (*types.GenericServer, error) {
+func convertGeneric(server server.InstituteAccessServer) (*srvtypes.Server, error) {
 	b, err := server.Base()
 	if err != nil {
 		return nil, err
 	}
-	return &types.GenericServer{
+	return &srvtypes.Server{
 		DisplayName: b.DisplayName,
 		Identifier:  b.URL,
 		Profiles:    convertProfiles(b.Profiles),
@@ -339,9 +339,9 @@ func convertGeneric(server server.InstituteAccessServer) (*types.GenericServer, 
 }
 
 // TODO: CLEAN THIS UP
-func (c *Client) ServerList() (*types.ServerList, error) {
+func (c *Client) ServerList() (*srvtypes.List, error) {
 	custom := c.Servers.CustomServers
-	var customServers []types.GenericServer
+	var customServers []srvtypes.Server
 	for _, v := range custom.Map {
 		if v == nil {
 			return nil, errors.New("found nil value in custom server map")
@@ -353,7 +353,7 @@ func (c *Client) ServerList() (*types.ServerList, error) {
 		customServers = append(customServers, *conv)
 	}
 	institute := c.Servers.InstituteServers
-	var instituteServers []types.InstituteServer
+	var instituteServers []srvtypes.Institute
 	for _, v := range institute.Map {
 		if v == nil {
 			return nil, errors.New("found nil value in institute server map")
@@ -362,25 +362,25 @@ func (c *Client) ServerList() (*types.ServerList, error) {
 		if err != nil {
 			return nil, errors.Errorf("failed to convert institute server for public type: %v", err)
 		}
-		instituteServers = append(instituteServers, types.InstituteServer{
-			GenericServer: *conv,
+		instituteServers = append(instituteServers, srvtypes.Institute{
+			Server: *conv,
 			// TODO: delisted
 			Delisted: false,
 		})
 	}
 
-	var secureInternet *types.SecureInternetServer
+	var secureInternet *srvtypes.SecureInternet
 	if c.Servers.HasSecureInternet() {
 		b, err := c.Servers.SecureInternetHomeServer.Base()
 		if err == nil {
-			generic := types.GenericServer{
+			generic := srvtypes.Server{
 				DisplayName: b.DisplayName,
 				Identifier:  b.URL,
 				Profiles:    convertProfiles(b.Profiles),
 			}
 			cc := c.Servers.SecureInternetHomeServer.CurrentLocation
-			secureInternet = &types.SecureInternetServer{
-				GenericServer: generic,
+			secureInternet = &srvtypes.SecureInternet{
+				Server: generic,
 				CountryCode:   cc,
 				// TODO: delisted
 				Delisted: false,
@@ -388,7 +388,7 @@ func (c *Client) ServerList() (*types.ServerList, error) {
 		}
 
 	}
-	return &types.ServerList{
+	return &srvtypes.List{
 		Institutes:     instituteServers,
 		SecureInternet: secureInternet,
 		Custom:         customServers,
@@ -396,7 +396,7 @@ func (c *Client) ServerList() (*types.ServerList, error) {
 }
 
 // TODO: CLEAN THIS UP
-func (c *Client) CurrentServer() (*types.CurrentServer, error) {
+func (c *Client) CurrentServer() (*srvtypes.Current, error) {
 	srvs := c.Servers
 
 	switch srvs.IsType {
@@ -409,13 +409,13 @@ func (c *Client) CurrentServer() (*types.CurrentServer, error) {
 		if err != nil {
 			return nil, err
 		}
-		return &types.CurrentServer{
-			Institute: &types.InstituteServer{
-				GenericServer: *conv,
+		return &srvtypes.Current{
+			Institute: &srvtypes.Institute{
+				Server: *conv,
 				// TODO: delisted
 				Delisted: false,
 			},
-			Type: types.SERVER_INSTITUTE_ACCESS,
+			Type: srvtypes.TypeInstituteAccess,
 		}, nil
 	case server.CustomServerType:
 		curr, err := srvs.GetCustomServer(srvs.CustomServers.CurrentURL)
@@ -426,29 +426,29 @@ func (c *Client) CurrentServer() (*types.CurrentServer, error) {
 		if err != nil {
 			return nil, err
 		}
-		return &types.CurrentServer{
+		return &srvtypes.Current{
 			Custom: conv,
-			Type:   types.SERVER_CUSTOM,
+			Type:   srvtypes.TypeCustom,
 		}, nil
 	case server.SecureInternetServerType:
 		b, err := c.Servers.SecureInternetHomeServer.Base()
 		if err != nil {
 			return nil, err
 		}
-		generic := types.GenericServer{
+		generic := srvtypes.Server{
 			DisplayName: b.DisplayName,
 			Identifier:  c.Servers.SecureInternetHomeServer.HomeOrganizationID,
 			Profiles:    convertProfiles(b.Profiles),
 		}
 		cc := c.Servers.SecureInternetHomeServer.CurrentLocation
-		return &types.CurrentServer{
-			SecureInternet: &types.SecureInternetServer{
-				GenericServer: generic,
+		return &srvtypes.Current{
+			SecureInternet: &srvtypes.SecureInternet{
+				Server: generic,
 				CountryCode:   cc,
 				// TODO: delisted
 				Delisted: false,
 			},
-			Type: types.SERVER_SECURE_INTERNET,
+			Type: srvtypes.TypeSecureInternet,
 		}, nil
 	default:
 		return nil, errors.New("current server not found")
