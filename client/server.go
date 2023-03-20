@@ -189,7 +189,7 @@ func (c *Client) RemoveSecureInternet() error {
 	}
 	// No error because we can only have one secure internet server and if there are no secure internet servers, this is a NO-OP
 	c.Servers.RemoveSecureInternet()
-	c.FSM.GoTransitionWithData(StateNoServer, c.Servers)
+	c.FSM.GoTransition(StateNoServer)
 	// Save the config
 	if err := c.Config.Save(&c); err != nil {
 		// TODO(jwijenbergh): Not sure why INFO level, yet stacktrace...
@@ -211,7 +211,7 @@ func (c *Client) RemoveInstituteAccess(url string) error {
 	}
 	// No error because this is a NO-OP if the server doesn't exist
 	c.Servers.RemoveInstituteAccess(url)
-	c.FSM.GoTransitionWithData(StateNoServer, c.Servers)
+	c.FSM.GoTransition(StateNoServer)
 	// Save the config
 	if err := c.Config.Save(&c); err != nil {
 		// TODO(jwijenbergh): Not sure why INFO level, yet stacktrace...
@@ -233,7 +233,7 @@ func (c *Client) RemoveCustomServer(url string) error {
 	}
 	// No error because this is a NO-OP if the server doesn't exist
 	c.Servers.RemoveCustomServer(url)
-	c.FSM.GoTransitionWithData(StateNoServer, c.Servers)
+	c.FSM.GoTransition(StateNoServer)
 	// Save the config
 	if err := c.Config.Save(&c); err != nil {
 		// TODO(jwijenbergh): Not sure why INFO level, yet stacktrace...
@@ -292,7 +292,7 @@ func (c *Client) AddInstituteServer(url string) (err error) {
 		return err
 	}
 
-	c.FSM.GoTransitionWithData(StateNoServer, c.Servers)
+	c.FSM.GoTransition(StateNoServer)
 	return nil
 }
 
@@ -356,7 +356,7 @@ func (c *Client) AddSecureInternetHomeServer(orgID string) (err error) {
 		_ = c.RemoveSecureInternet()
 		return err
 	}
-	c.FSM.GoTransitionWithData(StateNoServer, c.Servers)
+	c.FSM.GoTransition(StateNoServer)
 	return nil
 }
 
@@ -404,7 +404,7 @@ func (c *Client) AddCustomServer(url string) (err error) {
 		return err
 	}
 
-	c.FSM.GoTransitionWithData(StateNoServer, c.Servers)
+	c.FSM.GoTransition(StateNoServer)
 	return nil
 }
 

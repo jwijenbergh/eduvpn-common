@@ -180,7 +180,7 @@ func (c *Client) GoBack() error {
 	}
 
 	// FIXME: Arbitrary back transitions don't work because we need the appropriate data
-	c.FSM.GoTransitionWithData(StateNoServer, c.Servers)
+	c.FSM.GoTransition(StateNoServer)
 	return nil
 }
 

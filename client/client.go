@@ -185,8 +185,8 @@ func (c *Client) Register(
 		log.Logger.Infof("Previous configuration not found")
 	}
 
-	// Go to the No Server state with the saved servers after we're done
-	defer c.FSM.GoTransitionWithData(StateNoServer, c.Servers)
+	// Go to the No Server state after we're done
+	defer c.FSM.GoTransition(StateNoServer)
 
 	// Let's Connect! doesn't care about discovery
 	if c.isLetsConnect() {
