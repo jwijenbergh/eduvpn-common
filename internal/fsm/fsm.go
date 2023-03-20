@@ -132,7 +132,7 @@ func (fsm *FSM) writeGraph() {
 func (fsm *FSM) GoTransitionRequired(newState StateID, data interface{}) error {
 	oldState := fsm.Current
 	if !fsm.GoTransitionWithData(newState, data) {
-		return errors.Errorf("fsm failed transition from '%v' to '%v'", oldState, newState)
+		return errors.Errorf("fsm failed transition from '%v' to '%v'", fsm.GetStateName(oldState), fsm.GetStateName(newState))
 	}
 	return nil
 }
