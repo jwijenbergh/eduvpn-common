@@ -1,6 +1,8 @@
 package client
 
 import (
+	"time"
+
 	"github.com/eduvpn/eduvpn-common/internal/failover"
 	"github.com/eduvpn/eduvpn-common/internal/http"
 	"github.com/eduvpn/eduvpn-common/internal/log"
@@ -10,11 +12,27 @@ import (
 	"github.com/go-errors/errors"
 )
 
-type ConfigData = server.ConfigData
+func getProtocol(protocol string) types.Protocol {
+	if protocol == "openvpn" {
+		return types.PROTOCOL_OPENVPN
+	} else if protocol == "wireguard" {
+		return types.PROTOCOL_WIREGUARD
+	}
+	return types.PROTOCOL_UNKNOWN
+}
+
+// TODO: This should not be reliant on an internal type
+func getTokens(tok oauth.Token) types.Tokens {
+	return types.Tokens{
+		Access: tok.Access,
+		Refresh: tok.Refresh,
+		Expires: tok.ExpiredTimestamp.Unix(),
+	}
+}
 
 // getConfigAuth gets a config with authorization and authentication.
 // It also asks for a profile if no valid profile is found.
-func (c *Client) getConfigAuth(srv server.Server, preferTCP bool, t oauth.Token) (*ConfigData, error) {
+func (c *Client) getConfigAuth(srv server.Server, preferTCP bool, t types.Tokens) (*types.Configuration, error) {
 	err := c.ensureLogin(srv, t)
 	if err != nil {
 		return nil, err
@@ -35,13 +53,32 @@ func (c *Client) getConfigAuth(srv server.Server, preferTCP bool, t oauth.Token)
 		}
 	}
 
-	// We return the error otherwise we wrap it too much
-	return server.Config(srv, c.SupportsWireguard, preferTCP)
+	// The profile has been chosen
+	c.FSM.GoTransition(StateChosenProfile)
+
+	cfg, err := server.Config(srv, c.SupportsWireguard, preferTCP)
+	if err != nil {
+		return nil, err
+	}
+
+	p, err := server.CurrentProfile(srv)
+	if err != nil {
+		return nil, err
+	}
+
+	pCfg := &types.Configuration{
+		VPNConfig:      cfg.Config,
+		Protocol:       getProtocol(cfg.Type),
+		DefaultGateway: p.DefaultGateway,
+		Tokens: getTokens(cfg.Tokens),
+	}
+
+	return pCfg, nil
 }
 
 // retryConfigAuth retries the getConfigAuth function if the tokens are invalid.
 // If OAuth is cancelled, it makes sure that we only forward the error as additional info.
-func (c *Client) retryConfigAuth(srv server.Server, preferTCP bool, t oauth.Token) (*ConfigData, error) {
+func (c *Client) retryConfigAuth(srv server.Server, preferTCP bool, t types.Tokens) (*types.Configuration, error) {
 	cfg, err := c.getConfigAuth(srv, preferTCP, t)
 	if err == nil {
 		return cfg, nil
@@ -50,7 +87,7 @@ func (c *Client) retryConfigAuth(srv server.Server, preferTCP bool, t oauth.Toke
 	tErr := &oauth.TokensInvalidError{}
 	if errors.As(err, &tErr) {
 		// TODO: Is passing empty tokens correct here?
-		cfg, err = c.getConfigAuth(srv, preferTCP, oauth.Token{})
+		cfg, err = c.getConfigAuth(srv, preferTCP, types.Tokens{})
 		if err == nil {
 			return cfg, nil
 		}
@@ -60,7 +97,7 @@ func (c *Client) retryConfigAuth(srv server.Server, preferTCP bool, t oauth.Toke
 }
 
 // getConfig gets an OpenVPN/WireGuard configuration by contacting the server, moving the FSM towards the DISCONNECTED state and then saving the local configuration file.
-func (c *Client) getConfig(srv server.Server, preferTCP bool, t oauth.Token) (*ConfigData, error) {
+func (c *Client) getConfig(srv server.Server, preferTCP bool, t types.Tokens) (*types.Configuration, error) {
 	if c.InFSMState(StateDeregistered) {
 		return nil, errors.Errorf("getConfig attempt in '%v'", StateDeregistered)
 	}
@@ -77,14 +114,6 @@ func (c *Client) getConfig(srv server.Server, preferTCP bool, t oauth.Token) (*C
 		return nil, err
 	}
 
-	srv1, err := c.Servers.GetCurrentServer()
-	if err != nil {
-		return nil, err
-	}
-
-	// Signal the server display info
-	c.FSM.GoTransitionWithData(StateDisconnected, srv1)
-
 	// Save the config
 	if err = c.Config.Save(&c); err != nil {
 		// TODO(jwijenbergh): Not sure why INFO level, yet stacktrace...
@@ -93,11 +122,13 @@ func (c *Client) getConfig(srv server.Server, preferTCP bool, t oauth.Token) (*C
 			err.Error(), err.(*errors.Error).ErrorStack())
 	}
 
+	c.FSM.GoTransition(StateGotConfig)
+
 	return cfg, nil
 }
 
 // Cleanup cleans up the VPN connection by sending a /disconnect to the server
-func (c *Client) Cleanup(ct oauth.Token) error {
+func (c *Client) Cleanup(ct types.Tokens) error {
 	srv, err := c.Servers.GetCurrentServer()
 	if err != nil {
 		c.logError(err)
@@ -106,7 +137,11 @@ func (c *Client) Cleanup(ct oauth.Token) error {
 
 	// If we need to relogin, update tokens
 	if server.NeedsRelogin(srv) {
-		server.UpdateTokens(srv, ct)
+		server.UpdateTokens(srv, oauth.Token{
+			Access:           ct.Access,
+			Refresh:          ct.Refresh,
+			ExpiredTimestamp: time.Unix(ct.Expires, 0),
+		})
 	}
 	// update tokens to client
 	defer c.ForwardTokenUpdate(srv)
@@ -125,6 +160,9 @@ func (c *Client) Cleanup(ct oauth.Token) error {
 // SetSecureLocation sets the location for the current secure location server. countryCode is the secure location to be chosen.
 // This function returns an error e.g. if the server cannot be found or the location is wrong.
 func (c *Client) SetSecureLocation(countryCode string) error {
+	if c.InFSMState(StateAskLocation) {
+		defer c.locationWg.Done()
+	}
 	// Not supported with Let's Connect!
 	if c.isLetsConnect() {
 		err := errors.Errorf("discovery with Let's Connect is not supported")
@@ -143,6 +181,7 @@ func (c *Client) SetSecureLocation(countryCode string) error {
 		c.goBackInternal()
 		c.logError(err)
 	}
+
 	return err
 }
 
@@ -213,7 +252,7 @@ func (c *Client) RemoveCustomServer(url string) error {
 }
 
 // AddInstituteServer adds an Institute Access server by `url`.
-func (c *Client) AddInstituteServer(url string) (srv server.Server, err error) {
+func (c *Client) AddInstituteServer(url string) (err error) {
 	defer func() {
 		if err != nil {
 			c.logError(err)
@@ -222,8 +261,7 @@ func (c *Client) AddInstituteServer(url string) (srv server.Server, err error) {
 
 	// Not supported with Let's Connect!
 	if c.isLetsConnect() {
-		err = errors.Errorf("discovery with Let's Connect is not supported")
-		return nil, err
+		return errors.Errorf("discovery with Let's Connect is not supported")
 	}
 
 	// Indicate that we're loading the server
@@ -235,42 +273,39 @@ func (c *Client) AddInstituteServer(url string) (srv server.Server, err error) {
 	dSrv, err = c.Discovery.ServerByURL(url, "institute_access")
 	if err != nil {
 		c.goBackInternal()
-		return nil, err
+		return err
 	}
 
 	// Add the secure internet server
-	srv, err = c.Servers.AddInstituteAccessServer(dSrv)
+	srv, err := c.Servers.AddInstituteAccessServer(dSrv)
 	if err != nil {
 		c.goBackInternal()
-		return nil, err
+		return err
 	}
 
 	// Set the server as the current so OAuth can be cancelled
 	if err = c.Servers.SetInstituteAccess(srv); err != nil {
 		c.goBackInternal()
-		return nil, err
+		return err
 	}
 
 	// Indicate that we want to authorize this server
 	c.FSM.GoTransition(StateChosenServer)
 
 	// Authorize it
-	if err = c.ensureLogin(srv, oauth.Token{}); err != nil {
+	if err = c.ensureLogin(srv, types.Tokens{}); err != nil {
 		// Removing is best effort
 		_ = c.RemoveInstituteAccess(url)
-		return nil, err
+		return err
 	}
 
 	c.FSM.GoTransitionWithData(StateNoServer, c.Servers)
-
-	// Also forward tokens using the callback
-	c.ForwardTokenUpdate(srv)
-	return srv, nil
+	return nil
 }
 
 // AddSecureInternetHomeServer adds a Secure Internet Home Server with `orgID` that was obtained from the Discovery file.
 // Because there is only one Secure Internet Home Server, it replaces the existing one.
-func (c *Client) AddSecureInternetHomeServer(orgID string) (srv server.Server, err error) {
+func (c *Client) AddSecureInternetHomeServer(orgID string) (err error) {
 	defer func() {
 		if err != nil {
 			c.logError(err)
@@ -279,7 +314,7 @@ func (c *Client) AddSecureInternetHomeServer(orgID string) (srv server.Server, e
 
 	// Not supported with Let's Connect!
 	if c.isLetsConnect() {
-		return nil, errors.Errorf("discovery with Let's Connect is not supported")
+		return errors.Errorf("discovery with Let's Connect is not supported")
 	}
 
 	// Indicate that we're loading the server
@@ -293,40 +328,47 @@ func (c *Client) AddSecureInternetHomeServer(orgID string) (srv server.Server, e
 		// However, this is nice as well because it also catches the error where the SecureInternetHome server is not found
 		c.Discovery.MarkOrganizationsExpired()
 		c.goBackInternal()
-		return nil, err
+		return err
 	}
 
 	// Add the secure internet server
-	srv, err = c.Servers.AddSecureInternet(org, dSrv)
+	srv, err := c.Servers.AddSecureInternet(org, dSrv)
 	if err != nil {
 		c.goBackInternal()
-		return nil, err
+		return err
 	}
+
+	// TODO(jwijenbergh): Does this call transfers execution flow to UI?
+	if err = c.askSecureLocation(); err != nil {
+		// Removing is the best effort
+		// This already goes back to the main screen
+		_ = c.RemoveSecureInternet()
+		return err
+	}
+
+	c.FSM.GoTransition(StateChosenLocation)
 
 	// Set the server as the current so OAuth can be cancelled
 	if err = c.Servers.SetSecureInternet(srv); err != nil {
 		c.goBackInternal()
-		return nil, err
+		return err
 	}
 
 	// Server has been chosen for authentication
 	c.FSM.GoTransition(StateChosenServer)
 
 	// Authorize it
-	if err = c.ensureLogin(srv, oauth.Token{}); err != nil {
+	if err = c.ensureLogin(srv, types.Tokens{}); err != nil {
 		// Removing is best effort
 		_ = c.RemoveSecureInternet()
-		return nil, err
+		return err
 	}
 	c.FSM.GoTransitionWithData(StateNoServer, c.Servers)
-
-	// Also forward tokens using the callback
-	c.ForwardTokenUpdate(srv)
-	return srv, nil
+	return nil
 }
 
 // AddCustomServer adds a Custom Server by `url`.
-func (c *Client) AddCustomServer(url string) (srv server.Server, err error) {
+func (c *Client) AddCustomServer(url string) (err error) {
 	defer func() {
 		if err != nil {
 			c.logError(err)
@@ -334,7 +376,7 @@ func (c *Client) AddCustomServer(url string) (srv server.Server, err error) {
 	}()
 
 	if url, err = http.EnsureValidURL(url); err != nil {
-		return nil, err
+		return err
 	}
 
 	// Indicate that we're loading the server
@@ -347,38 +389,36 @@ func (c *Client) AddCustomServer(url string) (srv server.Server, err error) {
 	}
 
 	// A custom server is just an institute access server under the hood
-	if srv, err = c.Servers.AddCustomServer(customServer); err != nil {
+	srv, err := c.Servers.AddCustomServer(customServer)
+	if err != nil {
 		c.goBackInternal()
-		return nil, err
+		return err
 	}
 
 	// Set the server as the current so OAuth can be cancelled
 	if err = c.Servers.SetCustomServer(srv); err != nil {
 		c.goBackInternal()
-		return nil, err
+		return err
 	}
 
 	// Server has been chosen for authentication
 	c.FSM.GoTransition(StateChosenServer)
 
 	// Authorize it
-	if err = c.ensureLogin(srv, oauth.Token{}); err != nil {
+	if err = c.ensureLogin(srv, types.Tokens{}); err != nil {
 		// removing is best effort
 		_ = c.RemoveCustomServer(url)
-		return nil, err
+		return err
 	}
 
 	c.FSM.GoTransitionWithData(StateNoServer, c.Servers)
-
-	// Also forward tokens using the callback
-	c.ForwardTokenUpdate(srv)
-	return srv, nil
+	return nil
 }
 
 // GetConfigInstituteAccess gets a configuration for an Institute Access Server.
 // It ensures that the Institute Access Server exists by creating or using an existing one with the url.
 // `preferTCP` indicates that the client wants to use TCP (through OpenVPN) to establish the VPN tunnel.
-func (c *Client) GetConfigInstituteAccess(url string, preferTCP bool, t oauth.Token) (cfg *ConfigData, err error) {
+func (c *Client) GetConfigInstituteAccess(url string, preferTCP bool, t types.Tokens) (cfg *types.Configuration, err error) {
 	defer func() {
 		if err != nil {
 			c.logError(err)
@@ -420,7 +460,7 @@ func (c *Client) GetConfigInstituteAccess(url string, preferTCP bool, t oauth.To
 // GetConfigSecureInternet gets a configuration for a Secure Internet Server.
 // It ensures that the Secure Internet Server exists by creating or using an existing one with the orgID.
 // `preferTCP` indicates that the client wants to use TCP (through OpenVPN) to establish the VPN tunnel.
-func (c *Client) GetConfigSecureInternet(orgID string, preferTCP bool, t oauth.Token) (cfg *ConfigData, err error) {
+func (c *Client) GetConfigSecureInternet(orgID string, preferTCP bool, t types.Tokens) (cfg *types.Configuration, err error) {
 	defer func() {
 		if err != nil {
 			c.logError(err)
@@ -463,7 +503,7 @@ func (c *Client) GetConfigSecureInternet(orgID string, preferTCP bool, t oauth.T
 // GetConfigCustomServer gets a configuration for a Custom Server.
 // It ensures that the Custom Server exists by creating or using an existing one with the url.
 // `preferTCP` indicates that the client wants to use TCP (through OpenVPN) to establish the VPN tunnel.
-func (c *Client) GetConfigCustomServer(url string, preferTCP bool, t oauth.Token) (cfg *ConfigData, err error) {
+func (c *Client) GetConfigCustomServer(url string, preferTCP bool, t types.Tokens) (cfg *types.Configuration, err error) {
 	defer func() {
 		if err != nil {
 			c.logError(err)
@@ -505,36 +545,19 @@ func (c *Client) GetConfigCustomServer(url string, preferTCP bool, t oauth.Token
 func (c *Client) askSecureLocation() error {
 	loc := c.Discovery.SecureLocationList()
 
+	c.locationWg.Add(1)
 	// Ask for the location in the callback
 	if err := c.FSM.GoTransitionRequired(StateAskLocation, loc); err != nil {
 		return err
 	}
+
+	c.locationWg.Wait()
 
 	// The state has changed, meaning setting the secure location was not successful
 	if c.FSM.Current != StateAskLocation {
 		log.Logger.Debugf("fsm failed to transit; expected %v / actual %v", GetStateName(StateAskLocation), GetStateName(c.FSM.Current))
 		return errors.New("failed loading secure internet location")
 	}
-	return nil
-}
-
-// ChangeSecureLocation changes the location for an existing Secure Internet Server.
-// Changing a secure internet location is only possible when the user is in the main screen (STATE_NO_SERVER), otherwise it returns an error.
-// It also returns an error if something has gone wrong when selecting the new location.
-func (c *Client) ChangeSecureLocation() error {
-	if !c.InFSMState(StateNoServer) {
-		return errors.Errorf("ChangeSecureLocation attempt in %v (only %v allowed)",
-			c.FSM.Current, StateNoServer)
-	}
-
-	if err := c.askSecureLocation(); err != nil {
-		c.logError(err)
-		return err
-	}
-
-	// Go back to the main screen
-	c.FSM.GoTransitionWithData(StateNoServer, c.Servers)
-
 	return nil
 }
 
@@ -553,26 +576,19 @@ func (c *Client) RenewSession() (err error) {
 	}
 
 	// The server has not been chosen yet, this means that we want to manually renew
-	if c.FSM.InState(StateNoServer) {
+	if !c.FSM.InState(StateChosenServer) {
+		c.FSM.GoTransition(StateLoadingServer)
 		c.FSM.GoTransition(StateChosenServer)
 	}
 
 	server.MarkTokensForRenew(srv)
-	err = c.ensureLogin(srv, oauth.Token{})
-	c.ForwardTokenUpdate(srv)
-	return err
+	return c.ensureLogin(srv, types.Tokens{})
 }
 
 // ShouldRenewButton returns true if the renew button should be shown
 // If there is no server then this returns false and logs with INFO if so
 // In other cases it simply checks the expiry time and calculates according to: https://github.com/eduvpn/documentation/blob/b93854dcdd22050d5f23e401619e0165cb8bc591/API.md#session-expiry.
 func (c *Client) ShouldRenewButton() bool {
-	if !c.InFSMState(StateConnected) && !c.InFSMState(StateConnecting) &&
-		!c.InFSMState(StateDisconnected) &&
-		!c.InFSMState(StateDisconnecting) {
-		return false
-	}
-
 	srv, err := c.Servers.GetCurrentServer()
 	if err != nil {
 		log.Logger.Infof("no server to renew: %s\nstacktrace:\n%s", err.Error(), err.(*errors.Error).ErrorStack())
@@ -584,7 +600,7 @@ func (c *Client) ShouldRenewButton() bool {
 
 // ensureLogin logs the user back in if needed.
 // It runs the FSM transitions to ask for user input.
-func (c *Client) ensureLogin(srv server.Server, ct oauth.Token) (err error) {
+func (c *Client) ensureLogin(srv server.Server, t types.Tokens) (err error) {
 	// Relogin with oauth
 	// This moves the state to authorized
 	if !server.NeedsRelogin(srv) {
@@ -594,7 +610,11 @@ func (c *Client) ensureLogin(srv server.Server, ct oauth.Token) (err error) {
 	}
 
 	// Try again but update the tokens using the client provided tokens
-	server.UpdateTokens(srv, ct)
+	server.UpdateTokens(srv, oauth.Token{
+		Access:           t.Access,
+		Refresh:          t.Refresh,
+		ExpiredTimestamp: time.Unix(t.Expires, 0),
+	})
 	if !server.NeedsRelogin(srv) {
 		// OAuth was valid, ensure we are in the authorized state
 		c.FSM.GoTransition(StateAuthorized)
@@ -630,6 +650,9 @@ func (c *Client) ensureLogin(srv server.Server, ct oauth.Token) (err error) {
 // SetProfileID sets a `profileID` for the current server.
 // An error is returned if this is not possible, for example when no server is configured.
 func (c *Client) SetProfileID(profileID string) (err error) {
+	if c.InFSMState(StateAskProfile) {
+		defer c.profileWg.Done()
+	}
 	defer func() {
 		if err != nil {
 			c.logError(err)
@@ -648,6 +671,7 @@ func (c *Client) SetProfileID(profileID string) (err error) {
 		return err
 	}
 	b.Profiles.Current = profileID
+
 	return nil
 }
 
