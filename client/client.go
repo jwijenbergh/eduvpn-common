@@ -15,6 +15,7 @@ import (
 	"github.com/eduvpn/eduvpn-common/internal/oauth"
 	"github.com/eduvpn/eduvpn-common/internal/server"
 	"github.com/eduvpn/eduvpn-common/types"
+	"github.com/eduvpn/eduvpn-common/types/protocol"
 	"github.com/go-errors/errors"
 )
 
@@ -309,9 +310,10 @@ func (c *Client) ExpiryTimes() (*types.Expiry, error) {
 func convertProfiles(profiles server.ProfileInfo) types.Profiles {
 	m := make(map[string]types.Profile)
 	for _, p := range profiles.Info.ProfileList {
-		var protocols []types.Protocol
-		for _, protocol := range p.VPNProtoList {
-			protocols = append(protocols, getProtocol(protocol))
+		var protocols []protocol.Protocol
+		// loop through all protocol strings
+		for _, ps := range p.VPNProtoList {
+			protocols = append(protocols, protocol.New(ps))
 		}
 		m[p.ID] = types.Profile{
 			DisplayName: map[string]string{

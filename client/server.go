@@ -9,17 +9,9 @@ import (
 	"github.com/eduvpn/eduvpn-common/internal/oauth"
 	"github.com/eduvpn/eduvpn-common/internal/server"
 	"github.com/eduvpn/eduvpn-common/types"
+	"github.com/eduvpn/eduvpn-common/types/protocol"
 	"github.com/go-errors/errors"
 )
-
-func getProtocol(protocol string) types.Protocol {
-	if protocol == "openvpn" {
-		return types.PROTOCOL_OPENVPN
-	} else if protocol == "wireguard" {
-		return types.PROTOCOL_WIREGUARD
-	}
-	return types.PROTOCOL_UNKNOWN
-}
 
 // TODO: This should not be reliant on an internal type
 func getTokens(tok oauth.Token) types.Tokens {
@@ -68,7 +60,7 @@ func (c *Client) getConfigAuth(srv server.Server, preferTCP bool, t types.Tokens
 
 	pCfg := &types.Configuration{
 		VPNConfig:      cfg.Config,
-		Protocol:       getProtocol(cfg.Type),
+		Protocol:       protocol.New(cfg.Type),
 		DefaultGateway: p.DefaultGateway,
 		Tokens: getTokens(cfg.Tokens),
 	}

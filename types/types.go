@@ -4,6 +4,8 @@ package types
 import (
 	"encoding/json"
 	"time"
+
+	"github.com/eduvpn/eduvpn-common/types/protocol"
 )
 
 // TODO: Discovery here is the same as the upstream discovery format, should we separate this as well?
@@ -75,21 +77,10 @@ type Expiry struct {
 	NotificationTimes []int64 `json:"notification_times"`
 }
 
-type Protocol int8
-
-const (
-	// PROTOCOL_UNKNOWN indicates that the protocol is not known
-	PROTOCOL_UNKNOWN Protocol = iota
-	// PROTOCOL_OPENVPN indicates that the protocol is OpenVPN
-	PROTOCOL_OPENVPN
-	// PROTOCOL_WIREGUARD indicates that the protocol is WireGuard
-	PROTOCOL_WIREGUARD
-)
-
 type Profile struct {
 	Identifier  string            `json:"identifier"`
 	DisplayName map[string]string `json:"display_name,omitempty"`
-	Protocols   []Protocol        `json:"supported_protocols"`
+	Protocols   []protocol.Protocol        `json:"supported_protocols"`
 }
 
 type Profiles struct {
@@ -128,7 +119,7 @@ type ServerList struct {
 
 type Configuration struct {
 	VPNConfig      string   `json:"config"`
-	Protocol       Protocol `json:"protocol"`
+	Protocol       protocol.Protocol `json:"protocol"`
 	DefaultGateway bool     `json:"default_gateway"`
 	Tokens         Tokens   `json:"tokens"`
 }
