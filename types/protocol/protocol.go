@@ -12,7 +12,7 @@ const (
 )
 
 func New(p string) Protocol {
-	switch(p) {
+	switch p {
 	case "openvpn":
 		return OpenVPN
 	case "wireguard":

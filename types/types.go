@@ -70,17 +70,17 @@ type DiscoveryServer struct {
 }
 
 type Expiry struct {
-	StartTime int64 `json:"start_time"`
-	EndTime int64 `json:"end_time"`
-	ButtonTime int64 `json:"button_time"`
-	CountdownTime int64 `json:"countdown_time"`
+	StartTime         int64   `json:"start_time"`
+	EndTime           int64   `json:"end_time"`
+	ButtonTime        int64   `json:"button_time"`
+	CountdownTime     int64   `json:"countdown_time"`
 	NotificationTimes []int64 `json:"notification_times"`
 }
 
 type Profile struct {
-	Identifier  string            `json:"identifier"`
-	DisplayName map[string]string `json:"display_name,omitempty"`
-	Protocols   []protocol.Protocol        `json:"supported_protocols"`
+	Identifier  string              `json:"identifier"`
+	DisplayName map[string]string   `json:"display_name,omitempty"`
+	Protocols   []protocol.Protocol `json:"supported_protocols"`
 }
 
 type Profiles struct {
@@ -118,10 +118,10 @@ type ServerList struct {
 }
 
 type Configuration struct {
-	VPNConfig      string   `json:"config"`
+	VPNConfig      string            `json:"config"`
 	Protocol       protocol.Protocol `json:"protocol"`
-	DefaultGateway bool     `json:"default_gateway"`
-	Tokens         Tokens   `json:"tokens"`
+	DefaultGateway bool              `json:"default_gateway"`
+	Tokens         Tokens            `json:"tokens"`
 }
 
 type ServerType int8

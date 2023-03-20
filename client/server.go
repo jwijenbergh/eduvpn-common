@@ -16,7 +16,7 @@ import (
 // TODO: This should not be reliant on an internal type
 func getTokens(tok oauth.Token) types.Tokens {
 	return types.Tokens{
-		Access: tok.Access,
+		Access:  tok.Access,
 		Refresh: tok.Refresh,
 		Expires: tok.ExpiredTimestamp.Unix(),
 	}
@@ -62,7 +62,7 @@ func (c *Client) getConfigAuth(srv server.Server, preferTCP bool, t types.Tokens
 		VPNConfig:      cfg.Config,
 		Protocol:       protocol.New(cfg.Type),
 		DefaultGateway: p.DefaultGateway,
-		Tokens: getTokens(cfg.Tokens),
+		Tokens:         getTokens(cfg.Tokens),
 	}
 
 	return pCfg, nil

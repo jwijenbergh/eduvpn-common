@@ -299,10 +299,10 @@ func (c *Client) ExpiryTimes() (*types.Expiry, error) {
 	cT := b.CountdownTime()
 	nT := b.NotificationTimes()
 	return &types.Expiry{
-		StartTime: b.StartTime.Unix(),
-		EndTime: b.EndTime.Unix(),
-		ButtonTime: bT,
-		CountdownTime: cT,
+		StartTime:         b.StartTime.Unix(),
+		EndTime:           b.EndTime.Unix(),
+		ButtonTime:        bT,
+		CountdownTime:     cT,
 		NotificationTimes: nT,
 	}, nil
 }
