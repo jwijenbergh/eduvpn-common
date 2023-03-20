@@ -64,18 +64,18 @@ def initialize_functions(lib: CDLL) -> None:
     lib.DiscoOrganizations.argtypes, lib.DiscoOrganizations.restype = [], DataError
     lib.DiscoServers.argtypes, lib.DiscoServers.restype = [], DataError
     lib.GetConfig.argtypes, lib.GetConfig.restype = [
-        c_char_p,
+        c_int,
         c_char_p,
         c_int,
         c_char_p,
     ], DataError
     lib.AddServer.argtypes, lib.AddServer.restype = [
-        c_char_p,
+        c_int,
         c_char_p,
     ], c_char_p
     lib.CurrentServer.argtypes, lib.CurrentServer.restype = [], DataError
     lib.RemoveServer.argtypes, lib.RemoveServer.restype = [
-        c_char_p,
+        c_int,
         c_char_p,
     ], c_char_p
     lib.ServerList.argtypes, lib.ServerList.restype = [], DataError

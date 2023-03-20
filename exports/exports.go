@@ -178,20 +178,20 @@ func CancelOAuth() *C.char {
 }
 
 //export AddServer
-func AddServer(_type *C.char, id *C.char) *C.char {
+func AddServer(_type C.int, id *C.char) *C.char {
 	// TODO: type
 	state, stateErr := getVPNState()
 	if stateErr != nil {
 		return getCError(stateErr)
 	}
-	t := C.GoString(_type)
+	t := int(_type)
 	var err error
 	switch t {
-	case "institute_access":
-		err = state.AddInstituteServer(C.GoString(id))
-	case "secure_internet":
+	case int(srvtypes.TypeInstituteAccess):
+	     err = state.AddInstituteServer(C.GoString(id))
+	case int(srvtypes.TypeSecureInternet):
 		err = state.AddSecureInternetHomeServer(C.GoString(id))
-	case "custom_server":
+	case int(srvtypes.TypeCustom):
 		err = state.AddCustomServer(C.GoString(id))
 	default:
 		err = errors.Errorf("invalid type: %v", t)
@@ -200,19 +200,19 @@ func AddServer(_type *C.char, id *C.char) *C.char {
 }
 
 //export RemoveServer
-func RemoveServer(_type *C.char, id *C.char) *C.char {
+func RemoveServer(_type C.int, id *C.char) *C.char {
 	state, stateErr := getVPNState()
 	if stateErr != nil {
 		return getCError(stateErr)
 	}
-	t := C.GoString(_type)
+	t := int(_type)
 	var err error
 	switch t {
-	case "institute_access":
+	case int(srvtypes.TypeInstituteAccess):
 		err = state.RemoveInstituteAccess(C.GoString(id))
-	case "secure_internet":
+	case int(srvtypes.TypeSecureInternet):
 		err = state.RemoveSecureInternet()
-	case "custom_server":
+	case int(srvtypes.TypeCustom):
 		err = state.RemoveCustomServer(C.GoString(id))
 	default:
 		err = errors.Errorf("invalid type: %v", t)
@@ -255,7 +255,7 @@ func ServerList() (*C.char, *C.char) {
 }
 
 //export GetConfig
-func GetConfig(_type *C.char, id *C.char, pTCP C.int, tokens *C.char) (*C.char, *C.char) {
+func GetConfig(_type C.int, id *C.char, pTCP C.int, tokens *C.char) (*C.char, *C.char) {
 	state, stateErr := getVPNState()
 	if stateErr != nil {
 		return nil, getCError(stateErr)
@@ -265,14 +265,14 @@ func GetConfig(_type *C.char, id *C.char, pTCP C.int, tokens *C.char) (*C.char, 
 	if err != nil {
 		return nil, getCError(err)
 	}
-	t := C.GoString(_type)
+	t := int(_type)
 	var cfg *srvtypes.Configuration
 	switch t {
-	case "institute_access":
+	case int(srvtypes.TypeInstituteAccess):
 		cfg, err = state.GetConfigInstituteAccess(C.GoString(id), preferTCPBool, tok)
-	case "secure_internet":
+	case int(srvtypes.TypeSecureInternet):
 		cfg, err = state.GetConfigSecureInternet(C.GoString(id), preferTCPBool, tok)
-	case "custom_server":
+	case int(srvtypes.TypeCustom):
 		cfg, err = state.GetConfigCustomServer(C.GoString(id), preferTCPBool, tok)
 	default:
 		err = errors.Errorf("invalid type: %v", t)

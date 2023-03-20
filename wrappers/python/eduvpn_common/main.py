@@ -1,3 +1,4 @@
+from enum import IntEnum
 from typing import Any, Callable, Iterator, Optional
 
 from eduvpn_common.loader import initialize_functions, load_lib
@@ -14,6 +15,13 @@ def forwardError(error: bytes | str):
     if isinstance(error, str):
         raise WrappedError(error)
     raise WrappedError(error.decode("utf-8"))
+
+
+class ServerType(IntEnum):
+    UNKNOWN = 0
+    INSTITUTE_ACCESS = 1
+    SECURE_INTERNET = 2
+    CUSTOM = 3
 
 
 class EduVPN(object):
@@ -93,15 +101,15 @@ class EduVPN(object):
         if register_err:
             forwardError(register_err)
 
-    def add_server(self, _type: str, _id: str) -> None:
+    def add_server(self, _type: ServerType, _id: str) -> None:
         """Add a server
 
-        :param _type: str: The type of server: "institute_access", "secure_internet" or "custom_server"
+        :param _type: ServerType: The type of server e.g. SERVER.INSTITUTE_ACCESS
         :param _id: str: The identifier of the server, e.g. "https://vpn.example.com/"
 
         :raises WrappedError: An error by the Go library
         """
-        add_err = self.go_function(self.lib.AddServer, _type, _id)
+        add_err = self.go_function(self.lib.AddServer, int(_type), _id)
 
         if add_err:
             forwardError(add_err)
@@ -140,25 +148,25 @@ class EduVPN(object):
             forwardError(servers_err)
         return servers
 
-    def remove_server(self, _type: str, _id: str) -> None:
+    def remove_server(self, _type: ServerType, _id: str) -> None:
         """Remove a server
 
-        :param _type: str: The type of server: "institute_access", "secure_internet" or "custom_server"
+        :param _type: ServerType: The type of server e.g. SERVER.INSTITUTE_ACCESS
         :param _id: str: The identifier of the server, e.g. "https://vpn.example.com/"
 
         :raises WrappedError: An error by the Go library
         """
-        remove_err = self.go_function(self.lib.RemoveServer, _type, _id)
+        remove_err = self.go_function(self.lib.RemoveServer, int(_type), _id)
 
         if remove_err:
             forwardError(remove_err)
 
     def get_config(
-        self, _type: str, identifier: str, prefer_tcp: bool = False, tokens: str = "{}"
+        self, _type: ServerType, identifier: str, prefer_tcp: bool = False, tokens: str = "{}"
     ) -> Optional[str]:
         """Get an OpenVPN/WireGuard configuration from the server
 
-        :param _type: str: The type of server: "institute_access", "secure_internet" or "custom_server"
+        :param _type: ServerType: The type of server e.g. SERVER.INSTITUTE_ACCESS
         :param identifier: str: The identifier of the server, e.g. URL or ORG ID
         :param prefer_tcp: bool:  (Default value = False): Whether or not to prefer TCP
         :param tokens: str  (Defualt value = ""): The OAuth tokens if available
