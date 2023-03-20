@@ -62,7 +62,6 @@ func getReturnData(data interface{}) (string, error) {
 }
 
 func StateCallback(
-	state *client.Client,
 	oldState client.FSMStateID,
 	newState client.FSMStateID,
 	data interface{},
@@ -97,20 +96,18 @@ func Register(
 	stateCallback C.StateCB,
 	debug C.int,
 ) *C.char {
-	state, stateErr := getVPNState()
+	_, stateErr := getVPNState()
 	if stateErr == nil {
 		return getCError(errors.New("failed to register, a VPN state is already present"))
 	}
-	state = &client.Client{}
+	state := &client.Client{}
 	VPNState = state
 	PStateCallback = stateCallback
 	registerErr := state.Register(
 		C.GoString(name),
 		C.GoString(version),
 		C.GoString(configDirectory),
-		func(old client.FSMStateID, new client.FSMStateID, data interface{}) bool {
-			return StateCallback(state, old, new, data)
-		},
+		StateCallback,
 		debug == 1,
 	)
 

@@ -12,7 +12,8 @@ import (
 	"time"
 
 	httpw "github.com/eduvpn/eduvpn-common/internal/http"
-	"github.com/eduvpn/eduvpn-common/internal/oauth"
+	"github.com/eduvpn/eduvpn-common/types/protocol"
+	srvtypes "github.com/eduvpn/eduvpn-common/types/server"
 	"github.com/go-errors/errors"
 )
 
@@ -80,7 +81,6 @@ func TestServer(t *testing.T) {
 		"org.letsconnect-vpn.app.linux",
 		"0.1.0-test",
 		"configstest",
-		"en",
 		func(old FSMStateID, new FSMStateID, data interface{}) bool {
 			stateCallback(t, old, new, data, state)
 			return true
@@ -91,11 +91,11 @@ func TestServer(t *testing.T) {
 		t.Fatalf("Register error: %v", registerErr)
 	}
 
-	_, addErr := state.AddCustomServer(serverURI)
+	addErr := state.AddCustomServer(serverURI)
 	if addErr != nil {
 		t.Fatalf("Add error: %v", addErr)
 	}
-	_, configErr := state.GetConfigCustomServer(serverURI, false, oauth.Token{})
+	_, configErr := state.GetConfigCustomServer(serverURI, false, srvtypes.Tokens{})
 	if configErr != nil {
 		t.Fatalf("Connect error: %v", configErr)
 	}
@@ -114,7 +114,6 @@ func testConnectOAuthParameter(
 		"org.letsconnect-vpn.app.linux",
 		"0.1.0-test",
 		configDirectory,
-		"en",
 		func(oldState FSMStateID, newState FSMStateID, data interface{}) bool {
 			if newState == StateOAuthStarted {
 				server, serverErr := state.Servers.GetCustomServer(serverURI)
@@ -157,7 +156,7 @@ func testConnectOAuthParameter(
 		t.Fatalf("Register error: %v", registerErr)
 	}
 
-	_, err := state.AddCustomServer(serverURI)
+	err := state.AddCustomServer(serverURI)
 
 	if errPrefix == "" {
 		if err != nil {
@@ -245,7 +244,6 @@ func TestTokenExpired(t *testing.T) {
 		"org.letsconnect-vpn.app.linux",
 		"0.1.0-test",
 		"configsexpired",
-		"en",
 		func(old FSMStateID, new FSMStateID, data interface{}) bool {
 			stateCallback(t, old, new, data, state)
 			return true
@@ -256,12 +254,12 @@ func TestTokenExpired(t *testing.T) {
 		t.Fatalf("Register error: %v", registerErr)
 	}
 
-	_, addErr := state.AddCustomServer(serverURI)
+	addErr := state.AddCustomServer(serverURI)
 	if addErr != nil {
 		t.Fatalf("Add error: %v", addErr)
 	}
 
-	_, configErr := state.GetConfigCustomServer(serverURI, false, oauth.Token{})
+	_, configErr := state.GetConfigCustomServer(serverURI, false, srvtypes.Tokens{})
 
 	if configErr != nil {
 		t.Fatalf("Connect error before expired: %v", configErr)
@@ -282,7 +280,7 @@ func TestTokenExpired(t *testing.T) {
 	// Wait for TTL so that the tokens expire
 	time.Sleep(time.Duration(expiredInt) * time.Second)
 
-	_, configErr = state.GetConfigCustomServer(serverURI, false, oauth.Token{})
+	_, configErr = state.GetConfigCustomServer(serverURI, false, srvtypes.Tokens{})
 
 	if configErr != nil {
 		t.Fatalf("Connect error after expiry: %v", configErr)
@@ -308,7 +306,6 @@ func TestInvalidProfileCorrected(t *testing.T) {
 		"org.letsconnect-vpn.app.linux",
 		"0.1.0-test",
 		"configscancelprofile",
-		"en",
 		func(old FSMStateID, new FSMStateID, data interface{}) bool {
 			stateCallback(t, old, new, data, state)
 			return true
@@ -319,12 +316,12 @@ func TestInvalidProfileCorrected(t *testing.T) {
 		t.Fatalf("Register error: %v", registerErr)
 	}
 
-	_, addErr := state.AddCustomServer(serverURI)
+	addErr := state.AddCustomServer(serverURI)
 	if addErr != nil {
 		t.Fatalf("Add error: %v", addErr)
 	}
 
-	_, configErr := state.GetConfigCustomServer(serverURI, false, oauth.Token{})
+	_, configErr := state.GetConfigCustomServer(serverURI, false, srvtypes.Tokens{})
 
 	if configErr != nil {
 		t.Fatalf("First connect error: %v", configErr)
@@ -343,8 +340,7 @@ func TestInvalidProfileCorrected(t *testing.T) {
 	previousProfile := base.Profiles.Current
 	base.Profiles.Current = "IDONOTEXIST"
 
-	_, configErr = state.GetConfigCustomServer(serverURI, false, oauth.Token{})
-
+	_, configErr = state.GetConfigCustomServer(serverURI, false, srvtypes.Tokens{})
 	if configErr != nil {
 		t.Fatalf("Second connect error: %v", configErr)
 	}
@@ -367,7 +363,6 @@ func TestPreferTCP(t *testing.T) {
 		"org.letsconnect-vpn.app.linux",
 		"0.1.0-test",
 		"configsprefertcp",
-		"en",
 		func(old FSMStateID, new FSMStateID, data interface{}) bool {
 			stateCallback(t, old, new, data, state)
 			return true
@@ -378,16 +373,16 @@ func TestPreferTCP(t *testing.T) {
 		t.Fatalf("Register error: %v", registerErr)
 	}
 
-	_, addErr := state.AddCustomServer(serverURI)
+	addErr := state.AddCustomServer(serverURI)
 	if addErr != nil {
 		t.Fatalf("Add error: %v", addErr)
 	}
 
 	// get a config with preferTCP set to true
-	config, configErr := state.GetConfigCustomServer(serverURI, true, oauth.Token{})
+	config, configErr := state.GetConfigCustomServer(serverURI, true, srvtypes.Tokens{})
 
 	// Test server should accept prefer TCP!
-	if config.Type != "openvpn" {
+	if config.Protocol != protocol.OpenVPN {
 		t.Fatalf("Invalid protocol for prefer TCP, got: WireGuard, want: OpenVPN")
 	}
 
@@ -396,20 +391,20 @@ func TestPreferTCP(t *testing.T) {
 	}
 
 	// We also test for script security 0 here
-	if !strings.HasSuffix(config.Config, "udp\nscript-security 0") {
-		t.Fatalf("Suffix for prefer TCP is not in the right order for config: %s", config)
+	if !strings.HasSuffix(config.VPNConfig, "udp\nscript-security 0") {
+		t.Fatalf("Suffix for prefer TCP is not in the right order for config: %s", config.VPNConfig)
 	}
 
 	// get a config with preferTCP set to false
-	config, configErr = state.GetConfigCustomServer(serverURI, false, oauth.Token{})
+	config, configErr = state.GetConfigCustomServer(serverURI, false, srvtypes.Tokens{})
 	if configErr != nil {
 		t.Fatalf("Config error: %v", configErr)
 	}
 
 	// We also test for script security 0 here
-	if config.Type == "openvpn" &&
-		!strings.HasSuffix(config.Config, "tcp\nscript-security 0") {
-		t.Fatalf("Suffix for disable prefer TCP is not in the right order for config: %s", config.Config)
+	if config.Protocol == protocol.OpenVPN &&
+		!strings.HasSuffix(config.VPNConfig, "tcp\nscript-security 0") {
+		t.Fatalf("Suffix for disable prefer TCP is not in the right order for config: %s", config.VPNConfig)
 	}
 }
 
@@ -429,7 +424,6 @@ func TestInvalidClientID(t *testing.T) {
 			k,
 			"0.1.0-test",
 			"configsclientid",
-			"en",
 			func(old FSMStateID, new FSMStateID, data interface{}) bool {
 				stateCallback(t, old, new, data, state)
 				return true

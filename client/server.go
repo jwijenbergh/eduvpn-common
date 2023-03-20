@@ -453,7 +453,8 @@ func (c *Client) GetConfigInstituteAccess(url string, preferTCP bool, t srvtypes
 // GetConfigSecureInternet gets a configuration for a Secure Internet Server.
 // It ensures that the Secure Internet Server exists by creating or using an existing one with the orgID.
 // `preferTCP` indicates that the client wants to use TCP (through OpenVPN) to establish the VPN tunnel.
-func (c *Client) GetConfigSecureInternet(orgID string, preferTCP bool, t srvtypes.Tokens) (cfg *srvtypes.Configuration, err error) {
+// TODO: Check on first argument orgID
+func (c *Client) GetConfigSecureInternet(_ string, preferTCP bool, t srvtypes.Tokens) (cfg *srvtypes.Configuration, err error) {
 	defer func() {
 		if err != nil {
 			c.logError(err)

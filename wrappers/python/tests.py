@@ -2,11 +2,8 @@
 
 import unittest
 import eduvpn_common.main as eduvpn
-from eduvpn_common.state import State, StateType
-import webbrowser
 import sys
 import os
-import json
 
 # Import project root directory where the selenium python utility is
 sys.path.append(
@@ -15,16 +12,15 @@ sys.path.append(
 
 from selenium_eduvpn import login_eduvpn
 
+def handler(_old_state, new_state, data):
+    if new_state == 6:
+        login_eduvpn(data)
 
 class ConfigTests(unittest.TestCase):
     def testConfig(self):
-        _eduvpn = eduvpn.EduVPN("org.letsconnect-vpn.app.linux", "0.1.0", "testconfigs", "en")
+        _eduvpn = eduvpn.EduVPN("org.letsconnect-vpn.app.linux", "0.1.0", "testconfigs")
         # This can throw an exception
-        _eduvpn.register()
-
-        @_eduvpn.event.on(State.OAUTH_STARTED, StateType.ENTER)
-        def oauth_initialized(old_state, url_json):
-            login_eduvpn(url_json)
+        _eduvpn.register(handler=handler)
 
         server_uri = os.getenv("SERVER_URI")
         if not server_uri:
@@ -33,14 +29,14 @@ class ConfigTests(unittest.TestCase):
             return
 
         # This can throw an exception
-        _eduvpn.add_custom_server(server_uri)
-        _eduvpn.get_config_custom_server(server_uri)
+        _eduvpn.add_server(eduvpn.ServerType.CUSTOM, server_uri)
+        _eduvpn.get_config(eduvpn.ServerType.CUSTOM, server_uri)
 
         # Deregister
         _eduvpn.deregister()
 
     def testDoubleRegister(self):
-        _eduvpn = eduvpn.EduVPN("org.letsconnect-vpn.app.linux", "0.1.0", "testconfigs", "en")
+        _eduvpn = eduvpn.EduVPN("org.letsconnect-vpn.app.linux", "0.1.0", "testconfigs")
         # This can throw an exception
         _eduvpn.register()
         # This should throw

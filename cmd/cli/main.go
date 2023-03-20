@@ -110,7 +110,7 @@ func sendProfile(state *client.Client, data interface{}) {
 	for k, v := range sps.Map {
 		ps += fmt.Sprintf("\n%d - %s", i+1, GetLanguageMatched(v.DisplayName, "en"))
 		options = append(options, k)
-		i += 1
+		i++
 	}
 
 	// Show the profiles
