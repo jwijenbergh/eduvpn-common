@@ -20,7 +20,6 @@ type Expiry struct {
 }
 
 type Profile struct {
-	Identifier  string              `json:"identifier"`
 	DisplayName map[string]string   `json:"display_name,omitempty"`
 	Protocols   []protocol.Protocol `json:"supported_protocols"`
 }
