@@ -296,6 +296,10 @@ func (c *Client) ExpiryTimes() (*srvtypes.Expiry, error) {
 		return nil, err
 	}
 
+	if b.StartTime.IsZero() {
+		return nil, errors.New("start time is zero, did you get a configuration?")
+	}
+
 	bT := b.RenewButtonTime()
 	cT := b.CountdownTime()
 	nT := b.NotificationTimes()
