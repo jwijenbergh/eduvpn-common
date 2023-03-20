@@ -44,36 +44,6 @@ type Endpoints struct {
 	V   string            `json:"v"`
 }
 
-// ShouldRenewButton returns whether or not the renew button should be shown for the server
-// Implemented according to: https://github.com/eduvpn/documentation/blob/cdf4d054f7652d74e4192494e8bb0e21040e46ac/API.md#session-expiry
-func ShouldRenewButton(srv Server) bool {
-	b, err := srv.Base()
-	if err != nil {
-		// FIXME: Log error here?
-		return false
-	}
-
-	// Get current time
-	now := time.Now()
-
-	// Session is expired
-	if !now.Before(b.EndTime) {
-		return true
-	}
-
-	// 30 minutes have not passed
-	if !now.After(b.StartTime.Add(30 * time.Minute)) {
-		return false
-	}
-
-	// Session will not expire today
-	if !now.Add(24 * time.Hour).After(b.EndTime) {
-		return false
-	}
-
-	return true
-}
-
 func UpdateTokens(srv Server, t oauth.Token) {
 	srv.OAuth().UpdateTokens(t)
 }

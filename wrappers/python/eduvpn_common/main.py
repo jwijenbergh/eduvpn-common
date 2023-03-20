@@ -264,14 +264,6 @@ class EduVPN(object):
         if support_err:
             forwardError(support_err)
 
-    def should_renew_button(self) -> bool:
-        """Whether or not the UI should show the renew button
-
-        :return: Whether or not the return button should be shown
-        :rtype: bool
-        """
-        return self.go_function(self.lib.ShouldRenewButton)
-
     def start_failover(
         self, gateway: str, wg_mtu: int, readrxbytes: ReadRxBytes
     ) -> bool:

@@ -361,19 +361,6 @@ func RenewSession() *C.char {
 	return getCError(renewSessionErr)
 }
 
-//export ShouldRenewButton
-func ShouldRenewButton() C.int {
-	state, stateErr := getVPNState()
-	if stateErr != nil {
-		return C.int(0)
-	}
-	shouldRenewBool := state.ShouldRenewButton()
-	if shouldRenewBool {
-		return C.int(1)
-	}
-	return C.int(0)
-}
-
 //export SetSupportWireguard
 func SetSupportWireguard(support C.int) *C.char {
 	state, stateErr := getVPNState()

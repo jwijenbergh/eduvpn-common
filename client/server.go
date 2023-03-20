@@ -579,19 +579,6 @@ func (c *Client) RenewSession() (err error) {
 	return c.ensureLogin(srv, srvtypes.Tokens{})
 }
 
-// ShouldRenewButton returns true if the renew button should be shown
-// If there is no server then this returns false and logs with INFO if so
-// In other cases it simply checks the expiry time and calculates according to: https://github.com/eduvpn/documentation/blob/b93854dcdd22050d5f23e401619e0165cb8bc591/API.md#session-expiry.
-func (c *Client) ShouldRenewButton() bool {
-	srv, err := c.Servers.GetCurrentServer()
-	if err != nil {
-		log.Logger.Infof("no server to renew: %s\nstacktrace:\n%s", err.Error(), err.(*errors.Error).ErrorStack())
-		return false
-	}
-
-	return server.ShouldRenewButton(srv)
-}
-
 // ensureLogin logs the user back in if needed.
 // It runs the FSM transitions to ask for user input.
 func (c *Client) ensureLogin(srv server.Server, t srvtypes.Tokens) (err error) {
