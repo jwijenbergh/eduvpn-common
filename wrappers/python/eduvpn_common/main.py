@@ -82,6 +82,7 @@ class EduVPN(object):
         """Register the Go shared library.
         This makes sure the FSM is initialized and that we can call Go functions
 
+        :param handler: Optional[Callable]:  (Default value = None): The handler that runs state transitions
         :param debug: bool:  (Default value = False): Whether or not we want to enable debug logging
 
         """
