@@ -8,8 +8,7 @@ import (
 	"strings"
 
 	"github.com/eduvpn/eduvpn-common/client"
-	"github.com/eduvpn/eduvpn-common/internal/oauth"
-	"github.com/eduvpn/eduvpn-common/internal/server"
+	srvtypes "github.com/eduvpn/eduvpn-common/types/server"
 	"github.com/go-errors/errors"
 )
 
@@ -46,18 +45,72 @@ func openBrowser(data interface{}) {
 	// Note that the library already tries it best to validate data from the server, but a client should always be careful which data it uses
 }
 
+// GetLanguageMatched uses a map from language tags to strings to extract the right language given the tag
+// It implements it according to https://github.com/eduvpn/documentation/blob/dc4d53c47dd7a69e95d6650eec408e16eaa814a2/SERVER_DISCOVERY.md#language-matching
+func GetLanguageMatched(langMap map[string]string, langTag string) string {
+	// If no map is given, return the empty string
+	if len(langMap) == 0 {
+		return ""
+	}
+	// Try to find the exact match
+	if val, ok := langMap[langTag]; ok {
+		return val
+	}
+	// Try to find a key that starts with the OS language setting
+	for k := range langMap {
+		if strings.HasPrefix(k, langTag) {
+			return langMap[k]
+		}
+	}
+	// Try to find a key that starts with the first part of the OS language (e.g. de-)
+	pts := strings.Split(langTag, "-")
+	// We have a "-"
+	if len(pts) > 1 {
+		for k := range langMap {
+			if strings.HasPrefix(k, pts[0]+"-") {
+				return langMap[k]
+			}
+		}
+	}
+	// search for just the language (e.g. de)
+	for k := range langMap {
+		if k == pts[0] {
+			return langMap[k]
+		}
+	}
+
+	// Pick one that is deemed best, e.g. en-US or en, but note that not all languages are always available!
+	// We force an entry that is english exactly or with an english prefix
+	for k := range langMap {
+		if k == "en" || strings.HasPrefix(k, "en-") {
+			return langMap[k]
+		}
+	}
+
+	// Otherwise just return one
+	for k := range langMap {
+		return langMap[k]
+	}
+
+	return ""
+}
+
 // Ask for a profile in the command line.
 func sendProfile(state *client.Client, data interface{}) {
 	fmt.Printf("Multiple VPN profiles found. Please select a profile by entering e.g. 1")
-	sps, ok := data.(*server.ProfileInfo)
+	sps, ok := data.(srvtypes.Profiles)
 	if !ok {
 		fmt.Fprintln(os.Stderr, "invalid data type")
 		return
 	}
 
 	ps := ""
-	for i, p := range sps.Info.ProfileList {
-		ps += fmt.Sprintf("\n%d - %s", i+1, p.DisplayName)
+	var options []string
+	i := 0
+	for k, v := range sps.Map {
+		ps += fmt.Sprintf("\n%d - %s", i+1, GetLanguageMatched(v.DisplayName, "en"))
+		options = append(options, k)
+		i += 1
 	}
 
 	// Show the profiles
@@ -65,15 +118,15 @@ func sendProfile(state *client.Client, data interface{}) {
 
 	var idx int
 	if _, err := fmt.Scanf("%d", &idx); err != nil || idx <= 0 ||
-		idx > len(sps.Info.ProfileList) {
+		idx > len(sps.Map) {
 		fmt.Fprintln(os.Stderr, "invalid profile chosen, please retry")
 		sendProfile(state, data)
 		return
 	}
 
-	p := sps.Info.ProfileList[idx-1]
-	fmt.Println("Sending profile ID", p.ID)
-	if err := state.SetProfileID(p.ID); err != nil {
+	p := options[idx-1]
+	fmt.Println("Sending profile ID", p)
+	if err := state.SetProfileID(p); err != nil {
 		fmt.Fprintln(os.Stderr, "failed setting profile with error", err)
 	}
 }
@@ -93,29 +146,29 @@ func stateCallback(state *client.Client, _ client.FSMStateID, newState client.FS
 }
 
 // Get a config for Institute Access or Secure Internet Server.
-func getConfig(state *client.Client, url string, srvType ServerTypes) (*client.ConfigData, error) {
+func getConfig(state *client.Client, url string, srvType ServerTypes) (*srvtypes.Configuration, error) {
 	if !strings.HasPrefix(url, "http") {
 		url = "https://" + url
 	}
 	// Prefer TCP is set to False
 	if srvType == ServerTypeInstituteAccess {
-		_, err := state.AddInstituteServer(url)
+		err := state.AddInstituteServer(url)
 		if err != nil {
 			return nil, err
 		}
-		return state.GetConfigInstituteAccess(url, false, oauth.Token{})
+		return state.GetConfigInstituteAccess(url, false, srvtypes.Tokens{})
 	} else if srvType == ServerTypeCustom {
-		_, err := state.AddCustomServer(url)
+		err := state.AddCustomServer(url)
 		if err != nil {
 			return nil, err
 		}
-		return state.GetConfigCustomServer(url, false, oauth.Token{})
+		return state.GetConfigCustomServer(url, false, srvtypes.Tokens{})
 	}
-	_, err := state.AddSecureInternetHomeServer(url)
+	err := state.AddSecureInternetHomeServer(url)
 	if err != nil {
 		return nil, err
 	}
-	return state.GetConfigSecureInternet(url, false, oauth.Token{})
+	return state.GetConfigSecureInternet(url, false, srvtypes.Tokens{})
 }
 
 // Get a config for a single server, Institute Access or Secure Internet.
@@ -126,7 +179,6 @@ func printConfig(url string, srvType ServerTypes) {
 		"org.eduvpn.app.linux",
 		"1.1.0-cli",
 		"configs",
-		"en",
 		func(old client.FSMStateID, new client.FSMStateID, data interface{}) bool {
 			stateCallback(c, old, new, data)
 			return true
@@ -149,7 +201,7 @@ func printConfig(url string, srvType ServerTypes) {
 		return
 	}
 
-	fmt.Println("Obtained config:", cfg.Config)
+	fmt.Println("Obtained config:", cfg.VPNConfig)
 }
 
 // The main function
