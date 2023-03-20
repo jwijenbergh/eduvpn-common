@@ -3,7 +3,7 @@ package server
 import (
 	"github.com/eduvpn/eduvpn-common/internal/oauth"
 	"github.com/eduvpn/eduvpn-common/internal/util"
-	"github.com/eduvpn/eduvpn-common/types"
+	discotypes "github.com/eduvpn/eduvpn-common/types/discovery"
 	"github.com/go-errors/errors"
 )
 
@@ -81,7 +81,7 @@ func (ss *Servers) HasSecureLocation() bool {
 	return ss.SecureInternetHomeServer.CurrentLocation != ""
 }
 
-func (s *SecureInternetHomeServer) addLocation(locSrv *types.DiscoveryServer) (*Base, error) {
+func (s *SecureInternetHomeServer) addLocation(locSrv *discotypes.Server) (*Base, error) {
 	// Initialize the base map if it is non-nil
 	if s.BaseMap == nil {
 		s.BaseMap = make(map[string]*Base)
@@ -108,7 +108,7 @@ func (s *SecureInternetHomeServer) addLocation(locSrv *types.DiscoveryServer) (*
 
 // Initializes the home server and adds its own location.
 func (s *SecureInternetHomeServer) init(
-	homeOrg *types.DiscoveryOrganization, homeLoc *types.DiscoveryServer,
+	homeOrg *discotypes.Organization, homeLoc *discotypes.Server,
 ) error {
 	if s.HomeOrganizationID != homeOrg.OrgID {
 		// New home organisation, clear everything

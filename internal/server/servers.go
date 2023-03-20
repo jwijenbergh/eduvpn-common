@@ -1,7 +1,7 @@
 package server
 
 import (
-	"github.com/eduvpn/eduvpn-common/types"
+	discotypes "github.com/eduvpn/eduvpn-common/types/discovery"
 	"github.com/go-errors/errors"
 )
 
@@ -20,8 +20,8 @@ func (ss *Servers) HasSecureInternet() bool {
 }
 
 func (ss *Servers) AddSecureInternet(
-	secureOrg *types.DiscoveryOrganization,
-	secureServer *types.DiscoveryServer,
+	secureOrg *discotypes.Organization,
+	secureServer *discotypes.Server,
 ) (Server, error) {
 	// If we have specified an organization ID
 	// We also need to get an authorization template
@@ -60,7 +60,7 @@ func (ss *Servers) GetCurrentServer() (Server, error) {
 }
 
 func (ss *Servers) addInstituteAndCustom(
-	discoServer *types.DiscoveryServer,
+	discoServer *discotypes.Server,
 	isCustom bool,
 ) (Server, error) {
 	URL := discoServer.BaseURL
@@ -92,13 +92,13 @@ func (ss *Servers) addInstituteAndCustom(
 }
 
 func (ss *Servers) AddInstituteAccessServer(
-	instituteServer *types.DiscoveryServer,
+	instituteServer *discotypes.Server,
 ) (Server, error) {
 	return ss.addInstituteAndCustom(instituteServer, false)
 }
 
 func (ss *Servers) AddCustomServer(
-	customServer *types.DiscoveryServer,
+	customServer *discotypes.Server,
 ) (Server, error) {
 	return ss.addInstituteAndCustom(customServer, true)
 }
@@ -108,7 +108,7 @@ func (ss *Servers) GetSecureLocation() string {
 }
 
 func (ss *Servers) SetSecureLocation(
-	chosenLocationServer *types.DiscoveryServer,
+	chosenLocationServer *discotypes.Server,
 ) error {
 	// Make sure to add the current location
 

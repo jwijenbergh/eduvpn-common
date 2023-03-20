@@ -9,6 +9,7 @@ import (
 	"github.com/eduvpn/eduvpn-common/internal/oauth"
 	"github.com/eduvpn/eduvpn-common/internal/server"
 	"github.com/eduvpn/eduvpn-common/types"
+	discotypes "github.com/eduvpn/eduvpn-common/types/discovery"
 	"github.com/eduvpn/eduvpn-common/types/protocol"
 	"github.com/go-errors/errors"
 )
@@ -261,7 +262,7 @@ func (c *Client) AddInstituteServer(url string) (err error) {
 
 	// FIXME: Do nothing with discovery here as the client already has it
 	// So pass a server as the parameter
-	var dSrv *types.DiscoveryServer
+	var dSrv *discotypes.Server
 	dSrv, err = c.Discovery.ServerByURL(url, "institute_access")
 	if err != nil {
 		c.goBackInternal()
@@ -374,7 +375,7 @@ func (c *Client) AddCustomServer(url string) (err error) {
 	// Indicate that we're loading the server
 	c.FSM.GoTransition(StateLoadingServer)
 
-	customServer := &types.DiscoveryServer{
+	customServer := &discotypes.Server{
 		BaseURL:     url,
 		DisplayName: map[string]string{"en": url},
 		Type:        "custom_server",

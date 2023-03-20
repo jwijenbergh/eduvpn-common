@@ -8,7 +8,7 @@ import (
 
 	"github.com/eduvpn/eduvpn-common/internal/http"
 	"github.com/eduvpn/eduvpn-common/internal/verify"
-	"github.com/eduvpn/eduvpn-common/types"
+	discotypes "github.com/eduvpn/eduvpn-common/types/discovery"
 	"github.com/go-errors/errors"
 )
 
@@ -21,10 +21,10 @@ type Discovery struct {
 	httpClient *http.Client
 
 	// OrganizationList represents the organizations that are returned by the discovery server
-	OrganizationList types.DiscoveryOrganizations `json:"organizations"`
+	OrganizationList discotypes.Organizations `json:"organizations"`
 
 	// ServerList represents the servers that are returned by the discovery server
-	ServerList types.DiscoveryServers `json:"servers"`
+	ServerList discotypes.Servers `json:"servers"`
 }
 
 var DiscoURL = "https://disco.eduvpn.org/v2/"
@@ -115,7 +115,7 @@ func (discovery *Discovery) SecureLocationList() []string {
 func (discovery *Discovery) ServerByURL(
 	baseURL string,
 	srvType string,
-) (*types.DiscoveryServer, error) {
+) (*discotypes.Server, error) {
 	for _, currentServer := range discovery.ServerList.List {
 		if currentServer.BaseURL == baseURL && currentServer.Type == srvType {
 			return &currentServer, nil
@@ -126,7 +126,7 @@ func (discovery *Discovery) ServerByURL(
 
 // ServerByCountryCode returns the discovery server by the country code
 // An error is returned if and only if nil is returned for the server.
-func (discovery *Discovery) ServerByCountryCode(countryCode string) (*types.DiscoveryServer, error) {
+func (discovery *Discovery) ServerByCountryCode(countryCode string) (*discotypes.Server, error) {
 	for _, srv := range discovery.ServerList.List {
 		if srv.CountryCode == countryCode && srv.Type == "secure_internet" {
 			return &srv, nil
@@ -137,7 +137,7 @@ func (discovery *Discovery) ServerByCountryCode(countryCode string) (*types.Disc
 
 // orgByID returns the discovery organization by the organization ID
 // An error is returned if and only if nil is returned for the organization.
-func (discovery *Discovery) orgByID(orgID string) (*types.DiscoveryOrganization, error) {
+func (discovery *Discovery) orgByID(orgID string) (*discotypes.Organization, error) {
 	for _, org := range discovery.OrganizationList.List {
 		if org.OrgID == orgID {
 			return &org, nil
@@ -150,7 +150,7 @@ func (discovery *Discovery) orgByID(orgID string) (*types.DiscoveryOrganization,
 // - The organization it belongs to
 // - The secure internet server itself
 // An error is returned if and only if nil is returned for the organization.
-func (discovery *Discovery) SecureHomeArgs(orgID string) (*types.DiscoveryOrganization, *types.DiscoveryServer, error) {
+func (discovery *Discovery) SecureHomeArgs(orgID string) (*discotypes.Organization, *discotypes.Server, error) {
 	org, err := discovery.orgByID(orgID)
 	if err != nil {
 		return nil, nil, err
@@ -178,7 +178,7 @@ func (discovery *Discovery) DetermineServersUpdate() bool {
 	return !time.Now().Before(upd)
 }
 
-func (discovery *Discovery) previousOrganizations() (*types.DiscoveryOrganizations, error) {
+func (discovery *Discovery) previousOrganizations() (*discotypes.Organizations, error) {
 	// If the version field is not zero then we have a cached struct
 	// We also immediately return this copy if we have no embedded JSON
 	if discovery.OrganizationList.Version != 0 || !HasCache {
@@ -186,7 +186,7 @@ func (discovery *Discovery) previousOrganizations() (*types.DiscoveryOrganizatio
 	}
 
 	// We do not have a cached struct, this we need to get it using the embedded JSON
-	var eo types.DiscoveryOrganizations
+	var eo discotypes.Organizations
 	if err := json.Unmarshal(eOrganizations, &eo); err != nil {
 		return nil, errors.WrapPrefix(err, "failed parsing discovery organizations from the embedded cache", 0)
 	}
@@ -194,7 +194,7 @@ func (discovery *Discovery) previousOrganizations() (*types.DiscoveryOrganizatio
 	return &eo, nil
 }
 
-func (discovery *Discovery) previousServers() (*types.DiscoveryServers, error) {
+func (discovery *Discovery) previousServers() (*discotypes.Servers, error) {
 	// If the version field is not zero then we have a cached struct
 	// We also immediately return this copy if we have no embedded JSON
 	if discovery.ServerList.Version != 0 || !HasCache {
@@ -202,7 +202,7 @@ func (discovery *Discovery) previousServers() (*types.DiscoveryServers, error) {
 	}
 
 	// We do not have a cached struct, this we need to get it using the embedded JSON
-	var es types.DiscoveryServers
+	var es discotypes.Servers
 	if err := json.Unmarshal(eServers, &es); err != nil {
 		return nil, errors.WrapPrefix(err, "failed parsing discovery servers from the embedded cache", 0)
 	}
@@ -212,7 +212,7 @@ func (discovery *Discovery) previousServers() (*types.DiscoveryServers, error) {
 
 // Organizations returns the discovery organizations
 // If there was an error, a cached copy is returned if available.
-func (discovery *Discovery) Organizations() (*types.DiscoveryOrganizations, error) {
+func (discovery *Discovery) Organizations() (*discotypes.Organizations, error) {
 	if !discovery.DetermineOrganizationsUpdate() {
 		return &discovery.OrganizationList, nil
 	}
@@ -230,7 +230,7 @@ func (discovery *Discovery) Organizations() (*types.DiscoveryOrganizations, erro
 
 // Servers returns the discovery servers
 // If there was an error, a cached copy is returned if available.
-func (discovery *Discovery) Servers() (*types.DiscoveryServers, error) {
+func (discovery *Discovery) Servers() (*discotypes.Servers, error) {
 	if !discovery.DetermineServersUpdate() {
 		return &discovery.ServerList, nil
 	}
