@@ -242,7 +242,7 @@ Arguments:
 
 Return type:
 - The servers (`types.discovery.Servers`)
-- An error message (`string`). Empty string if no error. Note that if an error is returned, when building this library in [release mode](https://eduvpn.github.io/eduvpn-common/gettingstarted/building/release.html) this function is guaranteed to return a result for the servers, unless there is an issue with parsing the internal data representation. So the error can be used for logging instead of being a hard-fail
+- An error message (`string`). Empty string if no error. Note that if an error is returned, when building this library in [release mode](/gettingstarted/building/release.md) this function is guaranteed to return a result for the servers, unless there is an issue with parsing the internal data representation. So the error can be used for logging instead of being a hard-fail
 
 ### Discovery organizations
 Get the discovery organizations from <https://disco.eduvpn.org/v2/organizations_list.json>. This returns a cached list if the server should not be contacted according to the eduvpn spec at <https://github.com/eduvpn/documentation/blob/v3/SERVER_DISCOVERY.md>. So you do not have to worry about when to call this functions. Clients may cache further to prevent parsing this data every time.
@@ -252,7 +252,7 @@ Arguments:
 
 Return type:
 - The organizations (`types.discovery.Organizations`)
-- An error. Note that if an error is returned, when building this library in [release mode](https://eduvpn.github.io/eduvpn-common/gettingstarted/building/release.html) this function is guaranteed to return a result for the organizations, unless there is an issue with parsing the internal data representation. So the error can be used for logging instead of being a hard-fail
+- An error. Note that if an error is returned, when building this library in [release mode](/gettingstarted/building/release.md) this function is guaranteed to return a result for the organizations, unless there is an issue with parsing the internal data representation. So the error can be used for logging instead of being a hard-fail
 
 ### Cancel OAuth
 Cancel the current OAuth process. 
@@ -306,12 +306,14 @@ Return type:
 
 
 ### Start Failover
-Eduvpn-common also has a `failover` implementation. This is used to check whether or not the VPN can reach the internet. Useful when connecting to WireGuard or OpenVPN over TCP. This functions sends pings for a maximum of 10 seconds up until it is dropped. If a ping can be send and a pong returns within a timeout of 2 seconds, it returns after this pong is received.
+Eduvpn-common also has a `failover` implementation that can be started with `start failover`. This is used to check whether or not the VPN can reach the internet. Useful when connecting to WireGuard or OpenVPN over UDP. This functions sends pings for a maximum of 10 seconds up until it is dropped. If a ping can be send and a pong returns within a timeout of 2 seconds, it returns after this pong is received.
+
+If this functions tells you that the VPN is dropped, it might be wise to get a configuration again using Prefer TCP (see [Get VPN Config](#get-vpn-config)) and disabling WireGuard (see [Set Support Wireguard](#set-support-wireguard)). Note that this `start failover` function also checks if the current profile supports OpenVPN and will return an error if it doesn't.
 
 Arguments:
 - Gateway (`string`), the IP endpoint to ping to check if the VPN can reach the internet. As the name suggests, this should be the gateway
 - MTU (`int`), the packet size to send for each ping. As the name suggests, this should be the MTU of the connection
-- readRxBytes, a function that returns the current Rx bytes counter for the connection. Used to check if any bytes have been received after a maximum of 10 seconds
+- `readRxBytes`, a function that returns the current Rx bytes counter (`int64` in Go, `long long int` in CGO api) for the connection. Used to check if any bytes have been received in an interval of maximum 10 seconds
 
 Return type:
 - Dropped: a boolean that indicates whether or not the connection is dropped according to eduvpn-common. This means that the VPN is unable to reach the gateway
