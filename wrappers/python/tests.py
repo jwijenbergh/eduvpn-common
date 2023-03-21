@@ -15,6 +15,7 @@ from selenium_eduvpn import login_eduvpn
 def handler(_old_state, new_state, data):
     if new_state == 6:
         login_eduvpn(data)
+        return True
 
 class ConfigTests(unittest.TestCase):
     def testConfig(self):
