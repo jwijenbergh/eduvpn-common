@@ -29,7 +29,7 @@ class EduVPN(object):
     It registers the client with the library and then calls the needed appropriate functions
 
     :param name: str: The name of the client. For commonly used names, see https://git.sr.ht/~fkooman/vpn-user-portal/tree/v3/item/src/OAuth/ClientDb.php. E.g. org.eduvpn.app.linux, if this name has "letsconnect" in it, then it is a Let's Connect! variant
-    :param version: str: The version number of the client as a string, max 10 characters
+    :param version: str: The version number of the client as a string
     :param config_directory: str: The directory (absolute/relative) where to store the files
 
     """
