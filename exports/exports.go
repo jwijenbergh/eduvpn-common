@@ -42,7 +42,7 @@ func getTokens(tokens *C.char) (t srvtypes.Tokens, err error) {
 
 func getCError(err error) *C.char {
 	if err == nil {
-		return C.CString("")
+		return nil
 	}
 	return C.CString(err.Error())
 }
