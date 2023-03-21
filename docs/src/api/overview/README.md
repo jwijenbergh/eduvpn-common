@@ -202,7 +202,7 @@ State transitions that must be handled:
 - `Ask_Location`: For asking the secure internet location. Acknowledge the request with [SetSecureLocation](#set-secure-location)
 
 Return type:
-- The VPN configuration with associated data (`types.server.Configuration`). Note that this also contains Tokens that can be saved by the client.
+- The VPN configuration with associated data (`types.server.Configuration`). Note that this also contains Tokens that can be saved by the client. Note that the VPN configuration itself has "script-security 0" added to the end if it's an OpenVPN config. This is to disable OpenVPN scripts from being run by default. A client may override this if it has a good reason to.
 - An error
 
 ### Expiry Times

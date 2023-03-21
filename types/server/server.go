@@ -107,6 +107,8 @@ type List struct {
 // Configuration is the configuration that you get back when you call the get config function
 type Configuration struct {
 	// VPNConfig is the VPN Configuration, a WireGuard or OpenVPN Configuration
+	// In case of OpenVPN, we append "script-security 0" to disable scripts from being run by default.
+	// A client may override this, e.g. for, very trusted, pre-provisioned VPNs
 	VPNConfig      string            `json:"config"`
 	// Protocol defines which protocol the configuration is for, OpenVPN or WireGuard
 	Protocol       protocol.Protocol `json:"protocol"`
