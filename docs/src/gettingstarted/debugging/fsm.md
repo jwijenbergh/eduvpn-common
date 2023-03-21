@@ -17,18 +17,5 @@ The following is an example of the FSM when the client has obtained a Wireguard/
 The current state is highlighted in the <span style="color:cyan">cyan</span> color.
 
 ## State explanation
-The states mean the following:
-- `Deregistered`: the app is not registered with the wrapper
-- `No_Server`: means the user has not chosen a server yet
-- `Ask_Location`: the user selected a Secure Internet server but needs to choose a location
-- `Search_Server`: the user is currently selecting a server in the UI
-- `Loading_Server`: means we are loading the server details
-- `Chosen_Server`: means the user has chosen a server to connect to
-- `OAuth_Started`: means the OAuth process has started
-- `Authorized`: means the OAuth process has finished and the user is now authorized with the server
-- `Request_Config`: the user has requested a config for connecting
-- `Ask_Profile`: the go code is asking for a profile selection from the UI
-- `Disconnected`: the user has gotten a config for a server but is not connected yet
-- `Disconnecting`: the OS is disconnecting and the Go code is doing the /disconnect
-- `Connecting`: the OS is establishing a connection to the server
-- `Connected`: the user has been connected to the server.
+
+For the explanation of what all the different states mean, see the [API documentation](/api/overview/index.md#states)
