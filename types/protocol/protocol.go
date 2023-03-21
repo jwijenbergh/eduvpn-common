@@ -1,5 +1,7 @@
+// package protocol contains hte public type that have to do with VPN protocols
 package protocol
 
+// Protocol defines an 'enumeration' of protocols
 type Protocol int8
 
 const (
@@ -11,6 +13,7 @@ const (
 	WireGuard
 )
 
+// New creates a new protocol type from a string
 func New(p string) Protocol {
 	switch p {
 	case "openvpn":
