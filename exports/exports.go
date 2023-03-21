@@ -78,7 +78,7 @@ func StateCallback(
 	dataC := C.CString(d)
 	handled := C.call_callback(PStateCallback, oldStateC, newStateC, unsafe.Pointer(dataC))
 	FreeString(dataC)
-	return handled == C.int(1)
+	return handled != C.int(0)
 }
 
 func getVPNState() (*client.Client, error) {
@@ -108,7 +108,7 @@ func Register(
 		C.GoString(version),
 		C.GoString(configDirectory),
 		StateCallback,
-		debug == 1,
+		debug != 0,
 	)
 
 	return getCError(registerErr)
@@ -257,7 +257,7 @@ func GetConfig(_type C.int, id *C.char, pTCP C.int, tokens *C.char) (*C.char, *C
 	if stateErr != nil {
 		return nil, getCError(stateErr)
 	}
-	preferTCPBool := pTCP == 1
+	preferTCPBool := pTCP != 0
 	tok, err := getTokens(tokens)
 	if err != nil {
 		return nil, getCError(err)
@@ -367,7 +367,7 @@ func SetSupportWireguard(support C.int) *C.char {
 	if stateErr != nil {
 		return getCError(stateErr)
 	}
-	state.SupportsWireguard = support == 1
+	state.SupportsWireguard = support != 0
 	return nil
 }
 

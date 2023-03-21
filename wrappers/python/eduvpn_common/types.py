@@ -107,4 +107,4 @@ def get_bool(lib: CDLL, boolInt: c_int) -> bool:
     :return: The boolean converted to Python
     :rtype: bool
     """
-    return boolInt == 1
+    return boolInt != 0
