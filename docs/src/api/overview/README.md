@@ -5,6 +5,7 @@ This chapter defines the API that is used to build an eduVPN/Let's Connect! clie
 ## Table of contents
 1. [Types](#types)
    - [JSON](#json)
+   - [Errors](#errors)
    - [States](#states)
 2. [Functions](#functions)
    - [Registering](#registering)
@@ -133,7 +134,7 @@ func stateCallback(oldState int, newState int, data interface{}) {
 }
 
 c := client.Client{}
-c.Register("org.eduvpn.app.linux", "1.0.0", "/home/eduvpn/.config/eduvpn", stateCallback, True)
+c.Register("org.eduvpn.app.linux", "1.0.0", "/home/eduvpn/.config/eduvpn", stateCallback, true)
 ```
 </details>
 
@@ -284,6 +285,9 @@ Renew session is used for renewing the VPN. This does not give you a configurati
 
 Arguments:
 - None
+
+State transitions that must be handled:
+- `OAuth_Started`: If the server needs authorization. Open the URL in the browser
 
 Return type:
 - An error
