@@ -150,8 +150,7 @@ func (fsm *FSM) GoTransitionWithData(newState StateID, data interface{}) bool {
 		fsm.writeGraph()
 	}
 
-	fsm.StateCallback(prev, newState, data)
-	return true
+	return fsm.StateCallback(prev, newState, data)
 }
 
 // GoTransition is an alias to call GoTransitionWithData but have an empty string as data.
