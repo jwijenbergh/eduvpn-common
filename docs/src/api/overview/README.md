@@ -13,6 +13,7 @@ This chapter defines the API that is used to build an eduVPN/Let's Connect! clie
    - [List of servers](#list-of-servers)
    - [Current server](#current-server)
    - [Get VPN config](#get-vpn-config)
+   - [Expiry Times](#expiry-times)
    - [Set Profile ID](#set-profile-id)
    - [Set Secure Location](#set-profile-id)
    - [Discovery Servers](#discovery-servers)
@@ -54,6 +55,8 @@ If we for example have an enumeration, e.g. `types.protocol.Protocol`, this is c
 
 You can also see this when reading the source code. In Go this was denoted with the `iota` keyword, meaning start at 0 and increment on following const declarations.
 
+### Errors
+Errors are encoded as error messages (`*C.char`) in the CGO API. For regular Go, this is just `error`. Errors are *hard-fail* unless otherwise defined.
 
 ### States
 
@@ -197,6 +200,16 @@ State transitions that must be handled:
 
 Return type:
 - The VPN configuration with associated data (`types.server.Configuration`). Note that this also contains Tokens that can be saved by the client.
+- An error
+
+### Expiry Times
+To get the different times regarding expiry, the function `expiry times` is used.
+
+Arguments:
+- None
+
+Return type:
+- The expiry times (`types.server.Expiry`)
 - An error
 
 ### Set Profile ID
