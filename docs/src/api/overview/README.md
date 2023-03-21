@@ -26,6 +26,8 @@ This chapter defines the API that is used to build an eduVPN/Let's Connect! clie
    - [Secure Location List](#secure-location-list)
    - [Start Failover](#start-failover)
    - [Cancel Failover](#cancel-failover)
+   - [Deregistering](#deregistering)
+   - [Free String](#free-string)
    
 ## Types
 This section describes a few types that are either used as arguments or return values
@@ -56,8 +58,12 @@ If we for example have an enumeration, e.g. `types.protocol.Protocol`, this is c
 
 You can also see this when reading the source code. In Go this was denoted with the `iota` keyword, meaning start at 0 and increment on following const declarations.
 
+> **_NOTE:_**  strings returned by CGO (`*C.char`) MUST be freed by the [FreeString](#free-string) function.
+
 ### Errors
-Errors are encoded as error messages (`*C.char`) in the CGO API. For regular Go, this is just `error`. Errors are *hard-fail* unless otherwise defined.
+Errors are encoded as error messages (`*C.char`) in the CGO API. For regular Go, this is just `error`. Errors are *hard-fail* unless otherwise defined. Hard-fail means that the associated data that is returned will be nil/default value if an error is returned.
+
+> **_NOTE:_**  In case of CGO this error (a `*C.char`) MUST be freed by the [FreeString](#free-string) function.
 
 ### States
 
@@ -86,6 +92,8 @@ The states with data are required transitions, handle them by returning True/non
    
 ## Functions
 For each function, we define it by giving a small description and then the arguments and return types that follows. We will also describe which type of state transitions must be handled by the client in order to call this function.
+
+The functions are defined, more or less, in the order that you might call them.
 
 ### Registering
 The first function that a client calls is the `register`
@@ -269,7 +277,7 @@ Return type:
 WireGuard is by default enabled. To indicate that the client does not support WireGuard, you can use the `SetSupportWireGuard` function. 
 
 Arguments:
-- A boolean that indicates whether or not wireguard should be enabled or disabled
+- A boolean that indicates whether or not WireGuard should be enabled or disabled
 
 Return type:
 - An error
@@ -306,7 +314,7 @@ Return type:
 
 
 ### Start Failover
-Eduvpn-common also has a `failover` implementation that can be started with `start failover`. This is used to check whether or not the VPN can reach the internet. Useful when connecting to WireGuard or OpenVPN over UDP. This functions sends pings for a maximum of 10 seconds up until it is dropped. If a ping can be send and a pong returns within a timeout of 2 seconds, it returns after this pong is received.
+Eduvpn-common also has a `failover` implementation that can be started with `start failover`. This is used to check whether or not the VPN can reach the internet. Useful when connecting to WireGuard or OpenVPN over UDP. This function sends ICMP echo pings for a maximum of 10 seconds up until it is dropped. If a ping can be send and a pong returns within a timeout of 2 seconds, it returns after this pong is received.
 
 If this functions tells you that the VPN is dropped, it might be wise to get a configuration again using Prefer TCP (see [Get VPN Config](#get-vpn-config)) and disabling WireGuard (see [Set Support Wireguard](#set-support-wireguard)). Note that this `start failover` function also checks if the current profile supports OpenVPN and will return an error if it doesn't.
 
@@ -320,7 +328,16 @@ Return type:
 - An error
 
 ### Cancel Failover
-To cancel the current failover process, e.g. due to disconnecting, you should call `cancel failover`
+To cancel the current failover process, e.g. due to disconnecting, you should call `cancel failover`. This makes the original failover function return dropped `false` and an error indicating cancellation.
+
+Arguments:
+- None
+
+Return type:
+- An error
+
+### Deregistering
+When the client is done, e.g. on application close, it can call the `deregister function` to save the internal state to disk and afterwards empty out this state. This can also be used to re-register, but this is probably not something you have to do.
 
 Arguments:
 - None
@@ -331,7 +348,7 @@ Return type:
 ### Free String
 > **_NOTE:_**  This does not apply for the pure Go API
 
-With the Go <-> X language API (using CGO), there is a function to free a string (*C.char). This is called free string
+With the Go <-> X language API (using CGO), there is a function to free a string (`*C.char`). This is called `free string`
 
 Arguments:
 - The pointer to the string
