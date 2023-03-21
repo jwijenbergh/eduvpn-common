@@ -63,7 +63,7 @@ Errors are encoded as error messages (`*C.char`) in the CGO API. For regular Go,
 The `states` is an enumeration of the possible states that the state machine has defined. Starting at 0:
 
 - `Deregistered`: the client is not yet registered 
-- `No Server`: the client has registered
+- `No Server`: the client has registered and we're about to choose a server
 - `Ask Location`: eduvpn-common is asking the client for a secure internet location
   - A slice/list `[]string` of locations (country codes). For the C API: a JSON list e.g. 
   ```json
@@ -78,8 +78,10 @@ The `states` is an enumeration of the possible states that the state machine has
 - `Request Config`: eduvpn-common is requesting a config from the server
 - `Ask Profile`: eduvpn-common is asking the client for a profile
   - Data with this transition: `types.server.Profiles`.
-- `Chosen Profile`
-- `Got Config`
+- `Chosen Profile`: A profile has been chosen by the client
+- `Got Config`: A VPN Configuration has been obtained for the current server and the Go library is ready to connect
+
+The states with data are required transitions, handle them by returning True/non-zero (e.g. 1) in your callback function. We will discuss this callback function later.
    
 ## Functions
 For each function, we define it by giving a small description and then the arguments and return types that follows. We will also describe which type of state transitions must be handled by the client in order to call this function.
