@@ -79,7 +79,7 @@ The `states` is an enumeration of the possible states that the state machine has
 - `Ask Profile`: eduvpn-common is asking the client for a profile
   - Data with this transition: `types.server.Profiles`.
 - `Chosen Profile`: A profile has been chosen by the client
-- `Got Config`: A VPN Configuration has been obtained for the current server and the Go library is ready to connect
+- `Got Config`: A VPN Configuration has been obtained for the current server and the client should be ready to connect
 
 The states with data are required transitions, handle them by returning True/non-zero (e.g. 1) in your callback function. We will discuss this callback function later.
    
