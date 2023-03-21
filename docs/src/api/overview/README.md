@@ -32,7 +32,7 @@ This section describes a few types that are either used as arguments or return v
 
 ### JSON
 
-The message passing between language X and Go is done using JSON. This means that every type that we mention here is converted to JSON. For a list of public types that are returned and their JSON representation see: <https://github.com/eduvpn/eduvpn-common/blob/v2/types/>. So for example, if we say that we return `types.server.Expiry` (meaning the `Expiry` struct defined in the `types/server` folder), we will return the following json representation:
+The message passing between language X and Go is done using JSON. This means that every type that we mention here is converted to JSON. For a list of public types that are returned and their JSON representation see: <https://github.com/eduvpn/eduvpn-common/blob/v2/types/>. So for example, if we say that we return `types.server.Expiry` (meaning the `Expiry` struct defined in the [types/server](https://github.com/eduvpn/eduvpn-common/blob/v2/types/server/server.go), we will return the following json representation:
 
 ```json
 {
