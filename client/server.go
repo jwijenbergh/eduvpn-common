@@ -9,8 +9,8 @@ import (
 	"github.com/eduvpn/eduvpn-common/internal/oauth"
 	"github.com/eduvpn/eduvpn-common/internal/server"
 	discotypes "github.com/eduvpn/eduvpn-common/types/discovery"
-	srvtypes "github.com/eduvpn/eduvpn-common/types/server"
 	"github.com/eduvpn/eduvpn-common/types/protocol"
+	srvtypes "github.com/eduvpn/eduvpn-common/types/server"
 	"github.com/go-errors/errors"
 )
 
@@ -260,6 +260,15 @@ func (c *Client) AddInstituteServer(url string) (err error) {
 	// Indicate that we're loading the server
 	c.FSM.GoTransition(StateLoadingServer)
 
+	// Check if we are able to fetch discovery, and log if something went wrong
+	if _, err := c.DiscoServers(); err != nil {
+		log.Logger.Warningf("Failed to get discovery servers: %v", err)
+	}
+
+	if _, err := c.DiscoOrganizations(); err != nil {
+		log.Logger.Warningf("Failed to get discovery organizations: %v", err)
+	}
+
 	// FIXME: Do nothing with discovery here as the client already has it
 	// So pass a server as the parameter
 	var dSrv *discotypes.Server
@@ -312,6 +321,15 @@ func (c *Client) AddSecureInternetHomeServer(orgID string) (err error) {
 
 	// Indicate that we're loading the server
 	c.FSM.GoTransition(StateLoadingServer)
+
+	// Check if we are able to fetch discovery, and log if something went wrong
+	if _, err := c.DiscoServers(); err != nil {
+		log.Logger.Warningf("Failed to get discovery servers: %v", err)
+	}
+
+	if _, err := c.DiscoOrganizations(); err != nil {
+		log.Logger.Warningf("Failed to get discovery organizations: %v", err)
+	}
 
 	// Get the secure internet URL from discovery
 	org, dSrv, err := c.Discovery.SecureHomeArgs(orgID)

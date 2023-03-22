@@ -77,7 +77,7 @@ func TestServer(t *testing.T) {
 	serverURI := getServerURI(t)
 	state := &Client{}
 
-	registerErr := state.Register(
+	state, err := New(
 		"org.letsconnect-vpn.app.linux",
 		"0.1.0-test",
 		"configstest",
@@ -87,9 +87,14 @@ func TestServer(t *testing.T) {
 		},
 		false,
 	)
-	if registerErr != nil {
-		t.Fatalf("Register error: %v", registerErr)
+	if err != nil {
+		t.Fatalf("Creating client error: %v", err)
 	}
+	err = state.Register()
+	if err != nil {
+		t.Fatalf("Registering error: %v", err)
+	}
+
 
 	addErr := state.AddCustomServer(serverURI)
 	if addErr != nil {
@@ -110,7 +115,7 @@ func testConnectOAuthParameter(
 	state := &Client{}
 	configDirectory := "test_oauth_parameters"
 
-	registerErr := state.Register(
+	state, err := New(
 		"org.letsconnect-vpn.app.linux",
 		"0.1.0-test",
 		configDirectory,
@@ -152,11 +157,15 @@ func testConnectOAuthParameter(
 		},
 		false,
 	)
-	if registerErr != nil {
-		t.Fatalf("Register error: %v", registerErr)
+	if err != nil {
+		t.Fatalf("Creating client error: %v", err)
+	}
+	err = state.Register()
+	if err != nil {
+		t.Fatalf("Registering error: %v", err)
 	}
 
-	err := state.AddCustomServer(serverURI)
+	err = state.AddCustomServer(serverURI)
 
 	if errPrefix == "" {
 		if err != nil {
@@ -240,7 +249,7 @@ func TestTokenExpired(t *testing.T) {
 	// Get a vpn state
 	state := &Client{}
 
-	registerErr := state.Register(
+	state, err := New(
 		"org.letsconnect-vpn.app.linux",
 		"0.1.0-test",
 		"configsexpired",
@@ -250,8 +259,12 @@ func TestTokenExpired(t *testing.T) {
 		},
 		false,
 	)
-	if registerErr != nil {
-		t.Fatalf("Register error: %v", registerErr)
+	if err != nil {
+		t.Fatalf("Creating client error: %v", err)
+	}
+	err = state.Register()
+	if err != nil {
+		t.Fatalf("Registering error: %v", err)
 	}
 
 	addErr := state.AddCustomServer(serverURI)
@@ -302,7 +315,7 @@ func TestInvalidProfileCorrected(t *testing.T) {
 	serverURI := getServerURI(t)
 	state := &Client{}
 
-	registerErr := state.Register(
+	state, err := New(
 		"org.letsconnect-vpn.app.linux",
 		"0.1.0-test",
 		"configscancelprofile",
@@ -312,8 +325,12 @@ func TestInvalidProfileCorrected(t *testing.T) {
 		},
 		false,
 	)
-	if registerErr != nil {
-		t.Fatalf("Register error: %v", registerErr)
+	if err != nil {
+		t.Fatalf("Creating client error: %v", err)
+	}
+	err = state.Register()
+	if err != nil {
+		t.Fatalf("Registering error: %v", err)
 	}
 
 	addErr := state.AddCustomServer(serverURI)
@@ -359,7 +376,7 @@ func TestPreferTCP(t *testing.T) {
 	serverURI := getServerURI(t)
 	state := &Client{}
 
-	registerErr := state.Register(
+	state, err := New(
 		"org.letsconnect-vpn.app.linux",
 		"0.1.0-test",
 		"configsprefertcp",
@@ -369,8 +386,12 @@ func TestPreferTCP(t *testing.T) {
 		},
 		false,
 	)
-	if registerErr != nil {
-		t.Fatalf("Register error: %v", registerErr)
+	if err != nil {
+		t.Fatalf("Creating client error: %v", err)
+	}
+	err = state.Register()
+	if err != nil {
+		t.Fatalf("Registering error: %v", err)
 	}
 
 	addErr := state.AddCustomServer(serverURI)
@@ -419,28 +440,26 @@ func TestInvalidClientID(t *testing.T) {
 	}
 
 	for k, v := range tests {
-		state := &Client{}
-		registerErr := state.Register(
+		_, err := New(
 			k,
 			"0.1.0-test",
 			"configsclientid",
 			func(old FSMStateID, new FSMStateID, data interface{}) bool {
-				stateCallback(t, old, new, data, state)
 				return true
 			},
 			false,
 		)
 		if v {
-			if registerErr != nil {
-				t.Fatalf("expected valid register with clientID: %v, got error: %v", k, registerErr)
+			if err != nil {
+				t.Fatalf("expected valid register with clientID: %v, got error: %v", k, err)
 			}
 			continue
 		}
-		if registerErr == nil {
+		if err == nil {
 			t.Fatalf("expected invalid register with clientID: %v, but got no error", k)
 		}
-		if !strings.HasPrefix(registerErr.Error(), "client ID is not allowed") {
-			t.Fatalf("register error has invalid prefix: %v", registerErr.Error())
+		if !strings.HasPrefix(err.Error(), "client ID is not allowed") {
+			t.Fatalf("register error has invalid prefix: %v", err.Error())
 		}
 	}
 }

@@ -173,9 +173,8 @@ func getConfig(state *client.Client, url string, srvType ServerTypes) (*srvtypes
 
 // Get a config for a single server, Institute Access or Secure Internet.
 func printConfig(url string, srvType ServerTypes) {
-	c := &client.Client{}
-
-	err := c.Register(
+	var c *client.Client
+	c, err := client.New(
 		"org.eduvpn.app.linux",
 		"1.1.0-cli",
 		"configs",
@@ -189,6 +188,7 @@ func printConfig(url string, srvType ServerTypes) {
 		fmt.Printf("Register error: %v", err)
 		return
 	}
+	_ = c.Register()
 
 	defer c.Deregister()
 

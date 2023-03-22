@@ -141,8 +141,14 @@ func stateCallback(oldState int, newState int, data interface{}) {
 	// do something
 }
 
-c := client.Client{}
-c.Register("org.eduvpn.app.linux", "1.0.0", "/home/eduvpn/.config/eduvpn", stateCallback, true)
+c, err := client.New("org.eduvpn.app.linux", "1.0.0", "/home/eduvpn/.config/eduvpn", stateCallback, true)
+if err != nil {
+	// handle error
+}
+err := c.Register()
+if err != nil {
+	// handle error
+}
 ```
 </details>
 

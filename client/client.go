@@ -14,9 +14,9 @@ import (
 	"github.com/eduvpn/eduvpn-common/internal/log"
 	"github.com/eduvpn/eduvpn-common/internal/oauth"
 	"github.com/eduvpn/eduvpn-common/internal/server"
-	srvtypes "github.com/eduvpn/eduvpn-common/types/server"
 	discotypes "github.com/eduvpn/eduvpn-common/types/discovery"
 	"github.com/eduvpn/eduvpn-common/types/protocol"
+	srvtypes "github.com/eduvpn/eduvpn-common/types/server"
 	"github.com/go-errors/errors"
 )
 
@@ -121,36 +121,23 @@ type Client struct {
 	profileWg  sync.WaitGroup
 }
 
-// Register initializes the clientwith the following parameters:
+// New creates a new client with the following parameters:
 //   - name: the name of the client
 //   - directory: the directory where the config files are stored. Absolute or relative
 //   - stateCallback: the callback function for the FSM that takes two states (old and new) and the data as an interface
 //   - debug: whether or not we want to enable debugging
 //
 // It returns an error if initialization failed, for example when discovery cannot be obtained and when there are no servers.
-func (c *Client) Register(
-	name string,
-	version string,
-	directory string,
-	stateCallback func(FSMStateID, FSMStateID, interface{}) bool,
-	debug bool,
-) (err error) {
-	defer func() {
-		if err != nil {
-			c.logError(err)
-		}
-	}()
-
-	if !c.InFSMState(StateDeregistered) {
-		return errors.Errorf("fsm attempt to register while in '%v'", c.FSM.Current)
-	}
+func New(name string, version string, directory string, stateCallback func(FSMStateID, FSMStateID, interface{}) bool, debug bool) (c *Client, err error) {
+	// We create the client by filling fields one by one
+	c = &Client{}
 
 	if !isAllowedClientID(name) {
-		return errors.Errorf("client ID is not allowed: '%v', see https://git.sr.ht/~fkooman/vpn-user-portal/tree/v3/item/src/OAuth/VpnClientDb.php for a list of allowed IDs", name)
+		return nil, errors.Errorf("client ID is not allowed: '%v', see https://git.sr.ht/~fkooman/vpn-user-portal/tree/v3/item/src/OAuth/VpnClientDb.php for a list of allowed IDs", name)
 	}
 
 	if len([]rune(version)) > 20 {
-		return errors.Errorf("version is not allowed: '%s', must be max 20 characters", version)
+		return nil, errors.Errorf("version is not allowed: '%s', must be max 20 characters", version)
 	}
 
 	// Initialize the logger
@@ -160,7 +147,7 @@ func (c *Client) Register(
 	}
 
 	if err = log.Logger.Init(lvl, directory); err != nil {
-		return err
+		return nil, err
 	}
 
 	// set client name
@@ -187,23 +174,15 @@ func (c *Client) Register(
 		log.Logger.Infof("Previous configuration not found")
 	}
 
-	// Go to the No Server state after we're done
-	defer c.FSM.GoTransition(StateNoServer)
+	return c, nil
+}
 
-	// Let's Connect! doesn't care about discovery
-	if c.isLetsConnect() {
-		return nil
+// Registering means updating the FSM to get to the initial state correctly
+func (c *Client) Register() error {
+	if !c.InFSMState(StateDeregistered) {
+		return errors.Errorf("fsm attempt to register while in '%v'", c.FSM.Current)
 	}
-
-	// Check if we are able to fetch discovery, and log if something went wrong
-	if _, err := c.DiscoServers(); err != nil {
-		log.Logger.Warningf("Failed to get discovery servers: %v", err)
-	}
-
-	if _, err := c.DiscoOrganizations(); err != nil {
-		log.Logger.Warningf("Failed to get discovery organizations: %v", err)
-	}
-
+	c.FSM.GoTransition(StateNoServer)
 	return nil
 }
 
@@ -386,8 +365,8 @@ func (c *Client) ServerList() (*srvtypes.List, error) {
 			}
 			cc := c.Servers.SecureInternetHomeServer.CurrentLocation
 			secureInternet = &srvtypes.SecureInternet{
-				Server: generic,
-				CountryCode:   cc,
+				Server:      generic,
+				CountryCode: cc,
 				// TODO: delisted
 				Delisted: false,
 			}
@@ -449,8 +428,8 @@ func (c *Client) CurrentServer() (*srvtypes.Current, error) {
 		cc := c.Servers.SecureInternetHomeServer.CurrentLocation
 		return &srvtypes.Current{
 			SecureInternet: &srvtypes.SecureInternet{
-				Server: generic,
-				CountryCode:   cc,
+				Server:      generic,
+				CountryCode: cc,
 				// TODO: delisted
 				Delisted: false,
 			},
