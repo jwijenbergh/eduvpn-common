@@ -153,10 +153,6 @@ func (c *Client) Register(
 		return errors.Errorf("version is not allowed: '%s', must be max 20 characters", version)
 	}
 
-	http.RegisterAgent(userAgentName(name), version)
-
-	c.Name = name
-
 	// Initialize the logger
 	lvl := log.LevelWarning
 	if debug {
@@ -166,6 +162,12 @@ func (c *Client) Register(
 	if err = log.Logger.Init(lvl, directory); err != nil {
 		return err
 	}
+
+	// set client name
+	c.Name = name
+
+	// register HTTP agent
+	http.RegisterAgent(userAgentName(name), version)
 
 	// Initialize the FSM
 	c.FSM = newFSM(stateCallback, directory, debug)

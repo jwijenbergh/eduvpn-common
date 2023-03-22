@@ -101,8 +101,6 @@ func Register(
 		return getCError(errors.New("failed to register, a VPN state is already present"))
 	}
 	state := &client.Client{}
-	VPNState = state
-	PStateCallback = stateCallback
 	registerErr := state.Register(
 		C.GoString(name),
 		C.GoString(version),
@@ -110,6 +108,12 @@ func Register(
 		StateCallback,
 		debug != 0,
 	)
+	// Only update the VPN state if we get no error when registering
+	if registerErr == nil {
+		VPNState = state
+		PStateCallback = stateCallback
+		return nil
+	}
 
 	return getCError(registerErr)
 }
