@@ -4,7 +4,7 @@ from collections import defaultdict
 from ctypes import CDLL, c_char_p, c_int, c_void_p, cdll
 
 from eduvpn_common import __version__
-from eduvpn_common.types import DataError, ReadRxBytes, VPNStateChange
+from eduvpn_common.types import BoolError, DataError, ReadRxBytes, VPNStateChange
 
 
 def load_lib() -> CDLL:
@@ -102,5 +102,5 @@ def initialize_functions(lib: CDLL) -> None:
         c_char_p,
         c_int,
         ReadRxBytes,
-    ], DataError
+    ], BoolError
     lib.CancelFailover.argtypes, lib.CancelFailover.restype = [], c_void_p

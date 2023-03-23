@@ -4,12 +4,21 @@ from typing import Any, Iterator, List, Tuple
 
 
 class DataError(Structure):
-    """The C type that represents a tuple of data and error as returned by the Go library
+    """The C type that represents a tuple of data and error (both strings) as returned by the Go library
 
     :meta private:
     """
 
     _fields_ = [("data", c_void_p), ("error", c_void_p)]
+
+
+class BoolError(Structure):
+    """The C type that represents a tuple of boolean and error as returned by the Go library
+
+    :meta private:
+    """
+
+    _fields_ = [("boolean", c_int), ("error", c_void_p)]
 
 
 # The type for a Go state change callback
@@ -50,9 +59,9 @@ def decode_res(res: Any) -> Any:
     :rtype: Any
     """
     decode_map = {
-        c_int: get_bool,
         c_void_p: get_ptr_string,
         DataError: get_data_error,
+        BoolError: get_bool_error,
     }
     return decode_map.get(res, lambda lib, x: x)
 
@@ -78,22 +87,39 @@ def get_ptr_string(lib: CDLL, ptr: c_void_p) -> str:
 
 
 def get_data_error(
-    lib: CDLL, data_error: DataError, data_conv: Any = get_ptr_string
+    lib: CDLL, data_error: DataError
 ) -> Tuple[str, str]:
     """Convert a C data+error structure to a Python usable data+error structure
 
     :param lib: CDLL: The Go shared library
     :param data_error: DataError: The data error C structure
-    :param data_conv: Any: The function to convert the data
 
     :meta private:
 
     :return: The data and error
     :rtype: Tuple[str, str]
     """
-    data = data_conv(lib, data_error.data)
+    data = get_ptr_string(lib, data_error.data)
     error = get_ptr_string(lib, data_error.error)
     return data, error
+
+
+def get_bool_error(
+    lib: CDLL, bool_error: BoolError
+) -> Tuple[bool, str]:
+    """Convert a C boolean (c int)+error structure to a Python usable boolean+error structure
+
+    :param lib: CDLL: The Go shared library
+    :param bool_error: BoolError: The boolean and error C structure
+
+    :meta private:
+
+    :return: The bool and error
+    :rtype: Tuple[bool, str]
+    """
+    boolean = get_bool(lib, bool_error.boolean)
+    error = get_ptr_string(lib, bool_error.error)
+    return boolean, error
 
 
 def get_bool(lib: CDLL, boolInt: c_int) -> bool:
@@ -107,4 +133,4 @@ def get_bool(lib: CDLL, boolInt: c_int) -> bool:
     :return: The boolean converted to Python
     :rtype: bool
     """
-    return boolInt != 0
+    return int(boolInt) != 0

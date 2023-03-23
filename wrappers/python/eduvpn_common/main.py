@@ -44,24 +44,20 @@ class EduVPN(object):
         initialize_functions(self.lib)
 
     def go_function(
-        self, func: Any, *args: Iterator, decode_func: Optional[Callable] = None
+        self, func: Any, *args: Iterator
     ) -> Any:
         """Call an internal go function and properly forward the arguments.
         Also handles decoding the result
 
         :param func: Any: The Go function to call from the shared library
         :param \*args: Iterator: The arguments to call the function with
-        :param decode_func: Optional[Callable]:  (Default value = None): The function to decode the result into a Python type
 
         :meta private:
         """
         # The functions all have at least one arg type which is the name of the client
         args_gen = encode_args(list(args), func.argtypes)
         res = func(*(args_gen))
-        if decode_func is None:
-            return decode_res(func.restype)(self.lib, res)
-        else:
-            return decode_func(self.lib, res)
+        return decode_res(func.restype)(self.lib, res)
 
     def cancel_oauth(self) -> None:
         """Cancel the OAuth process"""
@@ -272,7 +268,6 @@ class EduVPN(object):
             gateway,
             wg_mtu,
             readrxbytes,
-            decode_func=lambda lib, x: get_data_error(lib, x, get_bool),
         )
         if dropped_err:
             forwardError(dropped_err)
