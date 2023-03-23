@@ -18,14 +18,7 @@ var mtuOverhead = 28
 type Pinger struct {
 	listener net.PacketConn
 	buffer   []byte
-}
-
-func NewPinger(size int) (*Pinger, error) {
-	l, err := icmp.ListenPacket("udp4", "0.0.0.0")
-	if err != nil {
-		return nil, errors.WrapPrefix(err, "failed creating ping", 0)
-	}
-	return &Pinger{listener: l, buffer: make([]byte, size-mtuOverhead)}, nil
+	gateway  net.Addr
 }
 
 func (p Pinger) Read(deadline time.Time) error {
@@ -52,7 +45,7 @@ func (p Pinger) Read(deadline time.Time) error {
 	}
 }
 
-func (p Pinger) Send(gateway string, seq int) error {
+func (p Pinger) Send(seq int) error {
 	errorMessage := fmt.Sprintf("failed sending ping, seq %d", seq)
 	// Make a new ICMP message
 	m := icmp.Message{
@@ -68,7 +61,7 @@ func (p Pinger) Send(gateway string, seq int) error {
 		return errors.WrapPrefix(err, errorMessage, 0)
 	}
 	// And send it to the gateway IP!
-	_, err = p.listener.WriteTo(b, &net.UDPAddr{IP: net.ParseIP(gateway)})
+	_, err = p.listener.WriteTo(b, p.gateway)
 	if err != nil {
 		return errors.WrapPrefix(err, errorMessage, 0)
 	}

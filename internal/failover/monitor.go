@@ -51,7 +51,7 @@ func (m *DroppedConMon) Start(gateway string, mtuSize int) (bool, error) {
 	defer m.cancel()
 
 	// Create a ping struct with our mtu size
-	p, err := NewPinger(mtuSize)
+	p, err := NewPinger(gateway, mtuSize)
 	if err != nil {
 		return false, err
 	}
@@ -64,7 +64,7 @@ func (m *DroppedConMon) Start(gateway string, mtuSize int) (bool, error) {
 
 	// Send a ping and wait for max 2 seconds
 	// If we have then increased Rx bytes we return early
-	if err = p.Send(gateway, 1); err != nil {
+	if err = p.Send(1); err != nil {
 		log.Logger.Debugf("[Failover] First ping failed, exiting...")
 		return false, err
 	}
@@ -90,7 +90,7 @@ func (m *DroppedConMon) Start(gateway string, mtuSize int) (bool, error) {
 	for s := 2; s <= m.pDropped; s++ {
 		log.Logger.Debugf("[Failover] Sending ping: %d, with size: %d", s, mtuSize)
 		// Send a ping and return if an error occurs
-		if err := p.Send(gateway, s); err != nil {
+		if err := p.Send(s); err != nil {
 			log.Logger.Debugf("[Failover] A ping failed, exiting...")
 			return false, err
 		}
