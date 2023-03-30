@@ -675,21 +675,9 @@ func (c *Client) SetProfileID(profileID string) (err error) {
 }
 
 func (c *Client) StartFailover(gateway string, wgMTU int, readRxBytes func() (int64, error)) (bool, error) {
-	currentServer, currentServerErr := c.Servers.GetCurrentServer()
-	if currentServerErr != nil {
-		return false, currentServerErr
+	if c.Failover != nil {
+		return false, errors.New("another failover process is already started")
 	}
-
-	// Check if the current profile supports OpenVPN
-	profile, profileErr := server.CurrentProfile(currentServer)
-	if profileErr != nil {
-		return false, profileErr
-	}
-
-	if !profile.SupportsOpenVPN() {
-		return false, errors.New("Profile does not support OpenVPN fallback")
-	}
-
 	c.Failover = failover.New(readRxBytes)
 
 	return c.Failover.Start(gateway, wgMTU)
