@@ -254,7 +254,7 @@ func (c *Client) AddInstituteServer(url string) (err error) {
 
 	// Not supported with Let's Connect!
 	if c.isLetsConnect() {
-		return errors.Errorf("discovery with Let's Connect is not supported")
+		return errors.Errorf("adding and Institute Access server with Let's Connect is not supported")
 	}
 
 	// Indicate that we're loading the server
@@ -316,7 +316,7 @@ func (c *Client) AddSecureInternetHomeServer(orgID string) (err error) {
 
 	// Not supported with Let's Connect!
 	if c.isLetsConnect() {
-		return errors.Errorf("discovery with Let's Connect is not supported")
+		return errors.Errorf("adding a secure internet server with Let's Connect is not supported")
 	}
 
 	// Indicate that we're loading the server
