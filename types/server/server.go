@@ -89,6 +89,8 @@ type SecureInternet struct {
 	Server
 	// CountryCode is the country code of the currently configured location, e.g. "nl"
 	CountryCode string `json:"country_code"`
+	// Locations is the list of available secure internet locations
+	Locations []string `json:"locations"`
 	// Delisted is a boolean that indicates whether or not this server is delisted from discovery
 	// If it is, the UI should show a warning symbol or move the server to a new category, which is up to the client
 	Delisted bool `json:"delisted"`
