@@ -1,23 +1,18 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"net/url"
 	"os"
+	"reflect"
 	"strings"
 
 	"github.com/eduvpn/eduvpn-common/client"
+	"github.com/eduvpn/eduvpn-common/types/cookie"
 	srvtypes "github.com/eduvpn/eduvpn-common/types/server"
 	"github.com/go-errors/errors"
-)
-
-type ServerTypes int8
-
-const (
-	ServerTypeInstituteAccess ServerTypes = iota
-	ServerTypeSecureInternet
-	ServerTypeCustom
 )
 
 // Open a browser with xdg-open.
@@ -98,9 +93,14 @@ func GetLanguageMatched(langMap map[string]string, langTag string) string {
 // Ask for a profile in the command line.
 func sendProfile(state *client.Client, data interface{}) {
 	fmt.Printf("Multiple VPN profiles found. Please select a profile by entering e.g. 1")
-	sps, ok := data.(srvtypes.Profiles)
+	d, ok := data.(*srvtypes.RequiredAskTransition)
 	if !ok {
-		fmt.Fprintln(os.Stderr, "invalid data type")
+		fmt.Fprintf(os.Stderr, "\ninvalid data type: %v\n", reflect.TypeOf(data))
+		return
+	}
+	sps, ok := d.Data.(srvtypes.Profiles)
+	if !ok {
+		fmt.Fprintf(os.Stderr, "\ninvalid data type for profiles: %v\n", reflect.TypeOf(d.Data))
 		return
 	}
 
@@ -126,7 +126,7 @@ func sendProfile(state *client.Client, data interface{}) {
 
 	p := options[idx-1]
 	fmt.Println("Sending profile ID", p)
-	if err := state.SetProfileID(p); err != nil {
+	if err := d.C.Send(p); err != nil {
 		fmt.Fprintln(os.Stderr, "failed setting profile with error", err)
 	}
 }
@@ -146,33 +146,21 @@ func stateCallback(state *client.Client, _ client.FSMStateID, newState client.FS
 }
 
 // Get a config for Institute Access or Secure Internet Server.
-func getConfig(state *client.Client, url string, srvType ServerTypes) (*srvtypes.Configuration, error) {
+func getConfig(state *client.Client, url string, srvType srvtypes.Type) (*srvtypes.Configuration, error) {
 	if !strings.HasPrefix(url, "http") {
 		url = "https://" + url
 	}
-	// Prefer TCP is set to False
-	if srvType == ServerTypeInstituteAccess {
-		err := state.AddInstituteServer(url)
-		if err != nil {
-			return nil, err
-		}
-		return state.GetConfigInstituteAccess(url, false, srvtypes.Tokens{})
-	} else if srvType == ServerTypeCustom {
-		err := state.AddCustomServer(url)
-		if err != nil {
-			return nil, err
-		}
-		return state.GetConfigCustomServer(url, false, srvtypes.Tokens{})
-	}
-	err := state.AddSecureInternetHomeServer(url)
+	ck := cookie.NewWithContext(context.Background())
+	defer ck.Cancel() //nolint:errcheck
+	err := state.AddServer(&ck, url, srvType, false)
 	if err != nil {
 		return nil, err
 	}
-	return state.GetConfigSecureInternet(url, false, srvtypes.Tokens{})
+	return state.GetConfig(&ck, url, srvType, false)
 }
 
 // Get a config for a single server, Institute Access or Secure Internet.
-func printConfig(url string, srvType ServerTypes) {
+func printConfig(url string, srvType srvtypes.Type) {
 	var c *client.Client
 	c, err := client.New(
 		"org.eduvpn.app.linux",
@@ -215,11 +203,11 @@ func main() {
 	// Connect to a VPN by getting an Institute Access config
 	switch {
 	case *cu != "":
-		printConfig(*cu, ServerTypeCustom)
+		printConfig(*cu, srvtypes.TypeCustom)
 	case *u != "":
-		printConfig(*u, ServerTypeInstituteAccess)
+		printConfig(*u, srvtypes.TypeInstituteAccess)
 	case *sec != "":
-		printConfig(*sec, ServerTypeSecureInternet)
+		printConfig(*sec, srvtypes.TypeSecureInternet)
 	default:
 		flag.PrintDefaults()
 	}
