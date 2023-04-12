@@ -2,9 +2,6 @@ package client
 
 import (
 	"github.com/eduvpn/eduvpn-common/internal/fsm"
-	"github.com/eduvpn/eduvpn-common/internal/log"
-	"github.com/eduvpn/eduvpn-common/internal/server"
-	"github.com/go-errors/errors"
 )
 
 type (
@@ -94,7 +91,6 @@ func newFSM(
 		},
 		StateNoServer: FSMState{
 			Transitions: []FSMTransition{
-				{To: StateNoServer, Description: "Reload list"},
 				{To: StateLoadingServer, Description: "User clicks a server in the UI"},
 			},
 		},
@@ -169,48 +165,4 @@ func newFSM(
 	returnedFSM := fsm.FSM{}
 	returnedFSM.Init(StateDeregistered, states, callback, directory, GetStateName, debug)
 	return returnedFSM
-}
-
-// GoBack transitions the FSM back to the previous UI state, for now this is always the NO_SERVER state.
-func (c *Client) GoBack() error {
-	if c.InFSMState(StateDeregistered) {
-		err := errors.Errorf("fsm attempt going back from 'StateDeregistered'")
-		c.logError(err)
-		return err
-	}
-
-	// FIXME: Arbitrary back transitions don't work because we need the appropriate data
-	c.FSM.GoTransition(StateNoServer)
-	return nil
-}
-
-// goBackInternal uses the public go back but logs an error if it happened.
-func (c *Client) goBackInternal() {
-	err := c.GoBack()
-	if err != nil {
-		// TODO(jwijenbergh): Bit suspicious - logging level INFO, yet stacktrace logged.
-		log.Logger.Infof("failed going back: %s\nstacktrace:\n%s", err.Error(), err.(*errors.Error).ErrorStack())
-	}
-}
-
-// CancelOAuth cancels OAuth if one is in progress.
-// If OAuth is not in progress, it returns an error.
-// An error is also returned if OAuth is in progress, but it fails to cancel it.
-func (c *Client) CancelOAuth() error {
-	if !c.InFSMState(StateOAuthStarted) {
-		return errors.Errorf("fsm attempt cancelling OAuth while in '%v'", c.FSM.Current)
-	}
-
-	srv, err := c.Servers.GetCurrentServer()
-	if err != nil {
-		c.logError(err)
-	} else {
-		server.CancelOAuth(srv)
-	}
-	return err
-}
-
-// InFSMState is a helper to check if the FSM is in state `checkState`.
-func (c *Client) InFSMState(checkState FSMStateID) bool {
-	return c.FSM.InState(checkState)
 }
