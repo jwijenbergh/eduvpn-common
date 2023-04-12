@@ -1,5 +1,13 @@
-from ctypes import (CDLL, CFUNCTYPE, Structure, c_char_p, c_int, c_ulonglong,
-                    c_void_p, cast)
+from ctypes import (
+    CDLL,
+    CFUNCTYPE,
+    Structure,
+    c_char_p,
+    c_int,
+    c_ulonglong,
+    c_void_p,
+    cast,
+)
 from typing import Any, Iterator, List, Tuple
 
 
@@ -86,9 +94,7 @@ def get_ptr_string(lib: CDLL, ptr: c_void_p) -> str:
     return ""
 
 
-def get_data_error(
-    lib: CDLL, data_error: DataError
-) -> Tuple[str, str]:
+def get_data_error(lib: CDLL, data_error: DataError) -> Tuple[str, str]:
     """Convert a C data+error structure to a Python usable data+error structure
 
     :param lib: CDLL: The Go shared library
@@ -104,9 +110,7 @@ def get_data_error(
     return data, error
 
 
-def get_bool_error(
-    lib: CDLL, bool_error: BoolError
-) -> Tuple[bool, str]:
+def get_bool_error(lib: CDLL, bool_error: BoolError) -> Tuple[bool, str]:
     """Convert a C boolean (c int)+error structure to a Python usable boolean+error structure
 
     :param lib: CDLL: The Go shared library

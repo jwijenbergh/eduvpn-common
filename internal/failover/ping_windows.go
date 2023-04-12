@@ -15,5 +15,6 @@ func NewPinger(gateway string, size int) (*Pinger, error) {
 	return &Pinger{
 		listener: l,
 		buffer:   make([]byte, size-mtuOverhead),
-		gateway:  &net.IPAddr{IP: net.ParseIP(gateway)}}, nil
+		gateway:  &net.IPAddr{IP: net.ParseIP(gateway)},
+	}, nil
 }

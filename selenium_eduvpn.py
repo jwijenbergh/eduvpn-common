@@ -46,15 +46,15 @@ def login_oauth(driver, authURL):
     elem.send_keys(portal_pass)
 
     # Click login button
-    driver.find_element("css selector",
-        ".frm > fieldset:nth-child(2) > button:nth-child(2)"
+    driver.find_element(
+        "css selector", ".frm > fieldset:nth-child(2) > button:nth-child(2)"
     ).click()
 
     # Check that we have reached the approve application page
     assert "VPN Portal - Approve Application" in driver.title
     # Click approve
-    driver.find_element("css selector",
-        ".frm > fieldset:nth-child(1) > button:nth-child(1)"
+    driver.find_element(
+        "css selector", ".frm > fieldset:nth-child(1) > button:nth-child(1)"
     ).click()
 
 
