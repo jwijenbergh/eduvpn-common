@@ -5,7 +5,7 @@ import (
 )
 
 func TestEnsureValidURL(t *testing.T) {
-	_, validErr := EnsureValidURL("%notvalid%")
+	_, validErr := EnsureValidURL("%notvalid%", true)
 
 	if validErr == nil {
 		t.Fatal("Got nil error, want: non-nil")
@@ -27,7 +27,7 @@ func TestEnsureValidURL(t *testing.T) {
 	}
 
 	for k, v := range testCases {
-		valid, validErr := EnsureValidURL(k)
+		valid, validErr := EnsureValidURL(k, true)
 		if validErr != nil {
 			t.Fatalf("Got: %v, want: nil", validErr)
 		}

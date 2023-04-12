@@ -50,7 +50,7 @@ func cleanPath(u *url.URL, trailing bool) string {
 // - It 'cleans' up the path using path.Clean
 // - It makes sure that the URL ends with a /
 // It returns an error if the URL cannot be parsed.
-func EnsureValidURL(s string) (string, error) {
+func EnsureValidURL(s string, trailing bool) (string, error) {
 	u, err := url.Parse(s)
 	if err != nil {
 		return "", errors.WrapPrefix(err, "failed parsing url", 0)
@@ -60,7 +60,7 @@ func EnsureValidURL(s string) (string, error) {
 	if u.Scheme != "https" {
 		u.Scheme = "https"
 	}
-	return cleanPath(u, true), nil
+	return cleanPath(u, trailing), nil
 }
 
 // JoinURLPath joins url's path, in go 1.19 we can use url.JoinPath
@@ -155,18 +155,18 @@ func NewClient() *Client {
 }
 
 // Get creates a Get request and returns the headers, body and an error.
-func (c *Client) Get(url string) (http.Header, []byte, error) {
-	return c.Do(http.MethodGet, url, nil)
+func (c *Client) Get(ctx context.Context, url string) (http.Header, []byte, error) {
+	return c.Do(ctx, http.MethodGet, url, nil)
 }
 
 // PostWithOpts creates a Post request with optional parameters and returns the headers, body and an error.
-func (c *Client) PostWithOpts(url string, opts *OptionalParams) (http.Header, []byte, error) {
-	return c.Do(http.MethodPost, url, opts)
+func (c *Client) PostWithOpts(ctx context.Context, url string, opts *OptionalParams) (http.Header, []byte, error) {
+	return c.Do(ctx, http.MethodPost, url, opts)
 }
 
 // MethodWithOpts Do send a HTTP request using a method (e.g. GET, POST), an url and optional parameters
 // It returns the HTTP headers, the body and an error if there is one.
-func (c *Client) Do(method string, urlStr string, opts *OptionalParams) (http.Header, []byte, error) {
+func (c *Client) Do(ctx context.Context, method string, urlStr string, opts *OptionalParams) (http.Header, []byte, error) {
 	// Make sure the url contains all the parameters
 	// This can return an error,
 	// it already has the right error, so we don't wrap it further
@@ -182,7 +182,7 @@ func (c *Client) Do(method string, urlStr string, opts *OptionalParams) (http.He
 		timeout = opts.Timeout
 	}
 
-	ctx, cncl := context.WithTimeout(context.Background(), timeout)
+	ctx, cncl := context.WithTimeout(ctx, timeout)
 	defer cncl()
 
 	// Create request object with the body reader generated from the optional arguments
