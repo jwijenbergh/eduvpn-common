@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/eduvpn/eduvpn-common/internal/log"
+	"github.com/eduvpn/eduvpn-common/types/server"
 	"github.com/go-errors/errors"
 )
 
@@ -36,6 +37,14 @@ type Token struct {
 
 	// ExpiredTimestamp is the Expires field but converted to a Go timestamp
 	ExpiredTimestamp time.Time
+}
+
+func (t *Token) Public() server.Tokens {
+	return server.Tokens{
+		Access:  t.Access,
+		Refresh: t.Refresh,
+		Expires: t.ExpiredTimestamp.Unix(),
+	}
 }
 
 // tokenRefresher is a structure that contains our access and refresh tokens and a timestamp when they expire.
