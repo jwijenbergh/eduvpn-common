@@ -17,9 +17,6 @@ type DroppedConMon struct {
 	// The function that reads Rx bytes
 	// If this function returns an error, the monitor exits
 	readRxBytes func() (int64, error)
-	// The cancel context
-	// This is used to cancel the dropped connection monitor
-	cancel context.CancelFunc
 }
 
 func NewDroppedMonitor(pingInterval time.Duration, pDropped int, readRxBytes func() (int64, error)) *DroppedConMon {
@@ -40,15 +37,10 @@ func (m *DroppedConMon) dropped(startBytes int64) (bool, error) {
 // Start starts ticking every ping interval and check if the connection is dropped or alive
 // This does not check Rx bytes every tick, but rather when pAlive or pDropped is reached
 // It returns an error if there was an invalid input or a ping was failed to be sent
-func (m *DroppedConMon) Start(gateway string, mtuSize int) (bool, error) {
+func (m *DroppedConMon) Start(ctx context.Context, gateway string, mtuSize int) (bool, error) {
 	if mtuSize <= 0 {
 		return false, errors.New("invalid mtu size given")
 	}
-
-	// Create a context and save the cancel function
-	ctx, cancel := context.WithCancel(context.Background())
-	m.cancel = cancel
-	defer m.cancel()
 
 	// Create a ping struct with our mtu size
 	p, err := NewPinger(gateway, mtuSize)
@@ -99,17 +91,10 @@ func (m *DroppedConMon) Start(gateway string, mtuSize int) (bool, error) {
 		case <-ticker.C:
 			continue
 		case <-ctx.Done():
-			return false, errors.New("failover was cancelled")
+			return false, errors.WrapPrefix(context.Canceled, "failover was stopped", 0)
 		}
 	}
 
 	// Dropped check if we have not returned early
 	return m.dropped(b)
-}
-
-// Cancel cancels the dropped connection failover monitor if there is one
-func (m *DroppedConMon) Cancel() {
-	if m.cancel != nil {
-		m.cancel()
-	}
 }
