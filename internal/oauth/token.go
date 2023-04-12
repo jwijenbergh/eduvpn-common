@@ -1,6 +1,7 @@
 package oauth
 
 import (
+	"context"
 	"fmt"
 	"sync"
 	"time"
@@ -42,7 +43,7 @@ type Token struct {
 type tokenRefresher struct {
 	Token
 	// Refresher is the function that refreshes the token
-	Refresher func(string) (*TokenResponse, time.Time, error)
+	Refresher func(context.Context, string) (*TokenResponse, time.Time, error)
 }
 
 // tokenLock is a wrapper around token that protects it with a lock
@@ -58,7 +59,7 @@ type tokenLock struct {
 // Access gets the OAuth access token used for contacting the server API
 // It returns the access token as a string, possibly obtained fresh using the refresher
 // If the token cannot be obtained, an error is returned and the token is an empty string.
-func (l *tokenLock) Access() (string, error) {
+func (l *tokenLock) Access(ctx context.Context) (string, error) {
 	log.Logger.Debugf("Getting access token")
 	l.mu.Lock()
 	defer l.mu.Unlock()
@@ -78,7 +79,7 @@ func (l *tokenLock) Access() (string, error) {
 	}
 
 	// Otherwise refresh and then later return the access token if we are successful
-	tr, s, err := l.t.Refresher(l.t.Refresh)
+	tr, s, err := l.t.Refresher(ctx, l.t.Refresh)
 	if err != nil {
 		log.Logger.Debugf("Got a refresh token error: %v", err)
 		// We have failed to ensure the tokens due to refresh not working

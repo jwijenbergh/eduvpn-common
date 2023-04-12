@@ -1,6 +1,7 @@
 package oauth
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/url"
@@ -60,7 +61,7 @@ func Test_challengergen(t *testing.T) {
 
 func Test_accessToken(t *testing.T) {
 	o := OAuth{}
-	_, err := o.AccessToken()
+	_, err := o.AccessToken(context.Background())
 	if err == nil {
 		t.Fatalf("No error when getting access token on empty structure")
 	}
@@ -69,7 +70,7 @@ func Test_accessToken(t *testing.T) {
 	want := "test"
 	expired := time.Now().Add(1 * time.Hour)
 	o = OAuth{token: &tokenLock{t: &tokenRefresher{Token: Token{Access: want, ExpiredTimestamp: expired}}}}
-	got, err := o.AccessToken()
+	got, err := o.AccessToken(context.Background())
 	if err != nil {
 		t.Fatalf("Got error when getting access token on non-empty structure: %v", err)
 	}
@@ -80,8 +81,8 @@ func Test_accessToken(t *testing.T) {
 	// Set the tokens as expired
 	o.SetTokenExpired()
 
-	// We should get an error because expired and no refresh token
-	_, err = o.AccessToken()
+	// We should not get an error because expired and no refresh token
+	_, err = o.AccessToken(context.Background())
 	if err == nil {
 		t.Fatal("Got no error when getting access token on non-empty structure and expired")
 	}
@@ -90,7 +91,7 @@ func Test_accessToken(t *testing.T) {
 	// Now we internally update the refresh function and refresh token, we should get new tokens
 	refresh := "refresh"
 	o.token.t.Refresh = refresh
-	o.token.t.Refresher = func(refreshToken string) (*TokenResponse, time.Time, error) {
+	o.token.t.Refresher = func(ctx context.Context, refreshToken string) (*TokenResponse, time.Time, error) {
 		if refreshToken != refresh {
 			t.Fatalf("Passed refresh token to refresher not equal to updated refresh token, got: %v, want: %v", refreshToken, refresh)
 		}
@@ -99,7 +100,7 @@ func Test_accessToken(t *testing.T) {
 		return r, expired, nil
 	}
 
-	got, err = o.AccessToken()
+	got, err = o.AccessToken(context.Background())
 	if err != nil {
 		t.Fatalf("Got error when getting access token on non-empty expired structure and with a 'valid' refresh token: %v", err)
 	}
