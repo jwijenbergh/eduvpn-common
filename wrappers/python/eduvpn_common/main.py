@@ -2,8 +2,7 @@ from enum import IntEnum
 from typing import Any, Callable, Iterator, Optional
 
 from eduvpn_common.loader import initialize_functions, load_lib
-from eduvpn_common.types import (ReadRxBytes, VPNStateChange, decode_res,
-                                  encode_args, get_bool, get_data_error)
+from eduvpn_common.types import ReadRxBytes, VPNStateChange, decode_res, encode_args
 
 
 class WrappedError(Exception):
@@ -24,6 +23,24 @@ class ServerType(IntEnum):
     CUSTOM = 3
 
 
+class Jar(object):
+    """A cookie jar"""
+
+    def __init__(self, canceller):
+        self.cookies = []
+        self.canceller = canceller
+
+    def add(self, cookie):
+        self.cookies.append(cookie)
+
+    def delete(self, cookie):
+        self.cookies.remove(cookie)
+
+    def cancel(self):
+        for cookie in self.cookies:
+            self.canceller(cookie)
+
+
 class EduVPN(object):
     """The main class used to communicate with the Go library.
     It registers the client with the library and then calls the needed appropriate functions
@@ -38,14 +55,21 @@ class EduVPN(object):
         self.name = name
         self.version = version
         self.config_directory = config_directory
+        self.jar = Jar(lambda x: self.go_function(self.lib.CookieCancel, x))
 
         # Load the library
         self.lib = load_lib()
         initialize_functions(self.lib)
 
-    def go_function(
-        self, func: Any, *args: Iterator
-    ) -> Any:
+    def go_cookie_function(self, func: Any, *args: Iterator) -> Any:
+        cookie = self.lib.CookieNew()
+        self.jar.add(cookie)
+        res = self.go_function(func, cookie, *args)
+        self.jar.delete(cookie)
+        self.lib.CookieDelete(cookie)
+        return res
+
+    def go_function(self, func: Any, *args: Iterator) -> Any:
         """Call an internal go function and properly forward the arguments.
         Also handles decoding the result
 
@@ -58,13 +82,6 @@ class EduVPN(object):
         args_gen = encode_args(list(args), func.argtypes)
         res = func(*(args_gen))
         return decode_res(func.restype)(self.lib, res)
-
-    def cancel_oauth(self) -> None:
-        """Cancel the OAuth process"""
-        cancel_oauth_err = self.go_function(self.lib.CancelOAuth)
-
-        if cancel_oauth_err:
-            forwardError(cancel_oauth_err)
 
     def deregister(self) -> None:
         """Deregister the Go shared library.
@@ -98,15 +115,16 @@ class EduVPN(object):
         if register_err:
             forwardError(register_err)
 
-    def add_server(self, _type: ServerType, _id: str) -> None:
+    def add_server(self, _type: ServerType, _id: str, ni: bool = False) -> None:
         """Add a server
 
         :param _type: ServerType: The type of server e.g. SERVER.INSTITUTE_ACCESS
         :param _id: str: The identifier of the server, e.g. "https://vpn.example.com/"
+        :param ni: bool: Whether the server should be added non interactively, meaning no callbacks
 
         :raises WrappedError: An error by the Go library
         """
-        add_err = self.go_function(self.lib.AddServer, int(_type), _id)
+        add_err = self.go_cookie_function(self.lib.AddServer, int(_type), _id, ni)
 
         if add_err:
             forwardError(add_err)
@@ -123,19 +141,13 @@ class EduVPN(object):
             forwardError(server_err)
         return server
 
-    def get_secure_locations(self) -> Optional[str]:
-        locs, locs_err = self.go_function(self.lib.SecureLocationList)
-        if locs_err:
-            forwardError(locs_err)
-        return locs
-
     def get_disco_organizations(self) -> Optional[str]:
-        orgs, _ = self.go_function(self.lib.DiscoOrganizations)
+        orgs, _ = self.go_cookie_function(self.lib.DiscoOrganizations)
         # TODO: Log error
         return orgs
 
     def get_disco_servers(self) -> Optional[str]:
-        servers, _ = self.go_function(self.lib.DiscoServers)
+        servers, _ = self.go_cookie_function(self.lib.DiscoServers)
         # TODO: Log error
         return servers
 
@@ -159,7 +171,7 @@ class EduVPN(object):
             forwardError(remove_err)
 
     def get_config(
-        self, _type: ServerType, identifier: str, prefer_tcp: bool = False, tokens: str = "{}"
+        self, _type: ServerType, identifier: str, prefer_tcp: bool = False
     ) -> Optional[str]:
         """Get an OpenVPN/WireGuard configuration from the server
 
@@ -178,12 +190,11 @@ class EduVPN(object):
         # Because it could be the case that a profile callback is started, store a threading event
         # In the constructor, we have defined a wait event for Ask_Profile, this waits for this event to be set
         # The event is set in self.set_profile
-        config, config_err = self.go_function(
+        config, config_err = self.go_cookie_function(
             self.lib.GetConfig,
-            _type,
+            int(_type),
             identifier,
             prefer_tcp,
-            tokens,
         )
 
         if config_err:
@@ -191,14 +202,14 @@ class EduVPN(object):
 
         return config
 
-    def cleanup(self, tokens: str = "") -> None:
+    def cleanup(self) -> None:
         """Cleanup the vpn connection
 
         :param tokens: str  (Default value = ""): The OAuth tokens if available
 
         :raises WrappedError: An error by the Go library
         """
-        cleanup_err = self.go_function(self.lib.Cleanup, tokens)
+        cleanup_err = self.go_cookie_function(self.lib.Cleanup)
 
         if cleanup_err:
             forwardError(cleanup_err)
@@ -231,19 +242,25 @@ class EduVPN(object):
         :raises WrappedError: An error by the Go library
         """
         # Set the location by country code
-        location_err = self.go_function(self.lib.SetSecureLocation, country_code)
+        location_err = self.go_cookie_function(self.lib.SetSecureLocation, country_code)
 
         # If there is a location event, set it so that the wait callback finishes
         # And so that the Go code can move to the next state
         if location_err:
             forwardError(location_err)
 
+    def cookie_reply(self, cookie: int, data: str) -> None:
+        """Reply with the given cookie and data"""
+        cookie_err = self.go_function(self.lib.CookieReply, cookie, data)
+        if cookie_err:
+            forwardError(cookie_err)
+
     def renew_session(self) -> None:
         """Renew the session. This invalidates the tokens and runs the necessary callbacks to log back in
 
         :raises WrappedError: An error by the Go library
         """
-        renew_err = self.go_function(self.lib.RenewSession)
+        renew_err = self.go_cookie_function(self.lib.RenewSession)
 
         if renew_err:
             forwardError(renew_err)
@@ -263,7 +280,7 @@ class EduVPN(object):
     def start_failover(
         self, gateway: str, wg_mtu: int, readrxbytes: ReadRxBytes
     ) -> bool:
-        dropped, dropped_err = self.go_function(
+        dropped, dropped_err = self.go_cookie_function(
             self.lib.StartFailover,
             gateway,
             wg_mtu,
@@ -273,10 +290,8 @@ class EduVPN(object):
             forwardError(dropped_err)
         return dropped
 
-    def cancel_failover(self):
-        cancel_err = self.go_function(self.lib.CancelFailover)
-        if cancel_err:
-            forwardError(cancel_err)
+    def cancel(self):
+        self.jar.cancel()
 
 
 callback_object: Optional[Callable] = None
