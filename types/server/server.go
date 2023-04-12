@@ -1,7 +1,10 @@
 // package server defines public types that have to deal with the VPN server
 package server
 
-import "github.com/eduvpn/eduvpn-common/types/protocol"
+import (
+	"github.com/eduvpn/eduvpn-common/types/cookie"
+	"github.com/eduvpn/eduvpn-common/types/protocol"
+)
 
 // Type gives the type of server
 type Type int8
@@ -16,6 +19,17 @@ const (
 	// TypeCustom means the server is of type Custom Server
 	TypeCustom
 )
+
+// RequiredAskTransition represents the data that is sent when a transition is required to be handled and the go library needs data from the client
+// This data can be a profile selection or secure internet location selection
+type RequiredAskTransition struct {
+	// C is the cookie which is needed for replying to the library, see CookieReply in exports/exports.go
+	// If this cookie is omitted, it is a protocol error
+	C *cookie.Cookie `json:"cookie,omitempty"`
+	// Data is the data associated to the transition, e.g. the list of profiles (Profiles struct)
+	// or the list of secure internet locations ([]string)
+	Data interface{} `json:"data"`
+}
 
 // Expiry is the struct that gives the time at which certain expiry elements should be shown
 type Expiry struct {
