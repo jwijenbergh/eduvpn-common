@@ -1,4 +1,4 @@
-package server
+package profile
 
 import "testing"
 
@@ -86,9 +86,9 @@ func Test_CurrentProfileIndex(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		pri := &ProfileInfo{
+		pri := &Info{
 			Current: tc.current,
-			Info: ProfileListInfo{
+			Info: ListInfo{
 				ProfileList: tc.profiles,
 			},
 		}

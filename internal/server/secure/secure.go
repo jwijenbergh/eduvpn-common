@@ -1,20 +1,25 @@
-package server
+package secure
 
 import (
+	"context"
+
 	"github.com/eduvpn/eduvpn-common/internal/oauth"
+	"github.com/eduvpn/eduvpn-common/internal/server/api"
+	"github.com/eduvpn/eduvpn-common/internal/server/base"
 	"github.com/eduvpn/eduvpn-common/internal/util"
 	discotypes "github.com/eduvpn/eduvpn-common/types/discovery"
+	"github.com/eduvpn/eduvpn-common/types/server"
 	"github.com/go-errors/errors"
 )
 
-// SecureInternetHomeServer secure internet server which has its own OAuth tokens
+// Server secure internet server which has its own OAuth tokens
 // It specifies the current location url it is connected to.
-type SecureInternetHomeServer struct {
+type Server struct {
 	Auth        oauth.OAuth       `json:"oauth"`
 	DisplayName map[string]string `json:"display_name"`
 
 	// The home server has a list of info for each configured server location
-	BaseMap map[string]*Base `json:"base_map"`
+	BaseMap map[string]*base.Base `json:"base_map"`
 
 	// We have the authorization URL template, the home organization ID and the current location
 	AuthorizationTemplate string `json:"authorization_template"`
@@ -22,46 +27,13 @@ type SecureInternetHomeServer struct {
 	CurrentLocation       string `json:"current_location"`
 }
 
-func (ss *Servers) GetSecureInternetHomeServer() (*SecureInternetHomeServer, error) {
-	if !ss.HasSecureLocation() {
-		return nil, errors.Errorf("no secure internet home server")
-	}
-	return &ss.SecureInternetHomeServer, nil
-}
-
-func (ss *Servers) SetSecureInternet(server Server) error {
-	b, err := server.Base()
-	if err != nil {
-		return err
-	}
-
-	if b.Type != "secure_internet" {
-		return errors.Errorf("not a secure internet server")
-	}
-
-	// The location should already be configured
-	// TODO: check for location?
-	ss.IsType = SecureInternetServerType
-	return nil
-}
-
-func (ss *Servers) RemoveSecureInternet() {
-	// Empty out the struct
-	ss.SecureInternetHomeServer = SecureInternetHomeServer{}
-
-	// If the current server is secure internet, default to custom server
-	if ss.IsType == SecureInternetServerType {
-		ss.IsType = CustomServerType
-	}
-}
-
-func (s *SecureInternetHomeServer) TemplateAuth() func(string) string {
+func (s *Server) TemplateAuth() func(string) string {
 	return func(authURL string) string {
 		return util.ReplaceWAYF(s.AuthorizationTemplate, authURL, s.HomeOrganizationID)
 	}
 }
 
-func (s *SecureInternetHomeServer) Base() (*Base, error) {
+func (s *Server) Base() (*base.Base, error) {
 	if s.BaseMap == nil {
 		return nil, errors.Errorf("secure internet map not found")
 	}
@@ -73,30 +45,36 @@ func (s *SecureInternetHomeServer) Base() (*Base, error) {
 	return b, nil
 }
 
-func (s *SecureInternetHomeServer) OAuth() *oauth.OAuth {
+func (s *Server) OAuth() *oauth.OAuth {
 	return &s.Auth
 }
 
-func (ss *Servers) HasSecureLocation() bool {
-	return ss.SecureInternetHomeServer.CurrentLocation != ""
+func (s *Server) NeedsLocation() bool {
+	if s.CurrentLocation == "" {
+		return true
+	}
+	if len(s.BaseMap) == 0 {
+		return true
+	}
+	return false
 }
 
-func (s *SecureInternetHomeServer) addLocation(locSrv *discotypes.Server) (*Base, error) {
+func (s *Server) addLocation(ctx context.Context, locSrv *discotypes.Server) (*base.Base, error) {
 	// Initialize the base map if it is non-nil
 	if s.BaseMap == nil {
-		s.BaseMap = make(map[string]*Base)
+		s.BaseMap = make(map[string]*base.Base)
 	}
 
 	// Add the location to the base map
 	b, ok := s.BaseMap[locSrv.CountryCode]
 	if !ok || b == nil {
 		// Create the base to be added to the map
-		b = &Base{}
+		b = &base.Base{}
 		b.URL = locSrv.BaseURL
 		b.DisplayName = s.DisplayName
 		b.SupportContact = locSrv.SupportContact
-		b.Type = "secure_internet"
-		if err := b.InitializeEndpoints(); err != nil {
+		b.Type = server.TypeSecureInternet
+		if err := api.Endpoints(ctx, b); err != nil {
 			return nil, err
 		}
 	}
@@ -106,13 +84,22 @@ func (s *SecureInternetHomeServer) addLocation(locSrv *discotypes.Server) (*Base
 	return b, nil
 }
 
+func (s *Server) Location(ctx context.Context, locSrv *discotypes.Server) error {
+	if _, err := s.addLocation(ctx, locSrv); err != nil {
+		return err
+	}
+	s.CurrentLocation = locSrv.CountryCode
+	return nil
+}
+
 // Initializes the home server and adds its own location.
-func (s *SecureInternetHomeServer) init(
+func (s *Server) Init(
+	ctx context.Context,
 	homeOrg *discotypes.Organization, homeLoc *discotypes.Server,
 ) error {
 	if s.HomeOrganizationID != homeOrg.OrgID {
 		// New home organisation, clear everything
-		*s = SecureInternetHomeServer{}
+		*s = Server{}
 	}
 
 	// Make sure to set the organization ID
@@ -122,7 +109,13 @@ func (s *SecureInternetHomeServer) init(
 	// Make sure to set the authorization URL template
 	s.AuthorizationTemplate = homeLoc.AuthenticationURLTemplate
 
-	b, err := s.addLocation(homeLoc)
+	b, err := s.addLocation(ctx, homeLoc)
+	if err != nil {
+		return err
+	}
+
+	// set the home location as the current
+	err = s.Location(ctx, homeLoc)
 	if err != nil {
 		return err
 	}
@@ -135,4 +128,22 @@ func (s *SecureInternetHomeServer) init(
 	// Make sure oauth contains our endpoints
 	s.Auth.Init(b.URL, b.Endpoints.API.V3.Authorization, b.Endpoints.API.V3.Token)
 	return nil
+}
+
+func (s *Server) Public() (interface{}, error) {
+	b, err := s.Base()
+	var p server.Profiles
+	dn := s.DisplayName
+	if err == nil {
+		dn = b.DisplayName
+		p = b.Profiles.Public()
+	}
+	return &server.SecureInternet{
+		Server: server.Server{
+			DisplayName: dn,
+			Identifier:  s.HomeOrganizationID,
+			Profiles:    p,
+		},
+		CountryCode: s.CurrentLocation,
+	}, nil
 }

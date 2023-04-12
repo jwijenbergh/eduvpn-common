@@ -1,47 +1,25 @@
-package server
+package base
 
 import (
 	"time"
 
 	"github.com/eduvpn/eduvpn-common/internal/http"
+	"github.com/eduvpn/eduvpn-common/internal/server/endpoints"
+	"github.com/eduvpn/eduvpn-common/internal/server/profile"
+	"github.com/eduvpn/eduvpn-common/types/server"
 )
 
 // Base is the base type for servers.
 type Base struct {
-	URL            string            `json:"base_url"`
-	DisplayName    map[string]string `json:"display_name"`
-	SupportContact []string          `json:"support_contact"`
-	Endpoints      Endpoints         `json:"endpoints"`
-	Profiles       ProfileInfo       `json:"profiles"`
-	StartTime      time.Time         `json:"start_time"`
-	EndTime        time.Time         `json:"expire_time"`
-	Type           string            `json:"server_type"`
-	httpClient     *http.Client
-}
-
-func (b *Base) InitializeEndpoints() error {
-	ep, err := APIGetEndpoints(b.URL, b.httpClient)
-	if err != nil {
-		return err
-	}
-	b.Endpoints = *ep
-	return nil
-}
-
-func (b *Base) ValidProfiles(wireguardSupport bool) ProfileInfo {
-	var valid []Profile
-	for _, p := range b.Profiles.Info.ProfileList {
-		// Not a valid profile because it does not support openvpn
-		// Also the client does not support wireguard
-		if !p.SupportsOpenVPN() && !wireguardSupport {
-			continue
-		}
-		valid = append(valid, p)
-	}
-	return ProfileInfo{
-		Current: b.Profiles.Current,
-		Info:    ProfileListInfo{ProfileList: valid},
-	}
+	URL            string              `json:"base_url"`
+	DisplayName    map[string]string   `json:"display_name"`
+	SupportContact []string            `json:"support_contact"`
+	Endpoints      endpoints.Endpoints `json:"endpoints"`
+	Profiles       profile.Info        `json:"profiles"`
+	StartTime      time.Time           `json:"start_time"`
+	EndTime        time.Time           `json:"expire_time"`
+	Type           server.Type         `json:"server_type"`
+	HTTPClient     *http.Client        `json:"-"`
 }
 
 // RenewButtonTime returns the time when the renew button should be shown for the server

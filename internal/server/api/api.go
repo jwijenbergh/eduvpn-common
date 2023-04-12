@@ -1,6 +1,7 @@
-package server
+package api
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -10,65 +11,43 @@ import (
 
 	httpw "github.com/eduvpn/eduvpn-common/internal/http"
 	"github.com/eduvpn/eduvpn-common/internal/log"
+	"github.com/eduvpn/eduvpn-common/internal/oauth"
+	"github.com/eduvpn/eduvpn-common/internal/server/base"
+	"github.com/eduvpn/eduvpn-common/internal/server/endpoints"
+	"github.com/eduvpn/eduvpn-common/internal/server/profile"
 	"github.com/go-errors/errors"
 )
 
-func validateEndpoints(endpoints Endpoints) error {
-	v3 := endpoints.API.V3
-	pAPI, err := url.Parse(v3.API)
+func Endpoints(ctx context.Context, b *base.Base) error {
+	uStr, err := httpw.JoinURLPath(b.URL, "/.well-known/vpn-user-portal")
 	if err != nil {
-		return errors.WrapPrefix(err, "failed to parse API endpoint", 0)
+		return err
 	}
-	pAuth, err := url.Parse(v3.Authorization)
+	if b.HTTPClient == nil {
+		b.HTTPClient = httpw.NewClient()
+	}
+	_, body, err := b.HTTPClient.Get(ctx, uStr)
 	if err != nil {
-		return errors.WrapPrefix(err, "failed to parse API authorization endpoint", 0)
+		return errors.WrapPrefix(err, "failed getting server endpoints", 0)
 	}
-	pToken, err := url.Parse(v3.Token)
+
+	ep := endpoints.Endpoints{}
+	if err = json.Unmarshal(body, &ep); err != nil {
+		return errors.WrapPrefix(err, "failed getting server endpoints", 0)
+	}
+	err = ep.Validate()
 	if err != nil {
-		return errors.WrapPrefix(err, "failed to parse API token endpoint", 0)
+		return err
 	}
-	if pAPI.Scheme != pAuth.Scheme {
-		return errors.Errorf("API scheme: '%v', is not equal to authorization scheme: '%v'", pAPI.Scheme, pAuth.Scheme)
-	}
-	if pAPI.Scheme != pToken.Scheme {
-		return errors.Errorf("API scheme: '%v', is not equal to token scheme: '%v'", pAPI.Scheme, pToken.Scheme)
-	}
-	if pAPI.Host != pAuth.Host {
-		return errors.Errorf("API host: '%v', is not equal to authorization host: '%v'", pAPI.Host, pAuth.Host)
-	}
-	if pAPI.Host != pToken.Host {
-		return errors.Errorf("API host: '%v', is not equal to token host: '%v'", pAPI.Host, pToken.Host)
-	}
+
+	b.Endpoints = ep
 	return nil
 }
 
-func APIGetEndpoints(baseURL string, client *httpw.Client) (*Endpoints, error) {
-	uStr, err := httpw.JoinURLPath(baseURL, "/.well-known/vpn-user-portal")
-	if err != nil {
-		return nil, err
-	}
-	if client == nil {
-		client = httpw.NewClient()
-	}
-	_, body, err := client.Get(uStr)
-	if err != nil {
-		return nil, errors.WrapPrefix(err, "failed getting server endpoints", 0)
-	}
-
-	ep := Endpoints{}
-	if err = json.Unmarshal(body, &ep); err != nil {
-		return nil, errors.WrapPrefix(err, "failed getting server endpoints", 0)
-	}
-	err = validateEndpoints(ep)
-	if err != nil {
-		return nil, err
-	}
-
-	return &ep, nil
-}
-
-func apiAuthorized(
-	srv Server,
+func authorized(
+	ctx context.Context,
+	b *base.Base,
+	oauth *oauth.OAuth,
 	method string,
 	endpoint string,
 	opts *httpw.OptionalParams,
@@ -78,10 +57,6 @@ func apiAuthorized(
 		opts = &httpw.OptionalParams{}
 	}
 	errorMessage := "failed API authorized"
-	b, err := srv.Base()
-	if err != nil {
-		return nil, nil, errors.WrapPrefix(err, errorMessage, 0)
-	}
 
 	// Join the paths
 	u, err := url.Parse(b.Endpoints.API.V3.API)
@@ -91,7 +66,7 @@ func apiAuthorized(
 	u.Path = path.Join(u.Path, endpoint)
 
 	// Make sure the tokens are valid, this will return an error if re-login is needed
-	t, err := HeaderToken(srv)
+	t, err := oauth.AccessToken(ctx)
 	if err != nil {
 		return nil, nil, errors.WrapPrefix(err, errorMessage, 0)
 	}
@@ -105,19 +80,21 @@ func apiAuthorized(
 	}
 
 	// Create a client if it doesn't exist
-	if b.httpClient == nil {
-		b.httpClient = httpw.NewClient()
+	if b.HTTPClient == nil {
+		b.HTTPClient = httpw.NewClient()
 	}
-	return b.httpClient.Do(method, u.String(), opts)
+	return b.HTTPClient.Do(ctx, method, u.String(), opts)
 }
 
-func apiAuthorizedRetry(
-	srv Server,
+func authorizedRetry(
+	ctx context.Context,
+	b *base.Base,
+	auth *oauth.OAuth,
 	method string,
 	endpoint string,
 	opts *httpw.OptionalParams,
 ) (http.Header, []byte, error) {
-	h, body, err := apiAuthorized(srv, method, endpoint, opts)
+	h, body, err := authorized(ctx, b, auth, method, endpoint, opts)
 	if err == nil {
 		return h, body, nil
 	}
@@ -127,25 +104,20 @@ func apiAuthorizedRetry(
 	if errors.As(err, &statErr) && statErr.Status == 401 {
 		log.Logger.Debugf("Got a 401 error after HTTP method: %s, endpoint: %s. Marking token as expired...", method, endpoint)
 		// Mark the token as expired and retry, so we trigger the refresh flow
-		MarkTokenExpired(srv)
-		h, body, err = apiAuthorized(srv, method, endpoint, opts)
+		auth.SetTokenExpired()
+		h, body, err = authorized(ctx, b, auth, method, endpoint, opts)
 	}
 	return h, body, err
 }
 
-func APIInfo(srv Server) error {
-	_, body, err := apiAuthorizedRetry(srv, http.MethodGet, "/info", nil)
+func Info(ctx context.Context, b *base.Base, auth *oauth.OAuth) error {
+	_, body, err := authorizedRetry(ctx, b, auth, http.MethodGet, "/info", nil)
 	if err != nil {
 		return err
 	}
-	profiles := ProfileInfo{}
+	profiles := profile.Info{}
 	if err = json.Unmarshal(body, &profiles); err != nil {
 		return errors.WrapPrefix(err, "failed API /info", 0)
-	}
-
-	b, err := srv.Base()
-	if err != nil {
-		return err
 	}
 
 	// Store the profiles and make sure that the current profile is not overwritten
@@ -163,8 +135,10 @@ func boolToYesNo(preferTCP bool) string {
 	return "no"
 }
 
-func APIConnectWireguard(
-	srv Server,
+func ConnectWireguard(
+	ctx context.Context,
+	b *base.Base,
+	auth *oauth.OAuth,
 	profileID string,
 	pubkey string,
 	preferTCP bool,
@@ -186,7 +160,7 @@ func APIConnectWireguard(
 		"public_key": {pubkey},
 		"prefer_tcp": {boolToYesNo(preferTCP)},
 	}
-	h, body, err := apiAuthorizedRetry(srv, http.MethodPost, "/connect",
+	h, body, err := authorizedRetry(ctx, b, auth, http.MethodPost, "/connect",
 		&httpw.OptionalParams{Headers: hdrs, Body: vals})
 	if err != nil {
 		return "", "", time.Time{}, err
@@ -208,7 +182,7 @@ func APIConnectWireguard(
 	return string(body), content, expTime, nil
 }
 
-func APIConnectOpenVPN(srv Server, profileID string, preferTCP bool) (string, time.Time, error) {
+func ConnectOpenVPN(ctx context.Context, b *base.Base, auth *oauth.OAuth, profileID string, preferTCP bool) (string, time.Time, error) {
 	hdrs := http.Header{
 		"content-type": {"application/x-www-form-urlencoded"},
 		"accept":       {"application/x-openvpn-profile"},
@@ -219,7 +193,7 @@ func APIConnectOpenVPN(srv Server, profileID string, preferTCP bool) (string, ti
 		"prefer_tcp": {boolToYesNo(preferTCP)},
 	}
 
-	h, body, err := apiAuthorizedRetry(srv, http.MethodPost, "/connect",
+	h, body, err := authorizedRetry(ctx, b, auth, http.MethodPost, "/connect",
 		&httpw.OptionalParams{Headers: hdrs, Body: vals})
 	if err != nil {
 		return "", time.Time{}, err
@@ -234,10 +208,10 @@ func APIConnectOpenVPN(srv Server, profileID string, preferTCP bool) (string, ti
 	return string(body), expT, nil
 }
 
-// APIDisconnect disconnects from the API.
-func APIDisconnect(server Server) error {
+// Disconnect disconnects the VPN using the API.
+func Disconnect(ctx context.Context, b *base.Base, auth *oauth.OAuth) error {
 	// The timeout is a bit lower here such that this does not take a too long time for disconnecting
 	// Clients may wish to retry this
-	_, _, err := apiAuthorized(server, http.MethodPost, "/disconnect", &httpw.OptionalParams{Timeout: 5 * time.Second})
+	_, _, err := authorized(ctx, b, auth, http.MethodPost, "/disconnect", &httpw.OptionalParams{Timeout: 5 * time.Second})
 	return err
 }

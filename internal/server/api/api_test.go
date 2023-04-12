@@ -1,11 +1,14 @@
-package server
+package api
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"testing"
 
+	"github.com/eduvpn/eduvpn-common/internal/server/base"
+	"github.com/eduvpn/eduvpn-common/internal/server/endpoints"
 	"github.com/eduvpn/eduvpn-common/internal/test"
 	"github.com/go-errors/errors"
 )
@@ -17,7 +20,7 @@ func getErrorMsg(err error) string {
 	return err.Error()
 }
 
-func compareEndpoints(ep1 Endpoints, ep2 Endpoints) bool {
+func compareEndpoints(ep1 endpoints.Endpoints, ep2 endpoints.Endpoints) bool {
 	v3_1 := ep1.API.V3
 	v3_2 := ep2.API.V3
 	return v3_1.API == v3_2.API && v3_1.Authorization == v3_2.Authorization && v3_1.Token == v3_2.Token
@@ -38,11 +41,11 @@ func Test_APIGetEndpoints(t *testing.T) {
 	}
 
 	testCases := []struct {
-		epl EndpointList
+		epl endpoints.List
 		err error
 	}{
 		{
-			epl: EndpointList{
+			epl: endpoints.List{
 				API:           "https://example.com/1",
 				Authorization: "https://example.com/2",
 				Token:         "https://example.com/3",
@@ -50,7 +53,7 @@ func Test_APIGetEndpoints(t *testing.T) {
 			err: nil,
 		},
 		{
-			epl: EndpointList{
+			epl: endpoints.List{
 				API:           "http://example.com/1",
 				Authorization: "https://example.com/2",
 				Token:         "https://example.com/3",
@@ -58,7 +61,7 @@ func Test_APIGetEndpoints(t *testing.T) {
 			err: errors.New("API scheme: 'http', is not equal to authorization scheme: 'https'"),
 		},
 		{
-			epl: EndpointList{
+			epl: endpoints.List{
 				API:           "https://example.com/1",
 				Authorization: "https://example.com/2",
 				Token:         "ftp://example.com/3",
@@ -66,7 +69,7 @@ func Test_APIGetEndpoints(t *testing.T) {
 			err: errors.New("API scheme: 'https', is not equal to token scheme: 'ftp'"),
 		},
 		{
-			epl: EndpointList{
+			epl: endpoints.List{
 				API:           "https://malicious.com/1",
 				Authorization: "https://example.com/2",
 				Token:         "https://example.com/3",
@@ -74,7 +77,7 @@ func Test_APIGetEndpoints(t *testing.T) {
 			err: errors.New("API host: 'malicious.com', is not equal to authorization host: 'example.com'"),
 		},
 		{
-			epl: EndpointList{
+			epl: endpoints.List{
 				API:           "https://example.com/1",
 				Authorization: "https://example.com/2",
 				Token:         "https://malicious.com/3",
@@ -82,7 +85,7 @@ func Test_APIGetEndpoints(t *testing.T) {
 			err: errors.New("API host: 'example.com', is not equal to token host: 'malicious.com'"),
 		},
 		{
-			epl: EndpointList{
+			epl: endpoints.List{
 				API:           "https://example.com/1",
 				Authorization: "https://malicious.com/2",
 				Token:         "https://example.com/3",
@@ -92,8 +95,8 @@ func Test_APIGetEndpoints(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		ep := &Endpoints{
-			API: EndpointsVersions{
+		ep := &endpoints.Endpoints{
+			API: endpoints.Versions{
 				V3: tc.epl,
 			},
 		}
@@ -108,7 +111,11 @@ func Test_APIGetEndpoints(t *testing.T) {
 
 			fmt.Fprintln(w, string(jsonStr))
 		}))
-		gotEP, err := APIGetEndpoints(s.URL, c)
+		b := &base.Base{
+			URL:        s.URL,
+			HTTPClient: c,
+		}
+		err = Endpoints(context.Background(), b)
 		if getErrorMsg(err) != getErrorMsg(tc.err) {
 			t.Fatalf("Errors not equal, want err: %v, got: %v", tc.err, err)
 		}
@@ -119,12 +126,9 @@ func Test_APIGetEndpoints(t *testing.T) {
 		if ep == nil {
 			t.Fatalf("No test case endpoints")
 		}
-		if gotEP == nil {
-			t.Fatalf("Got no endpoints for nil error")
-		}
 		// if no error then the endpoints should be equal
-		if !compareEndpoints(*ep, *gotEP) {
-			t.Fatalf("Endpoints are not equal, got: %v, want: %v", gotEP, ep)
+		if !compareEndpoints(*ep, b.Endpoints) {
+			t.Fatalf("Endpoints are not equal, got: %v, want: %v", b.Endpoints, ep)
 		}
 	}
 }
