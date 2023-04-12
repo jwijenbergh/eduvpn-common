@@ -1,6 +1,7 @@
 package discovery
 
 import (
+	"context"
 	"net/http"
 	"reflect"
 	"testing"
@@ -22,7 +23,7 @@ func TestServers(t *testing.T) {
 	}
 	d := &Discovery{httpClient: c}
 	// get servers
-	s1, err := d.Servers()
+	s1, err := d.Servers(context.Background())
 	if err != nil {
 		t.Fatalf("Failed getting servers: %v", err)
 	}
@@ -30,7 +31,7 @@ func TestServers(t *testing.T) {
 	// Shutdown the server
 	s.Close()
 	// Test if we get the same cached copy
-	s2, err := d.Servers()
+	s2, err := d.Servers(context.Background())
 	// We should not get an error as the timestamp is not expired
 	if err != nil {
 		t.Fatalf("Got a servers error after shutting down server: %v", err)
@@ -42,7 +43,7 @@ func TestServers(t *testing.T) {
 	// Force expired, 1 hour in the past
 	d.ServerList.Timestamp = time.Now().Add(-1 * time.Hour)
 
-	s3, err := d.Servers()
+	s3, err := d.Servers(context.Background())
 	// Now we expect an error with the cached copy
 	if err == nil {
 		t.Fatalf("Got a servers nil error after shutting down file server and expired")
@@ -64,7 +65,7 @@ func TestOrganizations(t *testing.T) {
 	}
 	d := &Discovery{httpClient: c}
 	// get servers
-	s1, err := d.Organizations()
+	s1, err := d.Organizations(context.Background())
 	if err != nil {
 		t.Fatalf("Failed getting organizations: %v", err)
 	}
@@ -73,7 +74,7 @@ func TestOrganizations(t *testing.T) {
 	s.Close()
 	// Test if we get the same cached copy
 	// We should not get an error as the timestamp is not zero
-	s2, err := d.Organizations()
+	s2, err := d.Organizations(context.Background())
 	if err != nil {
 		t.Fatalf("Got an organizations error after shutting down file server: %v", err)
 	}

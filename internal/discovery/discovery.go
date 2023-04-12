@@ -2,6 +2,7 @@
 package discovery
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"time"
@@ -31,7 +32,7 @@ var DiscoURL = "https://disco.eduvpn.org/v2/"
 
 // file is a helper function that gets a disco JSON and fills the structure with it
 // If it was unsuccessful it returns an error.
-func (discovery *Discovery) file(jsonFile string, previousVersion uint64, structure interface{}) error {
+func (discovery *Discovery) file(ctx context.Context, jsonFile string, previousVersion uint64, structure interface{}) error {
 	// No HTTP client present, create one
 	if discovery.httpClient == nil {
 		discovery.httpClient = http.NewClient()
@@ -42,7 +43,7 @@ func (discovery *Discovery) file(jsonFile string, previousVersion uint64, struct
 	if err != nil {
 		return err
 	}
-	_, body, err := discovery.httpClient.Get(jsonURL)
+	_, body, err := discovery.httpClient.Get(ctx, jsonURL)
 	if err != nil {
 		return err
 	}
@@ -53,7 +54,7 @@ func (discovery *Discovery) file(jsonFile string, previousVersion uint64, struct
 	if err != nil {
 		return err
 	}
-	_, sigBody, err := discovery.httpClient.Get(sigURL)
+	_, sigBody, err := discovery.httpClient.Get(ctx, sigURL)
 	if err != nil {
 		return err
 	}
@@ -212,12 +213,12 @@ func (discovery *Discovery) previousServers() (*discotypes.Servers, error) {
 
 // Organizations returns the discovery organizations
 // If there was an error, a cached copy is returned if available.
-func (discovery *Discovery) Organizations() (*discotypes.Organizations, error) {
+func (discovery *Discovery) Organizations(ctx context.Context) (*discotypes.Organizations, error) {
 	if !discovery.DetermineOrganizationsUpdate() {
 		return &discovery.OrganizationList, nil
 	}
 	file := "organization_list.json"
-	err := discovery.file(file, discovery.OrganizationList.Version, &discovery.OrganizationList)
+	err := discovery.file(ctx, file, discovery.OrganizationList.Version, &discovery.OrganizationList)
 	if err != nil {
 		// Return previous with an error
 		// TODO: Log here if we fail to get previous
@@ -230,12 +231,12 @@ func (discovery *Discovery) Organizations() (*discotypes.Organizations, error) {
 
 // Servers returns the discovery servers
 // If there was an error, a cached copy is returned if available.
-func (discovery *Discovery) Servers() (*discotypes.Servers, error) {
+func (discovery *Discovery) Servers(ctx context.Context) (*discotypes.Servers, error) {
 	if !discovery.DetermineServersUpdate() {
 		return &discovery.ServerList, nil
 	}
 	file := "server_list.json"
-	err := discovery.file(file, discovery.ServerList.Version, &discovery.ServerList)
+	err := discovery.file(ctx, file, discovery.ServerList.Version, &discovery.ServerList)
 	if err != nil {
 		// Return previous with an error
 		// TODO: Log here if we fail to get previous
