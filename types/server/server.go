@@ -130,9 +130,6 @@ type Configuration struct {
 	Protocol protocol.Protocol `json:"protocol"`
 	// DefaultGateway is a boolean that indicates whether or not this configuration should be configured as a default gateway
 	DefaultGateway bool `json:"default_gateway"`
-	// Tokens is the updated tokens that we get back from the VPN configuration
-	// They should be used by the client to save them in e.g. the keyring
-	Tokens Tokens `json:"tokens"`
 }
 
 // Current is the struct that defines the current server

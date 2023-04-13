@@ -107,9 +107,6 @@ type ConfigData struct {
 
 	// The type of configuration
 	Type string
-
-	// The tokens
-	Tokens oauth.Token
 }
 
 // Public gets the public data from the types package
@@ -119,7 +116,6 @@ func (c *ConfigData) Public(dg bool) srvtypes.Configuration {
 		VPNConfig:      c.Config,
 		Protocol:       protocol.New(c.Type),
 		DefaultGateway: dg,
-		Tokens:         c.Tokens.Public(),
 	}
 }
 
@@ -153,13 +149,7 @@ func wireguardGetConfig(ctx context.Context, srv Server, preferTCP bool, openVPN
 		cfg = wireguard.ConfigAddKey(cfg, key)
 	}
 
-	t := oauth.Token{}
-	o := srv.OAuth()
-	if o != nil {
-		t = o.Token()
-	}
-
-	return &ConfigData{Config: cfg, Type: proto, Tokens: t}, nil
+	return &ConfigData{Config: cfg, Type: proto}, nil
 }
 
 func openVPNGetConfig(ctx context.Context, srv Server, preferTCP bool) (*ConfigData, error) {
@@ -177,14 +167,7 @@ func openVPNGetConfig(ctx context.Context, srv Server, preferTCP bool) (*ConfigD
 	b.StartTime = time.Now()
 	b.EndTime = exp
 
-	t := oauth.Token{}
-
-	o := srv.OAuth()
-	if o != nil {
-		t = o.Token()
-	}
-
-	return &ConfigData{Config: cfg, Type: "openvpn", Tokens: t}, nil
+	return &ConfigData{Config: cfg, Type: "openvpn"}, nil
 }
 
 func HasValidProfile(ctx context.Context, srv Server, wireguardSupport bool) (bool, error) {

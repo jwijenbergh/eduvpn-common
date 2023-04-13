@@ -1,8 +1,9 @@
+import ctypes
 from enum import IntEnum
 from typing import Any, Callable, Iterator, Optional
 
 from eduvpn_common.loader import initialize_functions, load_lib
-from eduvpn_common.types import ReadRxBytes, VPNStateChange, decode_res, encode_args
+from eduvpn_common.types import ReadRxBytes, TokenGetter, TokenSetter, VPNStateChange, decode_res, encode_args
 
 
 class WrappedError(Exception):
@@ -56,6 +57,9 @@ class EduVPN(object):
         self.version = version
         self.config_directory = config_directory
         self.jar = Jar(lambda x: self.go_function(self.lib.CookieCancel, x))
+        self.callback = None
+        self.token_setter = None
+        self.token_getter = None
 
         # Load the library
         self.lib = load_lib()
@@ -88,8 +92,8 @@ class EduVPN(object):
         This removes the object from internal bookkeeping and saves the configuration
         """
         self.go_function(self.lib.Deregister)
-        global callback_object
-        callback_object = None
+        global global_object
+        global_object = None
 
     def register(self, handler: Optional[Callable] = None, debug: bool = False) -> None:
         """Register the Go shared library.
@@ -99,10 +103,11 @@ class EduVPN(object):
         :param debug: bool:  (Default value = False): Whether or not we want to enable debug logging
 
         """
-        global callback_object
-        if callback_object is not None:
+        global global_object
+        if global_object is not None:
             raise Exception("Already registered")
-        callback_object = handler
+        self.callback = handler
+        global_object = self
         register_err = self.go_function(
             self.lib.Register,
             self.name,
@@ -244,6 +249,14 @@ class EduVPN(object):
         if location_err:
             forwardError(location_err)
 
+    def set_token_handler(self, getter: Callable, setter: Callable) -> None:
+        self.token_setter = setter
+        self.token_getter = getter
+        handler_err = self.go_function(self.lib.SetTokenHandler, token_getter, token_setter)
+
+        if handler_err:
+            forwardError(handler_err)
+
     def cookie_reply(self, cookie: int, data: str) -> None:
         """Reply with the given cookie and data"""
         cookie_err = self.go_function(self.lib.CookieReply, cookie, data)
@@ -289,8 +302,30 @@ class EduVPN(object):
         self.jar.cancel()
 
 
-callback_object: Optional[Callable] = None
+global_object: Optional[EduVPN] = None
 
+@TokenSetter
+def token_setter(server: ctypes.c_char_p, tokens: ctypes.c_char_p):
+    global global_object
+    if global_object is None:
+        return
+    if global_object.token_setter is None:
+        return 0
+    global_object.token_setter(server.decode(), tokens.decode())
+
+@TokenGetter
+def token_getter(server: ctypes.c_char_p, buf: ctypes.c_char_p, size: ctypes.c_size_t):
+    global global_object
+    if global_object is None:
+        return
+    if global_object.token_getter is None:
+        return
+    got = global_object.token_getter(server.decode())
+    if got is None:
+        return
+
+    outbuf = ctypes.cast(buf, ctypes.POINTER(ctypes.c_char * size))
+    outbuf.contents.value = got.encode("utf-8")
 
 @VPNStateChange
 def state_callback(old_state: int, new_state: int, data: str) -> int:
@@ -302,9 +337,12 @@ def state_callback(old_state: int, new_state: int, data: str) -> int:
 
     :meta private:
     """
-    if callback_object is None:
+    global global_object
+    if global_object is None:
         return 0
-    handled = callback_object(old_state, new_state, data.decode("utf-8"))
+    if global_object.callback is None:
+        return 0
+    handled = global_object.callback(old_state, new_state, data.decode("utf-8"))
     if handled:
         return 1
     return 0

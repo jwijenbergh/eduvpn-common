@@ -4,7 +4,7 @@ from collections import defaultdict
 from ctypes import CDLL, c_char_p, c_int, c_void_p, cdll
 
 from eduvpn_common import __version__
-from eduvpn_common.types import BoolError, DataError, ReadRxBytes, VPNStateChange
+from eduvpn_common.types import BoolError, DataError, ReadRxBytes, TokenGetter, TokenSetter, VPNStateChange
 
 
 def load_lib() -> CDLL:
@@ -88,6 +88,7 @@ def initialize_functions(lib: CDLL) -> None:
         c_int,
     ], c_void_p
     lib.RenewSession.argtypes, lib.RenewSession.restype = [c_int], c_void_p
+    lib.SetTokenHandler.argtypes, lib.SetTokenHandler.restype = [TokenGetter, TokenSetter], c_void_p
     lib.Cleanup.argtypes, lib.Cleanup.restype = [c_int], c_void_p
     lib.SetProfileID.argtypes, lib.SetProfileID.restype = [c_char_p], c_void_p
     lib.CookieNew.argtypes, lib.CookieNew.restype = [], c_int

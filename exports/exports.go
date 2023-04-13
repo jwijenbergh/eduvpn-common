@@ -9,6 +9,9 @@ typedef long long int (*ReadRxBytes)();
 
 typedef int (*StateCB)(int oldstate, int newstate, void* data);
 
+typedef const char* (*TokenGetter)(const char* server, char* out, size_t len);
+typedef void (*TokenSetter)(const char* server, const char* tokens);
+
 static long long int get_read_rx_bytes(ReadRxBytes read)
 {
    return read();
@@ -17,10 +20,19 @@ static int call_callback(StateCB callback, int oldstate, int newstate, void* dat
 {
     return callback(oldstate, newstate, data);
 }
+static void call_token_getter(TokenGetter getter, const char* server, char* out, size_t len)
+{
+   getter(server, out, len);
+}
+static void call_token_setter(TokenSetter setter, const char* server, const char* tokens)
+{
+   setter(server, tokens);
+}
 */
 import "C"
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"runtime/cgo"
@@ -29,6 +41,7 @@ import (
 	"github.com/go-errors/errors"
 
 	"github.com/eduvpn/eduvpn-common/client"
+	"github.com/eduvpn/eduvpn-common/internal/log"
 	"github.com/eduvpn/eduvpn-common/types/cookie"
 	srvtypes "github.com/eduvpn/eduvpn-common/types/server"
 )
@@ -380,6 +393,64 @@ func getCookie(c C.uintptr_t) (*cookie.Cookie, error) {
 	// TODO: On first glance this might not make any sense, find a better way
 	v.H = h
 	return v, nil
+}
+
+//export SetTokenHandler
+func SetTokenHandler(getter C.TokenGetter, setter C.TokenSetter) *C.char {
+	state, stateErr := getVPNState()
+	if stateErr != nil {
+		return getCError(stateErr)
+	}
+	state.TokenSetter = func(c srvtypes.Current, t srvtypes.Tokens) {
+		cJSON, err := getReturnData(c)
+		if err != nil {
+			log.Logger.Warningf("failed to get current server for setting tokens in exports: %v", err)
+			return
+		}
+		tJSON, err := getReturnData(t)
+		if err != nil {
+			log.Logger.Warningf("failed to get tokens for setting tokens in exports: %v", err)
+			return
+		}
+		c1 := C.CString(cJSON)
+		c2 := C.CString(tJSON)
+		C.call_token_setter(setter, c1, c2)
+		FreeString(c1)
+		FreeString(c2)
+	}
+
+	state.TokenGetter = func(c srvtypes.Current) *srvtypes.Tokens {
+		cJSON, err := getReturnData(c)
+		if err != nil {
+			log.Logger.Warningf("failed to get current server for getting tokens in exports: %v", err)
+			return nil
+		}
+		c1 := C.CString(cJSON)
+		// create an output buffer with size 2048
+		// In my testing tokens seem to be ~1033 bytes marshalled as JSON
+		d := make([]byte, 2048)
+
+		C.call_token_getter(getter, c1, (*C.char)(unsafe.Pointer(&d[0])), C.size_t(len(d)))
+		FreeString(c1)
+
+		// get null pointer index as unmarshalling wants it without
+		null := bytes.IndexByte(d, 0)
+		if null < 0 {
+			log.Logger.Warningf("output buffer is not NULL terminated")
+			return nil
+		}
+
+		var gotT srvtypes.Tokens
+		err = json.Unmarshal(d[:null], &gotT)
+		if err != nil {
+			log.Logger.Warningf("failed to get json data for getting tokens in exports: %v", err)
+			return nil
+		}
+		return &gotT
+	}
+
+
+	return nil
 }
 
 //export CookieNew

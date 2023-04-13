@@ -1,10 +1,13 @@
 from ctypes import (
     CDLL,
     CFUNCTYPE,
+    POINTER,
     Structure,
+    c_char,
     c_char_p,
     c_int,
     c_ulonglong,
+    c_size_t,
     c_void_p,
     cast,
 )
@@ -32,8 +35,8 @@ class BoolError(Structure):
 # The type for a Go state change callback
 VPNStateChange = CFUNCTYPE(c_int, c_int, c_int, c_char_p)
 ReadRxBytes = CFUNCTYPE(c_ulonglong)
-UpdateToken = CFUNCTYPE(None, c_char_p, c_void_p, c_void_p)
-
+TokenGetter = CFUNCTYPE(c_void_p, c_char_p, POINTER(c_char), c_size_t)
+TokenSetter = CFUNCTYPE(c_void_p, c_char_p, c_char_p)
 
 def encode_args(args: List[Any], types: List[Any]) -> Iterator[Any]:
     """Encode the arguments ready to be used by the Go library
