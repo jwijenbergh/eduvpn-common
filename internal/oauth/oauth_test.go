@@ -81,7 +81,7 @@ func Test_accessToken(t *testing.T) {
 	// Set the tokens as expired
 	o.SetTokenExpired()
 
-	// We should not get an error because expired and no refresh token
+	// We should get an error because expired and no refresh token
 	_, err = o.AccessToken(context.Background())
 	if err == nil {
 		t.Fatal("Got no error when getting access token on non-empty structure and expired")
@@ -116,7 +116,7 @@ func Test_accessToken(t *testing.T) {
 	// Now let's act like a 2.x server, we give no refresh token back. When we refresh the previous refresh token should be gotten
 	o.token.t.Refresh = refresh
 	prevRefresh := refresh
-	o.token.t.Refresher = func(refreshToken string) (*TokenResponse, time.Time, error) {
+	o.token.t.Refresher = func(ctx context.Context, refreshToken string) (*TokenResponse, time.Time, error) {
 		if refreshToken != refresh {
 			t.Fatalf("Passed refresh token to refresher not equal to updated refresh token, got: %v, want: %v", refreshToken, refresh)
 		}
@@ -125,7 +125,7 @@ func Test_accessToken(t *testing.T) {
 		return r, expired, nil
 	}
 
-	got, err = o.AccessToken()
+	got, err = o.AccessToken(context.Background())
 	if err != nil {
 		t.Fatalf("Got error when getting access token on non-empty expired structure and with an empty refresh response: %v", err)
 	}
