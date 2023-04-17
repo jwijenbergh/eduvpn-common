@@ -109,9 +109,6 @@ type Client struct {
 	// Whether to enable debugging
 	Debug bool `json:"-"`
 
-	// The Failover monitor for the current VPN connection
-	Failover *failover.DroppedConMon `json:"-"`
-
 	// TokenSetter sets the tokens in the client
 	TokenSetter func(srv srvtypes.Current, tok srvtypes.Tokens) `json:"-"`
 
@@ -840,12 +837,8 @@ func (c *Client) RenewSession(ck *cookie.Cookie) (err error) {
 	return c.callbacks(ck, srv, true)
 }
 
-func (c *Client) StartFailover(ck *cookie.Cookie, gateway string, wgMTU int, readRxBytes func() (int64, error)) (bool, error) {
-	if c.Failover != nil {
-		return false, errors.New("another failover process is already started")
-	}
+func (c *Client) StartFailover(ck *cookie.Cookie, gateway string, mtu int, readRxBytes func() (int64, error)) (bool, error) {
+	f := failover.New(readRxBytes)
 
-	c.Failover = failover.New(readRxBytes)
-
-	return c.Failover.Start(ck.Context(), gateway, wgMTU)
+	return f.Start(ck.Context(), gateway, mtu)
 }
