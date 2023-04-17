@@ -9,7 +9,7 @@ typedef long long int (*ReadRxBytes)();
 
 typedef int (*StateCB)(int oldstate, int newstate, void* data);
 
-typedef const char* (*TokenGetter)(const char* server, char* out, size_t len);
+typedef void (*TokenGetter)(const char* server, char* out, size_t len);
 typedef void (*TokenSetter)(const char* server, const char* tokens);
 
 static long long int get_read_rx_bytes(ReadRxBytes read)
