@@ -372,11 +372,11 @@ func compareResults(
 
 	if !strings.HasPrefix(err.Error(), expectedErrPrefix) {
 		// wrong error
-		t.Errorf("expected error prefix '%s' for error '%s', callstr '%s'", expectedErrPrefix, err.Error(), callStr())
+		t.Errorf("expected error prefix '%s' for error '%s', callstr: '%s'", expectedErrPrefix, err.Error(), callStr())
 		return
 	}
 
 	if ret {
-		t.Errorf("error is not nil and result is true, '%s'", callStr())
+		t.Errorf("error is not nil and result is true, callstr: '%s'", callStr())
 	}
 }
