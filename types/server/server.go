@@ -2,6 +2,9 @@
 package server
 
 import (
+	"encoding/json"
+	"fmt"
+
 	"github.com/eduvpn/eduvpn-common/types/cookie"
 	"github.com/eduvpn/eduvpn-common/types/protocol"
 )
@@ -19,6 +22,36 @@ const (
 	// TypeCustom means the server is of type Custom Server
 	TypeCustom
 )
+
+// This is here to support V1 configs which had the server type as a string
+func (t *Type) UnmarshalJSON(data []byte) error {
+	// First try to just unmarshal the type
+	var num int8
+	if err := json.Unmarshal(data, &num); err == nil {
+		if num < int8(TypeUnknown) || num > int8(TypeCustom) {
+			return fmt.Errorf("invalid server type: %d", num)
+		}
+		*t = Type(num)
+		return nil
+	}
+
+	// unmarshal the old way, as a string
+	var str string
+	if err := json.Unmarshal(data, &str); err != nil {
+		return err
+	}
+	switch str {
+	case "secure_internet":
+		*t = TypeSecureInternet
+	case "institute_access":
+		*t = TypeInstituteAccess
+	case "custom_server":
+		*t = TypeCustom
+	default:
+		return fmt.Errorf("invalid server type: %s", str)
+	}
+	return nil
+}
 
 // RequiredAskTransition represents the data that is sent when a transition is required to be handled and the go library needs data from the client
 // This data can be a profile selection or secure internet location selection
