@@ -134,29 +134,29 @@ class EduVPN(object):
         if add_err:
             forwardError(add_err)
 
-    def get_expiry_times(self) -> Optional[str]:
+    def get_expiry_times(self) -> str:
         expiry, expiry_err = self.go_function(self.lib.ExpiryTimes)
         if expiry_err:
             forwardError(expiry_err)
         return expiry
 
-    def get_current_server(self) -> Optional[str]:
+    def get_current_server(self) -> str:
         server, server_err = self.go_function(self.lib.CurrentServer)
         if server_err:
             forwardError(server_err)
         return server
 
-    def get_disco_organizations(self) -> Optional[str]:
+    def get_disco_organizations(self) -> str:
         orgs, _ = self.go_cookie_function(self.lib.DiscoOrganizations)
         # TODO: Log error
         return orgs
 
-    def get_disco_servers(self) -> Optional[str]:
+    def get_disco_servers(self) -> str:
         servers, _ = self.go_cookie_function(self.lib.DiscoServers)
         # TODO: Log error
         return servers
 
-    def get_servers(self) -> Optional[str]:
+    def get_servers(self) -> str:
         servers, servers_err = self.go_function(self.lib.ServerList)
         if servers_err:
             forwardError(servers_err)
@@ -177,7 +177,7 @@ class EduVPN(object):
 
     def get_config(
         self, _type: ServerType, identifier: str, prefer_tcp: bool = False
-    ) -> Optional[str]:
+    ) -> str:
         """Get an OpenVPN/WireGuard configuration from the server
 
         :param _type: ServerType: The type of server e.g. SERVER.INSTITUTE_ACCESS
