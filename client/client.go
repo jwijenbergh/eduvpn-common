@@ -591,7 +591,14 @@ func (c *Client) GetConfig(ck *cookie.Cookie, identifier string, _type srvtypes.
 	}
 	// refresh the server endpoints
 	err = server.RefreshEndpoints(ck.Context(), srv)
+
+	// If we get a canceled error, return that, otherwise just log the error
+	cErr := context.Canceled
 	if err != nil {
+		if errors.As(err, &cErr) {
+			return nil, err
+		}
+
 		log.Logger.Warningf("failed to refresh server endpoints: %v", err)
 	}
 
