@@ -453,6 +453,10 @@ func (c *Client) AddServer(ck *cookie.Cookie, identifier string, _type srvtypes.
 	}()
 
 	if !ni {
+		// Try to go to no server
+		c.FSM.GoTransition(StateNoServer)
+
+		// If the transition was not successful, log
 		if !c.FSM.InState(StateNoServer) {
 			return errors.Errorf("wrong state to add a server: %s", GetStateName(c.FSM.Current))
 		}
