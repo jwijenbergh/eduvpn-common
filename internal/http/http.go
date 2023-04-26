@@ -248,5 +248,5 @@ func (e *StatusError) Error() string {
 
 // RegisterAgent registers the user agent for client and version
 func RegisterAgent(client string, version string) {
-	UserAgent = fmt.Sprintf("%s/%s %s", client, version, "eduvpn-common/1.1.0")
+	UserAgent = fmt.Sprintf("%s/%s %s", client, version, "eduvpn-common/2.0.0")
 }

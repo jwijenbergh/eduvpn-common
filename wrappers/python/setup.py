@@ -10,7 +10,7 @@ from setuptools import setup
 from wheel.bdist_wheel import bdist_wheel as _bdist_wheel
 
 _libname = "eduvpn_common"
-__version__ = "1.1.0"
+__version__ = "2.0.0"
 
 
 def getlibpath(plat_name: str) -> typing.Union[str, None]:

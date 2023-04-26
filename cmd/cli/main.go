@@ -164,7 +164,7 @@ func printConfig(url string, srvType srvtypes.Type) {
 	var c *client.Client
 	c, err := client.New(
 		"org.eduvpn.app.linux",
-		"1.1.0-cli",
+		"2.0.0-cli",
 		"configs",
 		func(old client.FSMStateID, new client.FSMStateID, data interface{}) bool {
 			stateCallback(c, old, new, data)

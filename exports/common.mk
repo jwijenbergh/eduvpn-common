@@ -19,7 +19,7 @@ LIB_SUFFIX ?= .so
 endif
 
 # Current version
-VERSION = 1.1.0
+VERSION = 2.0.0
 
 # Library name without prefixes/suffixes
 LIB_NAME ?= eduvpn_common

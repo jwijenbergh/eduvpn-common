@@ -98,7 +98,7 @@ def do_secure_internet(edu: eduvpn.EduVPN) -> Optional[Config]:
 
 # The main entry point
 if __name__ == "__main__":
-    _eduvpn = eduvpn.EduVPN("org.eduvpn.app.linux", "1.1.0-cli-py", "configs", "en")
+    _eduvpn = eduvpn.EduVPN("org.eduvpn.app.linux", "2.0.0-cli-py", "configs", "en")
     setup_callbacks(_eduvpn)
 
     # Register with the eduVPN-common library
