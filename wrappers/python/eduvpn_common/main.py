@@ -214,11 +214,6 @@ class EduVPN(object):
         if cleanup_err:
             forwardError(cleanup_err)
 
-    def token_calback(self, srv: Server, tok: Token):
-        if self.token_callback is None:
-            return
-        self.token_callback(srv, tok)
-
     def set_profile(self, profile_id: str) -> None:
         """Set the profile of the current server
 
@@ -295,19 +290,6 @@ class EduVPN(object):
 
 
 callback_object: Optional[Callable] = None
-
-
-@UpdateToken
-def token_callback(name: bytes, srv, tok):
-    name_decoded = name.decode()
-    if name_decoded not in eduvpn_objects:
-        return 0
-    obj = eduvpn_objects[name_decoded]
-    srv_conv = get_transition_server(obj.lib, srv)
-    tok_conv = get_tokens(obj.lib, tok)
-    obj.token_callback(
-        srv_conv, tok_conv
-    )
 
 
 @VPNStateChange
