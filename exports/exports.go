@@ -4,7 +4,6 @@ package main
 #include <stdint.h>
 #include <stdlib.h>
 #include "error.h"
-#include "server.h"
 
 typedef long long int (*ReadRxBytes)();
 
@@ -138,28 +137,6 @@ func ExpiryTimes() (*C.char, *C.char) {
 		return nil, getCError(err)
 	}
 	return C.CString(ret), nil
-}
-
-//export SetTokenUpdater
-func SetTokenUpdater(name *C.char, updater C.UpdateToken) *C.error {
-	nameStr := C.GoString(name)
-	state, stateErr := GetVPNState(nameStr)
-	if stateErr != nil {
-		return getError(stateErr)
-	}
-	state.SetTokenUpdater(func(srv server.Server, tok oauth.Token) {
-		b, err := srv.Base()
-		if err != nil {
-			log.Logger.Warningf("No server base found for token updating with error: %v", err)
-			return
-		}
-		cName := C.CString(nameStr)
-		cSrv := getCPtrServer(state, b)
-		cTok := cToken(tok)
-		C.update_token(updater, cName, cSrv, cTok)
-		FreeString(cName)
-	})
-	return nil
 }
 
 //export Deregister
