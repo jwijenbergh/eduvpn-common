@@ -742,7 +742,7 @@ func (c *Client) ServerList() (*srvtypes.List, error) {
 		customServers = append(customServers, *c)
 	}
 	var instituteServers []srvtypes.Institute
-	for _, v := range c.Servers.CustomServers.Map {
+	for _, v := range c.Servers.InstituteServers.Map {
 		if v == nil {
 			continue
 		}
