@@ -2,8 +2,9 @@
 // Some notes:
 //  - Errors are returned as c strings, free them using FreeString. Same is the case for other string types, you should also free them
 //  - Types are converted from the Go representation to C using JSON strings
-//  - Cookies are used for cancellation, just fancy contexts. Create a cookie using `CookieNew`, pass it to the function that needs one as the first argument. To cancel the function, call `CookieCancel`
-//  - The state machine is used to track the state of a client. It is mainly used for asking  for certain data from the client, e.g. asking for profiles and locations. But a client may also wish to build upon this state machine to build the whole UI around it
+//  - Cookies are used for cancellation, just fancy contexts. Create a cookie using `CookieNew`, pass it to the function that needs one as the first argument. To cancel the function, call `CookieCancel`, passing in the same cookie as argument
+//    - Cookies must also be freed, by using the CookieDelete function if the cookie is no longer needed
+//  - The state machine is used to track the state of a client. It is mainly used for asking for certain data from the client, e.g. asking for profiles and locations. But a client may also wish to build upon this state machine to build the whole UI around it
 package main
 
 /*
@@ -646,7 +647,8 @@ func CookieDelete(c C.uintptr_t) *C.char {
 
 // CookieCancel cancels the cookie
 // This means that functions which take this as first argument, return if they're still running
-// The error cause is always context.Canceled: https://pkg.go.dev/context#pkg-variables
+// The error cause is always context.Canceled for that cancelled function: https://pkg.go.dev/context#pkg-variables
+// This CookieCancel function can also return an error if cancelling was unsuccessful
 //export CookieCancel
 func CookieCancel(c C.uintptr_t) *C.char {
 	v, err := getCookie(c)
