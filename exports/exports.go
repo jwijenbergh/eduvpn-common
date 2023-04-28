@@ -395,7 +395,7 @@ func DiscoServers(c C.uintptr_t) (*C.char, *C.char) {
 	return C.CString(s), getCError(err)
 }
 
-// DiscoServers gets the organizations from discovery, returned as types/discovery/discovery.go Organizations marshalled as JSON
+// DiscoOrganizations gets the organizations from discovery, returned as types/discovery/discovery.go Organizations marshalled as JSON
 // c is the Cookie that needs to be passed. Create a new Cookie using `CookieNew`
 // If it was unsuccessful, it returns an error. Note that when the lib was built in release mode the data is almost always non-nil, even when an error has occurred
 // This means it has just returned the cached list
