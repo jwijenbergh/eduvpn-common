@@ -68,8 +68,8 @@ func getReturnData(data interface{}) (string, error) {
 	return string(b), nil
 }
 
-func StateCallback(
-	stateCallback C.StateCB,
+func stateCallback(
+	cb C.StateCB,
 	oldState client.FSMStateID,
 	newState client.FSMStateID,
 	data interface{},
@@ -81,7 +81,7 @@ func StateCallback(
 		return false
 	}
 	dataC := C.CString(d)
-	handled := C.call_callback(stateCallback, oldStateC, newStateC, unsafe.Pointer(dataC))
+	handled := C.call_callback(cb, oldStateC, newStateC, unsafe.Pointer(dataC))
 	FreeString(dataC)
 	return handled != C.int(0)
 }
@@ -100,7 +100,7 @@ func Register(
 	name *C.char,
 	version *C.char,
 	configDirectory *C.char,
-	stateCallback C.StateCB,
+	cb C.StateCB,
 	debug C.int,
 ) *C.char {
 	_, stateErr := getVPNState()
@@ -112,7 +112,7 @@ func Register(
 		C.GoString(version),
 		C.GoString(configDirectory),
 		func(old client.FSMStateID, new client.FSMStateID, data interface{}) bool {
-			return StateCallback(stateCallback, old, new, data)
+			return stateCallback(cb, old, new, data)
 		},
 		debug != 0,
 	)
