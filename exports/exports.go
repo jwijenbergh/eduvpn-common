@@ -281,6 +281,7 @@ func ServerList() (*C.char, *C.char) {
 // - In case of secure internet: The organization ID
 // - In case of custom server: The base URL
 // - In case of institute access: The base URL
+// pTCP is if we prefer TCP or not to get the configuration, non-zero means yes
 // If the server cannot be added it returns the error as a string
 // Note that the server is removed when an error has occured
 // The current state callbacks MUST be handled
@@ -311,6 +312,8 @@ func ServerList() (*C.char, *C.char) {
 //                   The client should open the webbrowser with this URL and continue the authorization process.
 //                   This is only called if authorization needs to be retriggered
 // After getting a configuration, the FSM moves to the GOT_CONFIG state
+// The return data is the configuration, marshalled as JSON and defined in types/server/server.go Configuration
+// This is nil if an error is returned as a string
 //export GetConfig
 func GetConfig(c C.uintptr_t, _type C.int, id *C.char, pTCP C.int) (*C.char, *C.char) {
 	state, stateErr := getVPNState()
