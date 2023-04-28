@@ -3,7 +3,6 @@ package main
 /*
 #include <stdint.h>
 #include <stdlib.h>
-#include "error.h"
 
 typedef long long int (*ReadRxBytes)();
 
