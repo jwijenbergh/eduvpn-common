@@ -195,6 +195,8 @@ func Deregister() *C.char {
 //  - In case of secure internet: The organization ID
 //  - In case of custom server: The base URL
 //  - In case of institute access: The base URL
+// ni stands for non-interactive. If non-zero, any state transitions will not be run.
+// This ni flag is useful for preprovisioned servers. For normal usage, you want to set this to zero (meaning: False)
 // If the server cannot be added it returns the error as a string
 // Note that the server is removed when an error has occured
 // The following state callbacks are mandatory to handle:
