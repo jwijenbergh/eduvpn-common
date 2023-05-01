@@ -20,10 +20,18 @@ jobs:
         # Verify hash
         echo "d276b0e594d5980de6a7917ce74c348f28d3cb8b353ca4eaae344ae8a4c40bea  mdbook.tar.gz" | sha256sum --check
 
+        # Get mdbook-mermaid
+        curl -sSL https://github.com/badboy/mdbook-mermaid/releases/download/v0.12.6/mdbook-mermaid-v0.12.6-x86_64-unknown-linux-gnu.tar.gz -o mdbook-mermaid.tar.gz
+        # Verify hash
+        echo "04f9fa41f89b7a1809ef2525efc7ad2c112df4ae1241de25efe354940441ea70  mdbook-mermaid.tar.gz" | sha256sum --check
+
         # Extract
         mkdir mdbook
         tar -xzf mdbook.tar.gz --directory mdbook
+        mkdir mdbook-mermaid
+        tar -xzf mdbook-mermaid.tar.gz --directory mdbook-mermaid
         echo `pwd`/mdbook >> $GITHUB_PATH
+        echo `pwd`/mdbook-mermaid >> $GITHUB_PATH
     - name: Install sphinx
       run: |
         # Install python dependencies
@@ -53,8 +61,13 @@ jobs:
         cd wrappers/python/docs
         make html
 
-        # Go to docs directory & build mdbook
-        cd ../../../docs
+        # Go to root
+        cd ../../..
+
+        # Install mermaid preprocessor
+        mdbook-mermaid install docs
+
+        cd docs
         mdbook build
 
         # gh pages branch settings
