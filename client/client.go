@@ -449,7 +449,9 @@ func (c *Client) AddServer(ck *cookie.Cookie, identifier string, _type srvtypes.
 		if err != nil {
 			_ = c.RemoveServer(identifier, _type) //nolint:errcheck
 		}
-		c.FSM.GoTransition(StateNoServer)
+		if !ni {
+			c.FSM.GoTransition(StateNoServer)
+		}
 	}()
 
 	if !ni {
