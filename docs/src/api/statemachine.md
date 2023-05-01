@@ -12,6 +12,8 @@ can convert this to an image using the [Mermaid command-line client](https://git
 ## FSM example
 The following is an example of the FSM when the client has obtained a Wireguard/OpenVPN configuration from an eduVPN server
 
+<div class="statemachine">
+
 ```mermaid
 graph TD
 
@@ -93,6 +95,8 @@ Got_Config(Got_Config) -->|Choose a new server| No_Server
 style Got_Config fill:cyan
 Got_Config(Got_Config) -->|Get a new configuration| Loading_Server
 ```
+
+</div>
 
 The current state is highlighted in the <span style="color:cyan">cyan</span> color.
 
