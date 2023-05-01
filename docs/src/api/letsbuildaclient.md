@@ -44,7 +44,7 @@ We get a big JSON blob, so which format is this? From the Go documentation:
 
 > DiscoServers gets the servers from discovery, returned as types/discovery/discovery.go Servers marshalled as JSON
 
-If you follow these files, you see two structs, Servers and Organizations. These structs have json tags associated with them. You can use this structure to figure out how to parse the returned data. In case of discovery, it's very similar to the [JSON files from the discovery server](https://disco.eduvpn.org/v2)
+If you follow these files, you see two structs, Servers and Organizations. These structs have json tags associated with them. You can use this structure to figure out how to parse the returned data. In case of discovery, it's very similar to the [JSON files from the discovery server](https://disco.eduvpn.org/v2).
 
 ## Adding a server
 
