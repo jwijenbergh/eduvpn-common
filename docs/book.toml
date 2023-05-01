@@ -7,3 +7,4 @@ title = "eduVPN-common documentation"
 
 [output.html]
 site-url = "/eduvpn-common/"
+additional-css = ["custom.css"]
