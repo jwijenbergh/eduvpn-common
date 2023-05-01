@@ -84,7 +84,7 @@ jobs:
         mv ../book/* .
 
         # move sphinx files
-        mkdir api/python/rtd
+        mkdir -p api/python/rtd
         mv ../../wrappers/python/docs/build/html/* api/python/rtd
 
         # Disable jekyll as otherwise it won't find our sphinx paths

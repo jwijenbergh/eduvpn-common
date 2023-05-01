@@ -1,2 +1,2 @@
 # API
-This section gives the documentation for the API. We first give an overview of the API in a language-agnostic way. Afterwards, we continue with the language specific documentation. We recommend to read both to get a complete picture, regardless of the language you're using.
+This chapter is an introduction to the eduvpn-common API. It is meant as a high-level overview on how to use API and build your own eduVPN/Let's Connect! client. In this chapter, we *go* over the basics of how the interop between Go and language x works, say something about the architecture, explain where to find detailed API documentation, give a typical flow for a client and give a follow along tutorial on building an eduVPN client using Python code.
