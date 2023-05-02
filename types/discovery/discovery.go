@@ -49,17 +49,17 @@ type Servers struct {
 // Server is a signle discovery server
 type Server struct {
 	// AuthenticationURLTemplate is the template to be used for authentication to skip WAYF
-	AuthenticationURLTemplate string `json:"authentication_url_template"`
+	AuthenticationURLTemplate string `json:"authentication_url_template,omitempty"`
 	// BaseURL is the base URL of the server which is used as an identifier for the server by the Go library
 	BaseURL string `json:"base_url"`
 	// CountryCode is the country code for the server in case of secure internet, e.g. NL
-	CountryCode string `json:"country_code"`
+	CountryCode string `json:"country_code,omitempty"`
 	// DisplayName is the display name of the server, omitted if empty
 	DisplayName MapOrString `json:"display_name,omitempty"`
 	// DisplayName are the keywords of the server, omitted if empty
 	KeywordList MapOrString `json:"keyword_list,omitempty"`
 	// PublicKeyList are the public keys of the server. Currently not used in this lib but returned by the upstream discovery server
-	PublicKeyList []string `json:"public_key_list"`
+	PublicKeyList []string `json:"public_key_list,omitempty"`
 	// Type is the type of the server, "secure_internet" or "institute_access"
 	Type string `json:"server_type"`
 	// SupportContact is the list/slice of support contacts
