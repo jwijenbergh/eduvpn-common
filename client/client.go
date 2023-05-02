@@ -162,6 +162,17 @@ func (c *Client) forwardTokens(srv server.Server) error {
 	return nil
 }
 
+func (c *Client) goTransition(id fsm.StateID) error {
+	handled, err := c.FSM.GoTransition(id)
+	if err != nil {
+		return err
+	}
+	if !handled {
+		log.Logger.Debugf("transition not handled by the client: %s", GetStateName(id))
+	}
+	return nil
+}
+
 // New creates a new client with the following parameters:
 //   - name: the name of the client
 //   - directory: the directory where the config files are stored. Absolute or relative
@@ -223,7 +234,10 @@ func (c *Client) Register() error {
 	if !c.FSM.InState(StateDeregistered) {
 		return errors.Errorf("fsm attempt to register while in '%v'", c.FSM.Current)
 	}
-	c.FSM.GoTransition(StateNoServer)
+	err := c.goTransition(StateNoServer)
+	if err != nil {
+		return errors.WrapPrefix(err, "failed to register", 0)
+	}
 	return nil
 }
 
@@ -340,9 +354,9 @@ func (c *Client) locationCallback(ck *cookie.Cookie) error {
 	if err != nil {
 		return err
 	}
-	t := c.FSM.GoTransition(StateChosenLocation)
-	if !t {
-		log.Logger.Warningf("transition chosen location not completed")
+	err = c.goTransition(StateChosenLocation)
+	if err != nil {
+		return err
 	}
 	return nil
 }
@@ -372,16 +386,16 @@ func (c *Client) callbacks(ck *cookie.Cookie, srv server.Server, forceauth bool)
 		}
 	}
 
-	t := c.FSM.GoTransition(StateChosenServer)
-	if !t {
-		log.Logger.Warningf("transition not completed for chosen server")
+	err := c.goTransition(StateChosenServer)
+	if err != nil {
+		return err
 	}
 	// oauth
 	// TODO: This should be ck.Context()
 	// But needsrelogin needs a rewrite to support this properly
 
 	// first make sure we get the most up to date tokens from the client
-	err := c.updateTokens(srv)
+	err = c.updateTokens(srv)
 	if err != nil {
 		log.Logger.Debugf("failed to get tokens from client: %v", err)
 	}
@@ -396,9 +410,9 @@ func (c *Client) callbacks(ck *cookie.Cookie, srv server.Server, forceauth bool)
 			return err
 		}
 	}
-	t = c.FSM.GoTransition(StateAuthorized)
-	if !t {
-		log.Logger.Warningf("transition authorized not completed")
+	err = c.goTransition(StateAuthorized)
+	if err != nil {
+		return err
 	}
 
 	return nil
@@ -434,37 +448,34 @@ func (c *Client) profileCallback(ck *cookie.Cookie, srv server.Server) error {
 			return err
 		}
 	}
-	t := c.FSM.GoTransition(StateChosenProfile)
-	if !t {
-		log.Logger.Warningf("transition chosen profile not completed")
+	err = c.goTransition(StateChosenProfile)
+	if err != nil {
+		return err
 	}
 	return nil
 }
 
 // AddServer adds a server with identifier and type
 func (c *Client) AddServer(ck *cookie.Cookie, identifier string, _type srvtypes.Type, ni bool) (err error) {
+
 	// If we have failed to add the server, we remove it again
 	// We add the server because we can then obtain it in other callback functions
+	previousState := c.FSM.Current
 	defer func() {
 		if err != nil {
 			_ = c.RemoveServer(identifier, _type) //nolint:errcheck
 		}
-		if !ni {
-			c.FSM.GoTransition(StateNoServer)
+		// If we must run callbacks, go to the previous state if we're not in it
+		if !ni && !c.FSM.InState(previousState) {
+			c.FSM.GoTransition(previousState)
 		}
 	}()
 
 	if !ni {
-		// Try to go to no server
-		c.FSM.GoTransition(StateNoServer)
-
-		// If the transition was not successful, log
-		if !c.FSM.InState(StateNoServer) {
-			return errors.Errorf("wrong state to add a server: %s", GetStateName(c.FSM.Current))
-		}
-		t := c.FSM.GoTransition(StateLoadingServer)
-		if !t {
-			log.Logger.Warningf("transition not completed for loading server")
+		// This only returns a boolean if it was handled
+		err = c.goTransition(StateLoadingServer)
+		if err != nil {
+			return err
 		}
 	}
 
@@ -533,9 +544,9 @@ func (c *Client) config(ck *cookie.Cookie, srv server.Server, pTCP bool, forceAu
 		return nil, err
 	}
 
-	t := c.FSM.GoTransition(StateRequestConfig)
-	if !t {
-		log.Logger.Warningf("transition not completed for requesting config")
+	err = c.goTransition(StateRequestConfig)
+	if err != nil {
+		return nil, err
 	}
 
 	err = c.profileCallback(ck, srv)
@@ -577,12 +588,15 @@ func (c *Client) server(identifier string, _type srvtypes.Type) (srv server.Serv
 
 // GetConfig gets a VPN configuration
 func (c *Client) GetConfig(ck *cookie.Cookie, identifier string, _type srvtypes.Type, pTCP bool) (cfg *srvtypes.Configuration, err error) {
+	previousState := c.FSM.Current
 	defer func() {
 		if err == nil {
 			c.FSM.GoTransition(StateGotConfig)
 		} else {
-			// go back if an error occurred
-			c.FSM.GoTransition(StateNoServer)
+			if !c.FSM.InState(previousState) {
+				// go back to the previous state if an error occurred
+				c.FSM.GoTransition(previousState)
+			}
 		}
 	}()
 	if _type != srvtypes.TypeSecureInternet {
@@ -591,9 +605,9 @@ func (c *Client) GetConfig(ck *cookie.Cookie, identifier string, _type srvtypes.
 			return nil, err
 		}
 	}
-	t := c.FSM.GoTransition(StateLoadingServer)
-	if !t {
-		log.Logger.Warningf("transition not completed for loading server")
+	err = c.goTransition(StateLoadingServer)
+	if err != nil {
+		return nil, err
 	}
 	srv, set, err := c.server(identifier, _type)
 	if err != nil {
@@ -861,4 +875,15 @@ func (c *Client) StartFailover(ck *cookie.Cookie, gateway string, mtu int, readR
 	f := failover.New(readRxBytes)
 
 	return f.Start(ck.Context(), gateway, mtu)
+}
+
+
+func (c *Client) SetState(state FSMStateID) error {
+	err := c.FSM.CheckTransition(state)
+	if err != nil {
+		return err
+	}
+	// TODO: Now we don't pass any data :/
+	c.FSM.GoTransition(state)
+	return nil
 }

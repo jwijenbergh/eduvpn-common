@@ -131,7 +131,14 @@ func (fsm *FSM) writeGraph() {
 // If this transition is not handled by the client, it returns an error.
 func (fsm *FSM) GoTransitionRequired(newState StateID, data interface{}) error {
 	oldState := fsm.Current
-	if !fsm.GoTransitionWithData(newState, data) {
+
+	handled, err := fsm.GoTransitionWithData(newState, data)
+	// transition ios not possible
+	if err != nil {
+		return err
+	}
+	// transition is not handled
+	if !handled {
 		return errors.Errorf("fsm failed transition from '%v' to '%v', is this required transition handled?", fsm.GetStateName(oldState), fsm.GetStateName(newState))
 	}
 	return nil
@@ -139,9 +146,9 @@ func (fsm *FSM) GoTransitionRequired(newState StateID, data interface{}) error {
 
 // GoTransitionWithData is a helper that transitions the state machine toward the 'newState' with associated state data 'data'
 // It returns whether or not the transition is handled by the client.
-func (fsm *FSM) GoTransitionWithData(newState StateID, data interface{}) bool {
-	if fsm.CheckTransition(newState) != nil {
-		return false
+func (fsm *FSM) GoTransitionWithData(newState StateID, data interface{}) (bool, error) {
+	if err := fsm.CheckTransition(newState); err != nil {
+		return false, err
 	}
 
 	prev := fsm.Current
@@ -150,11 +157,11 @@ func (fsm *FSM) GoTransitionWithData(newState StateID, data interface{}) bool {
 		fsm.writeGraph()
 	}
 
-	return fsm.StateCallback(prev, newState, data)
+	return fsm.StateCallback(prev, newState, data), nil
 }
 
 // GoTransition is an alias to call GoTransitionWithData but have an empty string as data.
-func (fsm *FSM) GoTransition(newState StateID) bool {
+func (fsm *FSM) GoTransition(newState StateID) (bool, error) {
 	// No data means the callback is never required
 	return fsm.GoTransitionWithData(newState, "")
 }

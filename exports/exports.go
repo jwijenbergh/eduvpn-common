@@ -512,6 +512,17 @@ func StartFailover(c C.uintptr_t, gateway *C.char, mtu C.int, readRxBytes C.Read
 	return droppedC, nil
 }
 
+// SetState sets the state of the statemachine
+// Note that this transitions the FSM into the new state without passing any data to it
+//export SetState
+func SetState(fsmState C.int) *C.char {
+	state, stateErr := getVPNState()
+	if stateErr != nil {
+		return getCError(stateErr)
+	}
+	return getCError(state.SetState(client.FSMStateID(fsmState)))
+}
+
 // FreeString frees a string that was allocated by the eduvpn-common Go library
 // This happens when we return strings, such as errors from the Go lib back to the client
 // The client MUST thus ensure that this memory is freed using this function

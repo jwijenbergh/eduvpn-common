@@ -175,6 +175,11 @@ class EduVPN(object):
         if remove_err:
             forwardError(remove_err)
 
+    def set_state(self, state: int):
+        state_err = self.go_function(self.lib.SetState, state)
+        if state_err:
+            forwardError(state_err)
+
     def get_config(
         self, _type: ServerType, identifier: str, prefer_tcp: bool = False
     ) -> str:

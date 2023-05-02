@@ -98,12 +98,14 @@ func newFSM(
 			Transitions: []FSMTransition{
 				{To: StateChosenLocation, Description: "Location chosen"},
 				{To: StateNoServer, Description: "Go back or Error"},
+				{To: StateGotConfig, Description: "Go back or Error"},
 			},
 		},
 		StateChosenLocation: FSMState{
 			Transitions: []FSMTransition{
 				{To: StateChosenServer, Description: "Server has been chosen"},
 				{To: StateNoServer, Description: "Go back or Error"},
+				{To: StateGotConfig, Description: "Go back or Error"},
 			},
 		},
 		StateLoadingServer: FSMState{
@@ -114,45 +116,54 @@ func newFSM(
 					Description: "User chooses a Secure Internet server but no location is configured",
 				},
 				{To: StateNoServer, Description: "Go back or Error"},
+				{To: StateGotConfig, Description: "Go back or Error"},
 			},
 		},
 		StateChosenServer: FSMState{
 			Transitions: []FSMTransition{
 				{To: StateAuthorized, Description: "Found tokens in config"},
 				{To: StateOAuthStarted, Description: "No tokens found in config"},
+				{To: StateNoServer, Description: "Go back or Error"},
+				{To: StateGotConfig, Description: "Go back or Error"},
 			},
 		},
 		StateOAuthStarted: FSMState{
 			Transitions: []FSMTransition{
 				{To: StateAuthorized, Description: "User authorizes with browser"},
 				{To: StateNoServer, Description: "Go back or Error"},
+				{To: StateGotConfig, Description: "Go back or Error"},
 			},
 		},
 		StateAuthorized: FSMState{
 			Transitions: []FSMTransition{
 				{To: StateOAuthStarted, Description: "Re-authorize with OAuth"},
 				{To: StateRequestConfig, Description: "Client requests a config"},
-				{To: StateNoServer, Description: "Client wants to go back to the main screen"},
+				{To: StateNoServer, Description: "Go back or Error"},
+				{To: StateGotConfig, Description: "Go back or Error"},
 			},
 		},
 		StateRequestConfig: FSMState{
 			Transitions: []FSMTransition{
 				{To: StateAskProfile, Description: "Multiple profiles found and no profile chosen"},
 				{To: StateChosenProfile, Description: "Only one profile or profile already chosen"},
-				{To: StateNoServer, Description: "Cancel or Error"},
 				{To: StateOAuthStarted, Description: "Re-authorize"},
+				{To: StateNoServer, Description: "Go back or Error"},
+				{To: StateGotConfig, Description: "Go back or Error"},
 			},
 		},
 		StateAskProfile: FSMState{
 			Transitions: []FSMTransition{
 				{To: StateNoServer, Description: "Cancel or Error"},
 				{To: StateChosenProfile, Description: "Profile has been chosen"},
+				{To: StateNoServer, Description: "Go back or Error"},
+				{To: StateGotConfig, Description: "Go back or Error"},
 			},
 		},
 		StateChosenProfile: FSMState{
 			Transitions: []FSMTransition{
-				{To: StateNoServer, Description: "Cancel or Error"},
 				{To: StateGotConfig, Description: "Config has been obtained"},
+				{To: StateNoServer, Description: "Go back or Error"},
+				{To: StateGotConfig, Description: "Go back or Error"},
 			},
 		},
 		StateGotConfig: FSMState{

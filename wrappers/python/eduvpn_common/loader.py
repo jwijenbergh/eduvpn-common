@@ -102,6 +102,9 @@ def initialize_functions(lib: CDLL) -> None:
     lib.SetSupportWireguard.argtypes, lib.SetSupportWireguard.restype = [
         c_int,
     ], c_void_p
+    lib.SetState.argtypes, lib.SetState.restype = [
+        c_int,
+    ], c_void_p
     lib.StartFailover.argtypes, lib.StartFailover.restype = [
         c_int,
         c_char_p,
