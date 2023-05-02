@@ -292,6 +292,7 @@ func ServerList() (*C.char, *C.char) {
 //                   This is called when the user/client has not set a profile for this server before, or the current profile is invalid
 //                   when the user has selected a profile. Reply with the choice using the `CookieReply` function and the profile ID
 //                   e.g. CookieReply(cookie, "wireguard")
+//                   CookieReply can be done in the background as the Go library waits for a reply
 //                   The data for this transition is defined in types/server/server.go RequiredAskTransition with embedded data Profiles in types/server/server.go
 //                   Note that RequiredTransition contains the cookie to be used for the CookieReply
 //                   so a client would:
@@ -304,6 +305,7 @@ func ServerList() (*C.char, *C.char) {
 //                   if for some reason, an invalid location has been configured, the library will ask the client for a new one
 //                   when the user has selected al ocation. Reply with the choice using the `CookieReply` function and the location ID 
 //                   e.g. CookieReply(cookie, "nl")
+//                   CookieReply can be done in the background as the Go library waits for a reply
 //                   The data for this transition is defined in types/server/server.go RequiredAskTransition with embedded data a list of strings ([]string)
 //                   Note that RequiredTransition contains the cookie to be used for the CookieReply,
 //                   so a client would:
