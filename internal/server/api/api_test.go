@@ -54,11 +54,11 @@ func Test_APIGetEndpoints(t *testing.T) {
 		},
 		{
 			epl: endpoints.List{
-				API:           "http://example.com/1",
-				Authorization: "https://example.com/2",
-				Token:         "https://example.com/3",
+				API:           "https://example.com/1",
+				Authorization: "http://example.com/2",
+				Token:         "http://example.com/3",
 			},
-			err: errors.New("API scheme: 'http', is not equal to authorization scheme: 'https'"),
+			err: errors.New("API scheme: 'https', is not equal to authorization scheme: 'http'"),
 		},
 		{
 			epl: endpoints.List{
@@ -91,6 +91,14 @@ func Test_APIGetEndpoints(t *testing.T) {
 				Token:         "https://example.com/3",
 			},
 			err: errors.New("API host: 'example.com', is not equal to authorization host: 'malicious.com'"),
+		},
+		{
+			epl: endpoints.List{
+				API:           "https://example.com/1",
+				Authorization: "https://example.com/2",
+				Token:         "ftp://example.com/3",
+			},
+			err: errors.New("API scheme: 'https', is not equal to token scheme: 'ftp'"),
 		},
 	}
 

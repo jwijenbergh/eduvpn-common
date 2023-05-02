@@ -37,6 +37,9 @@ func (e Endpoints) Validate() error {
 	if err != nil {
 		return errors.WrapPrefix(err, "failed to parse API token endpoint", 0)
 	}
+	if pAPI.Scheme != "https" {
+		return errors.Errorf("API Scheme: '%v', is not equal to HTTPS", pAPI.Scheme)
+	}
 	if pAPI.Scheme != pAuth.Scheme {
 		return errors.Errorf("API scheme: '%v', is not equal to authorization scheme: '%v'", pAPI.Scheme, pAuth.Scheme)
 	}
