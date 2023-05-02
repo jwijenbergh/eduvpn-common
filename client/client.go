@@ -654,9 +654,6 @@ func (c *Client) RemoveServer(identifier string, _type srvtypes.Type) (err error
 }
 
 func (c *Client) CurrentServer() (*srvtypes.Current, error) {
-	if !c.FSM.InState(StateGotConfig) {
-		return nil, errors.Errorf("State: %s, cannot have a current server. Did you get a VPN configuration?", GetStateName(c.FSM.Current))
-	}
 	srv, err := c.Servers.Current()
 	if err != nil {
 		return nil, err
