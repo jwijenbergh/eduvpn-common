@@ -100,6 +100,14 @@ func Test_APIGetEndpoints(t *testing.T) {
 			},
 			err: errors.New("API scheme: 'https', is not equal to token scheme: 'ftp'"),
 		},
+		{
+			epl: endpoints.List{
+				API:           "https://example.com/1",
+				Authorization: "ftp://example.com/2",
+				Token:         "https://example.com/3",
+			},
+			err: errors.New("API scheme: 'https', is not equal to authorization scheme: 'ftp'"),
+		},
 	}
 
 	for _, tc := range testCases {
