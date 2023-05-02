@@ -501,6 +501,8 @@ func (oauth *OAuth) AuthURL(name string, postProcessAuth func(string) string) (s
 	if err != nil {
 		return "", errors.WrapPrefix(err, fmt.Sprintf("failed to parse OAuth base URL '%s'", oauth.BaseAuthorizationURL), 0)
 	}
+	// Make sure the scheme is HTTPS
+	p.Scheme = "https"
 
 	u, err := httpw.ConstructURL(p, params)
 	if err != nil {
