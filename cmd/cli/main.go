@@ -4,7 +4,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"net/url"
 	"os"
 	"reflect"
 	"strings"
@@ -13,6 +12,8 @@ import (
 	"github.com/eduvpn/eduvpn-common/types/cookie"
 	srvtypes "github.com/eduvpn/eduvpn-common/types/server"
 	"github.com/go-errors/errors"
+
+	"github.com/pkg/browser"
 )
 
 // Open a browser with xdg-open.
@@ -21,23 +22,13 @@ func openBrowser(data interface{}) {
 	if !ok {
 		return
 	}
-	// double check URL scheme
-	u, err := url.Parse(str)
+	fmt.Printf("OAuth: Authorization URL: %s\n", str)
+	fmt.Println("Opening browser...")
+	err := browser.OpenURL(str)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "failed parsing url", err)
-		return
+		fmt.Fprintln(os.Stderr, "failed to open browser with error:", err)
+		fmt.Println("Please open your browser manually")
 	}
-	// Double check the scheme
-	if u.Scheme != "https" {
-		fmt.Fprintln(os.Stderr, "got invalid scheme for URL:", u.String())
-		return
-	}
-	fmt.Println("Please open your browser with URL:", u.String())
-	// In practice, a client should open the browser here
-	// But be careful with which commands you execute with this input
-	// As a client you should do enough input validation such that opening the browser does not have unwanted side effects
-	// We do our best to validate the URL in this example by parsing if it's a URL and additionally failing if the scheme is not HTTPS
-	// Note that the library already tries it best to validate data from the server, but a client should always be careful which data it uses
 }
 
 // GetLanguageMatched uses a map from language tags to strings to extract the right language given the tag
