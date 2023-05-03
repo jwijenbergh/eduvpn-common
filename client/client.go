@@ -676,6 +676,7 @@ func (c *Client) pubCurrentServer(srv server.Server) (*srvtypes.Current, error) 
 			return &srvtypes.Current{
 				Institute: &srvtypes.Institute{
 					Server: *t,
+					SupportContacts: b.SupportContact,
 					// TODO: delisted
 					Delisted: false,
 				},
@@ -687,6 +688,7 @@ func (c *Client) pubCurrentServer(srv server.Server) (*srvtypes.Current, error) 
 			Type:   srvtypes.TypeCustom,
 		}, nil
 	case *srvtypes.SecureInternet:
+		t.SupportContacts = b.SupportContact
 		t.Locations = c.Discovery.SecureLocationList()
 		return &srvtypes.Current{
 			SecureInternet: t,
@@ -703,21 +705,23 @@ func (c *Client) pubServer(srv server.Server) (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
+	b, err := srv.Base()
+	if err != nil {
+		return nil, err
+	}
 	switch t := pub.(type) {
 	case *srvtypes.Server:
-		b, err := srv.Base()
-		if err != nil {
-			return nil, err
-		}
 		if b.Type == srvtypes.TypeInstituteAccess {
 			return &srvtypes.Institute{
 				Server: *t,
+				SupportContacts: b.SupportContact,
 				// TODO: delisted
 				Delisted: false,
 			}, nil
 		}
 		return t, nil
 	case *srvtypes.SecureInternet:
+		t.SupportContacts = b.SupportContact
 		t.Locations = c.Discovery.SecureLocationList()
 		return t, nil
 	default:
