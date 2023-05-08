@@ -38,6 +38,7 @@ ReadRxBytes = CFUNCTYPE(c_ulonglong)
 TokenGetter = CFUNCTYPE(c_void_p, c_char_p, POINTER(c_char), c_size_t)
 TokenSetter = CFUNCTYPE(c_void_p, c_char_p, c_char_p)
 
+
 def encode_args(args: List[Any], types: List[Any]) -> Iterator[Any]:
     """Encode the arguments ready to be used by the Go library
 

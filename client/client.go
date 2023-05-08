@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/eduvpn/eduvpn-common/internal/config"
@@ -114,6 +115,8 @@ type Client struct {
 
 	// TokenGetter gets the tokens from the client
 	TokenGetter func(srv srvtypes.Current) *srvtypes.Tokens `json:"-"`
+
+	mu sync.Mutex
 }
 
 func (c *Client) updateTokens(srv server.Server) error {
@@ -134,8 +137,8 @@ func (c *Client) updateTokens(srv server.Server) error {
 	}
 
 	server.UpdateTokens(srv, oauth.Token{
-		Access: tokens.Access,
-		Refresh: tokens.Refresh,
+		Access:           tokens.Access,
+		Refresh:          tokens.Refresh,
 		ExpiredTimestamp: time.Unix(tokens.Expires, 0),
 	})
 
@@ -457,7 +460,8 @@ func (c *Client) profileCallback(ck *cookie.Cookie, srv server.Server) error {
 
 // AddServer adds a server with identifier and type
 func (c *Client) AddServer(ck *cookie.Cookie, identifier string, _type srvtypes.Type, ni bool) (err error) {
-
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	// If we have failed to add the server, we remove it again
 	// We add the server because we can then obtain it in other callback functions
 	previousState := c.FSM.Current
@@ -588,6 +592,8 @@ func (c *Client) server(identifier string, _type srvtypes.Type) (srv server.Serv
 
 // GetConfig gets a VPN configuration
 func (c *Client) GetConfig(ck *cookie.Cookie, identifier string, _type srvtypes.Type, pTCP bool) (cfg *srvtypes.Configuration, err error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	previousState := c.FSM.Current
 	defer func() {
 		if err == nil {
@@ -848,6 +854,8 @@ func (c *Client) SetSecureLocation(ck *cookie.Cookie, countryCode string) (err e
 }
 
 func (c *Client) RenewSession(ck *cookie.Cookie) (err error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	srv, err := c.Servers.Current()
 	if err != nil {
 		return err
@@ -877,13 +885,23 @@ func (c *Client) StartFailover(ck *cookie.Cookie, gateway string, mtu int, readR
 	return f.Start(ck.Context(), gateway, mtu)
 }
 
-
 func (c *Client) SetState(state FSMStateID) error {
-	err := c.FSM.CheckTransition(state)
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	_, err := c.FSM.GoTransition(state)
 	if err != nil {
+		// self-transitions are only debug errors
+		if c.FSM.InState(state) {
+			log.Logger.Debugf("attempt an invalid self-transition: %s", c.FSM.GetStateName(state))
+			return nil
+		}
 		return err
 	}
-	// TODO: Now we don't pass any data :/
-	c.FSM.GoTransition(state)
 	return nil
+}
+
+func (c *Client) InState(state FSMStateID) bool {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return c.FSM.InState(state)
 }

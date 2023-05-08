@@ -1,10 +1,10 @@
 // package main implements the main exported API to be used by other languages
 // Some notes:
-//  - Errors are returned as c strings, free them using FreeString. Same is the case for other string types, you should also free them
-//  - Types are converted from the Go representation to C using JSON strings
-//  - Cookies are used for cancellation, just fancy contexts. Create a cookie using `CookieNew`, pass it to the function that needs one as the first argument. To cancel the function, call `CookieCancel`, passing in the same cookie as argument
-//    - Cookies must also be freed, by using the CookieDelete function if the cookie is no longer needed
-//  - The state machine is used to track the state of a client. It is mainly used for asking for certain data from the client, e.g. asking for profiles and locations. But a client may also wish to build upon this state machine to build the whole UI around it
+//   - Errors are returned as c strings, free them using FreeString. Same is the case for other string types, you should also free them
+//   - Types are converted from the Go representation to C using JSON strings
+//   - Cookies are used for cancellation, just fancy contexts. Create a cookie using `CookieNew`, pass it to the function that needs one as the first argument. To cancel the function, call `CookieCancel`, passing in the same cookie as argument
+//   - Cookies must also be freed, by using the CookieDelete function if the cookie is no longer needed
+//   - The state machine is used to track the state of a client. It is mainly used for asking for certain data from the client, e.g. asking for profiles and locations. But a client may also wish to build upon this state machine to build the whole UI around it
 package main
 
 /*
@@ -104,13 +104,16 @@ func getVPNState() (*client.Client, error) {
 // Name is the name of the client, must be a valid client ID
 // Version is the version of the client. This version field is used for the user agent in all HTTP requests
 // cb is the state callback. It takes three arguments: The old state, the new state and the data for the state as JSON
-//  - Note that the states are defined in client/fsm.go, e.g. NO_SERVER (in Go: StateNoServer), ASK_PROFILE (in Go: StateAskProfile)
-//  - This callback returns non-zero if the state transition is handled. This is used to check if the client handles the needed transitions
+//   - Note that the states are defined in client/fsm.go, e.g. NO_SERVER (in Go: StateNoServer), ASK_PROFILE (in Go: StateAskProfile)
+//   - This callback returns non-zero if the state transition is handled. This is used to check if the client handles the needed transitions
+//
 // debug, if non-zero, enables debugging mode for the library, this means:
-//  - Log everything in debug mode, so you can get more detail of what is going on
-//  - Write the state graph to a file in the configDirectory. This can be used to create a FSM png file with mermaid https://mermaid.js.org/
+//   - Log everything in debug mode, so you can get more detail of what is going on
+//   - Write the state graph to a file in the configDirectory. This can be used to create a FSM png file with mermaid https://mermaid.js.org/
+//
 // After registering, the FSM is initialized and the state transition NO_SERVER should have been completed
 // If some error occurs during registering, it is returned as a C string
+//
 //export Register
 func Register(
 	name *C.char,
@@ -155,6 +158,7 @@ func Register(
 // e.g. when to show the renew button, when to show expiry notifications
 // The expiry times structure is defined in types/server/server.go `Expiry`
 // If some error occurs during registering, it is returned as a C string
+//
 //export ExpiryTimes
 func ExpiryTimes() (*C.char, *C.char) {
 	state, stateErr := getVPNState()
@@ -177,6 +181,7 @@ func ExpiryTimes() (*C.char, *C.char) {
 // This function SHOULD be called when the application exits such that the configuration file is saved correctly
 // Note that saving of the configuration file also happens in other cases, such as after getting a VPN configuration
 // Thus it is often not problematic if this function cannot be called due to a client crash
+//
 //export Deregister
 func Deregister() *C.char {
 	state, stateErr := getVPNState()
@@ -192,16 +197,18 @@ func Deregister() *C.char {
 // c is the cookie that is used for cancellation. Create a cookie first with CookieNew. This same cookie is also used for replying to state transitions
 // _type is the type of server that needs to be added. This type is defined in types/server/server.go Type
 // id is the identifier of the string
-//  - In case of secure internet: The organization ID
-//  - In case of custom server: The base URL
-//  - In case of institute access: The base URL
+//   - In case of secure internet: The organization ID
+//   - In case of custom server: The base URL
+//   - In case of institute access: The base URL
+//
 // ni stands for non-interactive. If non-zero, any state transitions will not be run.
 // This ni flag is useful for preprovisioned servers. For normal usage, you want to set this to zero (meaning: False)
 // If the server cannot be added it returns the error as a string
 // Note that the server is removed when an error has occured
 // The following state callbacks are mandatory to handle:
-//  - OAUTH_STARTED: This indicates that the OAuth procedure has been started, it returns the URL as the data.
-//                   The client should open the webbrowser with this URL and continue the authorization process.
+//   - OAUTH_STARTED: This indicates that the OAuth procedure has been started, it returns the URL as the data.
+//     The client should open the webbrowser with this URL and continue the authorization process.
+//
 //export AddServer
 func AddServer(c C.uintptr_t, _type C.int, id *C.char, ni C.int) *C.char {
 	// TODO: type
@@ -225,6 +232,7 @@ func AddServer(c C.uintptr_t, _type C.int, id *C.char, ni C.int) *C.char {
 // - In case of institute access: The base URL
 // If the server cannot be removed it returns the error as a string
 // Note that the server is not removed when an error has occured
+//
 //export RemoveServer
 func RemoveServer(_type C.int, id *C.char) *C.char {
 	state, stateErr := getVPNState()
@@ -239,6 +247,7 @@ func RemoveServer(_type C.int, id *C.char) *C.char {
 // In eduvpn-common, a server is marked as 'current' if you have gotten a VPN configuration for it
 // It returns the server as JSON, defined in types/server/server.go Current
 // If there is no current server or some other, e.g. there is no current state, an error is returned with a nil string
+//
 //export CurrentServer
 func CurrentServer() (*C.char, *C.char) {
 	state, stateErr := getVPNState()
@@ -260,6 +269,7 @@ func CurrentServer() (*C.char, *C.char) {
 // This is NOT the discovery list, but the servers that have previously been added with `AddServer`
 // It returns the server list as a JSON string defined in types/server/server.go List
 // If the server list cannot be retrieved it returns a nil string and an error
+//
 //export ServerList
 func ServerList() (*C.char, *C.char) {
 	state, stateErr := getVPNState()
@@ -288,37 +298,39 @@ func ServerList() (*C.char, *C.char) {
 // If the server cannot be added it returns the error as a string
 // Note that the server is removed when an error has occured
 // The current state callbacks MUST be handled
-//  - ASK_PROFILE:   This asks the client for profile.
-//                   This is called when the user/client has not set a profile for this server before, or the current profile is invalid
-//                   when the user has selected a profile. Reply with the choice using the `CookieReply` function and the profile ID
-//                   e.g. CookieReply(cookie, "wireguard")
-//                   CookieReply can be done in the background as the Go library waits for a reply
-//                   The data for this transition is defined in types/server/server.go RequiredAskTransition with embedded data Profiles in types/server/server.go
-//                   Note that RequiredTransition contains the cookie to be used for the CookieReply
-//                   so a client would:
-//                   - Parse the data to get the cookie and data
-//                   - get the cookie,
-//                   - get the profiles from the data
-//                   - show it in the UI and then reply with CookieReply using the choice
-//  - ASK_LOCATION:  This asks the client for a location. Note that under normal circumstances,
-//                   this callback is not actually called as the home organization for the secure internet server is set as the current
-//                   if for some reason, an invalid location has been configured, the library will ask the client for a new one
-//                   when the user has selected al ocation. Reply with the choice using the `CookieReply` function and the location ID 
-//                   e.g. CookieReply(cookie, "nl")
-//                   CookieReply can be done in the background as the Go library waits for a reply
-//                   The data for this transition is defined in types/server/server.go RequiredAskTransition with embedded data a list of strings ([]string)
-//                   Note that RequiredTransition contains the cookie to be used for the CookieReply,
-//                   so a client would:
-//                   - Parse the data to get the cookie and data
-//                   - get the cookie,
-//                   - get the list of locations from the data
-//                   - show it in the UI and then reply with CookieReply using the choice
-//  - OAUTH_STARTED: This indicates that the OAuth procedure has been started, it returns the URL as the data.
-//                   The client should open the webbrowser with this URL and continue the authorization process.
-//                   This is only called if authorization needs to be retriggered
+//   - ASK_PROFILE:   This asks the client for profile.
+//     This is called when the user/client has not set a profile for this server before, or the current profile is invalid
+//     when the user has selected a profile. Reply with the choice using the `CookieReply` function and the profile ID
+//     e.g. CookieReply(cookie, "wireguard")
+//     CookieReply can be done in the background as the Go library waits for a reply
+//     The data for this transition is defined in types/server/server.go RequiredAskTransition with embedded data Profiles in types/server/server.go
+//     Note that RequiredTransition contains the cookie to be used for the CookieReply
+//     so a client would:
+//   - Parse the data to get the cookie and data
+//   - get the cookie,
+//   - get the profiles from the data
+//   - show it in the UI and then reply with CookieReply using the choice
+//   - ASK_LOCATION:  This asks the client for a location. Note that under normal circumstances,
+//     this callback is not actually called as the home organization for the secure internet server is set as the current
+//     if for some reason, an invalid location has been configured, the library will ask the client for a new one
+//     when the user has selected al ocation. Reply with the choice using the `CookieReply` function and the location ID
+//     e.g. CookieReply(cookie, "nl")
+//     CookieReply can be done in the background as the Go library waits for a reply
+//     The data for this transition is defined in types/server/server.go RequiredAskTransition with embedded data a list of strings ([]string)
+//     Note that RequiredTransition contains the cookie to be used for the CookieReply,
+//     so a client would:
+//   - Parse the data to get the cookie and data
+//   - get the cookie,
+//   - get the list of locations from the data
+//   - show it in the UI and then reply with CookieReply using the choice
+//   - OAUTH_STARTED: This indicates that the OAuth procedure has been started, it returns the URL as the data.
+//     The client should open the webbrowser with this URL and continue the authorization process.
+//     This is only called if authorization needs to be retriggered
+//
 // After getting a configuration, the FSM moves to the GOT_CONFIG state
 // The return data is the configuration, marshalled as JSON and defined in types/server/server.go Configuration
 // This is nil if an error is returned as a string
+//
 //export GetConfig
 func GetConfig(c C.uintptr_t, _type C.int, id *C.char, pTCP C.int) (*C.char, *C.char) {
 	state, stateErr := getVPNState()
@@ -344,6 +356,7 @@ func GetConfig(c C.uintptr_t, _type C.int, id *C.char, pTCP C.int) (*C.char, *C.
 // This MUST only be called if the user/client wishes to manually set a profile instead of the common lib asking for one using a transition
 // Data is the profile ID
 // It returns an error if unsuccessful
+//
 //export SetProfileID
 func SetProfileID(data *C.char) *C.char {
 	state, stateErr := getVPNState()
@@ -357,9 +370,10 @@ func SetProfileID(data *C.char) *C.char {
 // SetSecureLocation sets the location for the secure internet server if it exists
 // This MUST only be called if the user/client wishes to manually set a location instead of the common lib asking for one using a transition
 // Because this does network requests to initialize the location, there is a cookie again :)
-// c is the Cookie that needs to be passed. To create a cookie, first call `CookieNew` 
+// c is the Cookie that needs to be passed. To create a cookie, first call `CookieNew`
 // Data is the location ID
 // It returns an error if unsuccessful
+//
 //export SetSecureLocation
 func SetSecureLocation(c C.uintptr_t, data *C.char) *C.char {
 	state, stateErr := getVPNState()
@@ -378,6 +392,7 @@ func SetSecureLocation(c C.uintptr_t, data *C.char) *C.char {
 // c is the Cookie that needs to be passed. Create a new Cookie using `CookieNew`
 // If it was unsuccessful, it returns an error. Note that when the lib was built in release mode the data is almost always non-nil, even when an error has occurred
 // This means it has just returned the cached list
+//
 //export DiscoServers
 func DiscoServers(c C.uintptr_t) (*C.char, *C.char) {
 	state, stateErr := getVPNState()
@@ -403,6 +418,7 @@ func DiscoServers(c C.uintptr_t) (*C.char, *C.char) {
 // c is the Cookie that needs to be passed. Create a new Cookie using `CookieNew`
 // If it was unsuccessful, it returns an error. Note that when the lib was built in release mode the data is almost always non-nil, even when an error has occurred
 // This means it has just returned the cached list
+//
 //export DiscoOrganizations
 func DiscoOrganizations(c C.uintptr_t) (*C.char, *C.char) {
 	state, stateErr := getVPNState()
@@ -428,6 +444,7 @@ func DiscoOrganizations(c C.uintptr_t) (*C.char, *C.char) {
 // This MUST be called when disconnecting, see https://docs.eduvpn.org/server/v3/api.html#application-flow
 // c is the Cookie that needs to be passed. Create a new Cookie using `CookieNew`
 // If it was unsuccessful, it returns an error
+//
 //export Cleanup
 func Cleanup(c C.uintptr_t) *C.char {
 	state, stateErr := getVPNState()
@@ -447,6 +464,7 @@ func Cleanup(c C.uintptr_t) *C.char {
 // And it also possibly re-runs every state callback you need when getting a config
 // At least you MUST handle the OAuth started transition
 // It returns an error if unsuccessful
+//
 //export RenewSession
 func RenewSession(c C.uintptr_t) *C.char {
 	state, stateErr := getVPNState()
@@ -466,6 +484,7 @@ func RenewSession(c C.uintptr_t) *C.char {
 // To disable it you can pass a 0 int to this
 // support thus indicates whether or not to enable WireGuard
 // An error is returned if this is not possible
+//
 //export SetSupportWireguard
 func SetSupportWireguard(support C.int) *C.char {
 	state, stateErr := getVPNState()
@@ -485,6 +504,7 @@ func SetSupportWireguard(support C.int) *C.char {
 // readRxBytes is a function that returns the current rx bytes of the VPN interface, this should return a `long long int` in c
 // It returns a boolean whether or not the common lib has determined that it cannot reach the gateway. Non-zero=dropped, zero=not dropped
 // It also returns an error, if it fails to indicate if it has dropped or not. In this case, dropped is also set to zero
+//
 //export StartFailover
 func StartFailover(c C.uintptr_t, gateway *C.char, mtu C.int, readRxBytes C.ReadRxBytes) (C.int, *C.char) {
 	state, stateErr := getVPNState()
@@ -514,6 +534,7 @@ func StartFailover(c C.uintptr_t, gateway *C.char, mtu C.int, readRxBytes C.Read
 
 // SetState sets the state of the statemachine
 // Note that this transitions the FSM into the new state without passing any data to it
+//
 //export SetState
 func SetState(fsmState C.int) *C.char {
 	state, stateErr := getVPNState()
@@ -523,10 +544,26 @@ func SetState(fsmState C.int) *C.char {
 	return getCError(state.SetState(client.FSMStateID(fsmState)))
 }
 
+// InState checks if the FSM is in `fsmState`
+//
+//export InState
+func InState(fsmState C.int) (C.int, *C.char) {
+	state, stateErr := getVPNState()
+	if stateErr != nil {
+		return 0, getCError(stateErr)
+	}
+
+	if yes := state.InState(client.FSMStateID(fsmState)); yes {
+		return 1, nil
+	}
+	return 0, nil
+}
+
 // FreeString frees a string that was allocated by the eduvpn-common Go library
 // This happens when we return strings, such as errors from the Go lib back to the client
 // The client MUST thus ensure that this memory is freed using this function
 // Simply pass the pointer to the string in here
+//
 //export FreeString
 func FreeString(addr *C.char) {
 	C.free(unsafe.Pointer(addr))
@@ -556,11 +593,14 @@ func getCookie(c C.uintptr_t) (*cookie.Cookie, error) {
 //   - The server for which to get the tokens for, marshalled as JSON and defined in types/server/server.go `Current`
 //   - The output buffer
 //   - The length of the output buffer
+//
 // This 'output buffer' must contain the tokens, marshalled as JSON that is defined in types/server/server.go `Tokens`
 // setter is the void function that sets tokens. It takes two arguments:
 //   - The server for which to get the tokens for, marshalled as JSON and defined in types/server/server.go `Current`
 //   - The tokens, defined in types/server/server.go `Tokens` marshalled as JSON
+//
 // It returns an error when the tokens cannot be set
+//
 //export SetTokenHandler
 func SetTokenHandler(getter C.TokenGetter, setter C.TokenSetter) *C.char {
 	state, stateErr := getVPNState()
@@ -615,7 +655,6 @@ func SetTokenHandler(getter C.TokenGetter, setter C.TokenSetter) *C.char {
 		return &gotT
 	}
 
-
 	return nil
 }
 
@@ -623,9 +662,11 @@ func SetTokenHandler(getter C.TokenGetter, setter C.TokenSetter) *C.char {
 // This value should not be parsed or converted somehow by the client
 // This value is simply to pass back to the Go library
 // This value has two purposes:
-//  - Cancel a long running function
-//  - Send a reply to a state transition (ASK_PROFILE and ASK_LOCATION)
+//   - Cancel a long running function
+//   - Send a reply to a state transition (ASK_PROFILE and ASK_LOCATION)
+//
 // Functions that take a cookie have it as the first argument
+//
 //export CookieNew
 func CookieNew() C.uintptr_t {
 	c := cookie.NewWithContext(context.Background())
@@ -636,6 +677,7 @@ func CookieNew() C.uintptr_t {
 // The data that is sent to the Go library is the second argument of this function
 // c is the Cookie
 // data is the data to send
+//
 //export CookieReply
 func CookieReply(c C.uintptr_t, data *C.char) *C.char {
 	v, err := getCookie(c)
@@ -647,7 +689,8 @@ func CookieReply(c C.uintptr_t, data *C.char) *C.char {
 }
 
 // CookieDelete deletes the cookie by cancelling it and deleting the underlying cgo handle
-// This function MUST be called when the cookie that is created using `CookieNew` is no longer needed 
+// This function MUST be called when the cookie that is created using `CookieNew` is no longer needed
+//
 //export CookieDelete
 func CookieDelete(c C.uintptr_t) *C.char {
 	v, err := getCookie(c)
@@ -664,6 +707,7 @@ func CookieDelete(c C.uintptr_t) *C.char {
 // This means that functions which take this as first argument, return if they're still running
 // The error cause is always context.Canceled for that cancelled function: https://pkg.go.dev/context#pkg-variables
 // This CookieCancel function can also return an error if cancelling was unsuccessful
+//
 //export CookieCancel
 func CookieCancel(c C.uintptr_t) *C.char {
 	v, err := getCookie(c)
