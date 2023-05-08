@@ -47,6 +47,16 @@ const (
 
 	// StateGotConfig means a VPN configuration has been obtained
 	StateGotConfig
+
+	// The following states are only here for clients that want to use them
+	// StateConnecting means the VPN is connecting
+	StateConnecting
+
+	// StateDisconnecting means the VPN is disconnecting
+	StateDisconnecting
+
+	// StateConnected means the VPN is connected
+	StateConnected
 )
 
 func GetStateName(s FSMStateID) string {
@@ -75,6 +85,12 @@ func GetStateName(s FSMStateID) string {
 		return "Authorized"
 	case StateGotConfig:
 		return "Got_Config"
+	case StateConnecting:
+		return "Connecting"
+	case StateDisconnecting:
+		return "Disconnecting"
+	case StateConnected:
+		return "Connected"
 	default:
 		panic("unknown conversion of state to string")
 	}
@@ -92,6 +108,7 @@ func newFSM(
 		StateNoServer: FSMState{
 			Transitions: []FSMTransition{
 				{To: StateLoadingServer, Description: "User clicks a server in the UI"},
+				{To: StateConnected, Description: "The VPN is still active"},
 			},
 		},
 		StateAskLocation: FSMState{
@@ -170,6 +187,24 @@ func newFSM(
 			Transitions: []FSMTransition{
 				{To: StateNoServer, Description: "Choose a new server"},
 				{To: StateLoadingServer, Description: "Get a new configuration"},
+				{To: StateConnecting, Description: "VPN is connecting"},
+			},
+		},
+		StateConnecting: FSMState{
+			Transitions: []FSMTransition{
+				{To: StateGotConfig, Description: "Go back or Error"},
+				{To: StateConnected, Description: "Done connecting"},
+			},
+		},
+		StateConnected: FSMState{
+			Transitions: []FSMTransition{
+				{To: StateDisconnecting, Description: "The VPN is disconnecting"},
+			},
+		},
+		StateDisconnecting: FSMState{
+			Transitions: []FSMTransition{
+				{To: StateGotConfig, Description: "Done disconnecting"},
+				{To: StateConnected, Description: "Go back or Error"},
 			},
 		},
 	}
