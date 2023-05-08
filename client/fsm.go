@@ -107,6 +107,7 @@ func newFSM(
 		},
 		StateNoServer: FSMState{
 			Transitions: []FSMTransition{
+				{To: StateAskLocation, Description: "The client wants to ask for a location on the main screen"},
 				{To: StateLoadingServer, Description: "User clicks a server in the UI"},
 				{To: StateConnected, Description: "The VPN is still active"},
 			},
