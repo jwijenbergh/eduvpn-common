@@ -71,6 +71,9 @@ type FSM struct {
 
 	// GetStateName gets the name of a state as a string
 	GetStateName func(StateID) string
+
+	// initial is the initial state that we can always go back to
+	initial StateID
 }
 
 // Init initializes the state machine and sets it to the given current state.
@@ -88,6 +91,7 @@ func (fsm *FSM) Init(
 	fsm.Directory = directory
 	fsm.GetStateName = nameGen
 	fsm.Generate = generate
+	fsm.initial = current
 }
 
 // InState returns whether or not the state machine is in the given 'check' state.
@@ -96,6 +100,9 @@ func (fsm *FSM) InState(check StateID) bool {
 }
 
 func (fsm *FSM) CheckTransition(desired StateID) error {
+	if desired == fsm.initial {
+		return nil
+	}
 	for _, ts := range fsm.States[fsm.Current].Transitions {
 		if ts.To == desired {
 			return nil
