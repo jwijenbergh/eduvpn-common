@@ -246,6 +246,8 @@ func (c *Client) Register() error {
 
 // Deregister 'deregisters' the client, meaning saving the log file and the config and emptying out the client struct.
 func (c *Client) Deregister() {
+	// First of all let's transition the state machine
+	_ = c.goTransition(StateDeregistered)
 	// Close the log file
 	_ = log.Logger.Close()
 
@@ -701,7 +703,7 @@ func (c *Client) pubCurrentServer(srv server.Server) (*srvtypes.Current, error) 
 		if b.Type == srvtypes.TypeInstituteAccess {
 			return &srvtypes.Current{
 				Institute: &srvtypes.Institute{
-					Server: *t,
+					Server:          *t,
 					SupportContacts: b.SupportContact,
 					// TODO: delisted
 					Delisted: false,
@@ -739,7 +741,7 @@ func (c *Client) pubServer(srv server.Server) (interface{}, error) {
 	case *srvtypes.Server:
 		if b.Type == srvtypes.TypeInstituteAccess {
 			return &srvtypes.Institute{
-				Server: *t,
+				Server:          *t,
 				SupportContacts: b.SupportContact,
 				// TODO: delisted
 				Delisted: false,
