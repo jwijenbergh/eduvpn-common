@@ -1,4 +1,5 @@
 import ctypes
+import json
 from enum import IntEnum
 from typing import Any, Callable, Iterator, Optional
 
@@ -17,14 +18,19 @@ from eduvpn_common.state import State
 
 
 class WrappedError(Exception):
-    pass
+    def __init__(self, translations, language, misc):
+        self.translations = translations
+        self.language = language
+        self.misc = misc
+
+    def __str__(self) -> str:
+        print(self.translations)
+        return self.translations[self.language]
 
 
-def forwardError(error: bytes | str):
-    # TODO: HACK, remove this
-    if isinstance(error, str):
-        raise WrappedError(error)
-    raise WrappedError(error.decode("utf-8"))
+def forwardError(error: str):
+    d = json.loads(error)
+    raise WrappedError(d["message"], "en", d["misc"])
 
 
 class ServerType(IntEnum):

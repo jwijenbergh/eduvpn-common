@@ -1,6 +1,6 @@
 // package main implements the main exported API to be used by other languages
 // Some notes:
-//   - Errors are returned as c strings, free them using FreeString. Same is the case for other string types, you should also free them
+//   - Errors are returned as JSON c strings. The JSON type is defined in types/error/error.go Error. Free them using FreeString. Same is the case for other string types, you should also free them
 //   - Types are converted from the Go representation to C using JSON strings
 //   - Cookies are used for cancellation, just fancy contexts. Create a cookie using `CookieNew`, pass it to the function that needs one as the first argument. To cancel the function, call `CookieCancel`, passing in the same cookie as argument
 //   - Cookies must also be freed, by using the CookieDelete function if the cookie is no longer needed
@@ -47,9 +47,11 @@ import (
 	"github.com/go-errors/errors"
 
 	"github.com/eduvpn/eduvpn-common/client"
+	"github.com/eduvpn/eduvpn-common/i18nerr"
 	"github.com/eduvpn/eduvpn-common/internal/log"
 	"github.com/eduvpn/eduvpn-common/types/cookie"
 	srvtypes "github.com/eduvpn/eduvpn-common/types/server"
+	errtypes "github.com/eduvpn/eduvpn-common/types/error"
 )
 
 var VPNState *client.Client
@@ -58,7 +60,22 @@ func getCError(err error) *C.char {
 	if err == nil {
 		return nil
 	}
-	return C.CString(err.Error())
+	retErr := errtypes.Error{
+		Message: errtypes.Translated{
+			"en": err.Error(),
+		},
+		Misc: false,
+	}
+	v, ok := err.(*i18nerr.Error)
+	if ok {
+		retErr.Message = v.Translations()
+		retErr.Misc = v.Misc
+	}
+	retData, err := getReturnData(retErr)
+	if err != nil {
+		return C.CString("failed to get error return")
+	}
+	return C.CString(retData)
 }
 
 func getReturnData(data interface{}) (string, error) {
@@ -112,7 +129,7 @@ func getVPNState() (*client.Client, error) {
 //   - Write the state graph to a file in the configDirectory. This can be used to create a FSM png file with mermaid https://mermaid.js.org/
 //
 // After registering, the FSM is initialized and the state transition NO_SERVER should have been completed
-// If some error occurs during registering, it is returned as a C string
+// If some error occurs during registering, it is returned as a types/error/error.go Error
 //
 //export Register
 func Register(
@@ -157,7 +174,7 @@ func Register(
 // Expiry times are just fields that represent unix timestamps at which to do certain events regarding expiry,
 // e.g. when to show the renew button, when to show expiry notifications
 // The expiry times structure is defined in types/server/server.go `Expiry`
-// If some error occurs during registering, it is returned as a C string
+// If some error occurs, it is returned as types/error/error.go Error
 //
 //export ExpiryTimes
 func ExpiryTimes() (*C.char, *C.char) {
@@ -203,7 +220,7 @@ func Deregister() *C.char {
 //
 // ni stands for non-interactive. If non-zero, any state transitions will not be run.
 // This ni flag is useful for preprovisioned servers. For normal usage, you want to set this to zero (meaning: False)
-// If the server cannot be added it returns the error as a string
+// If the server cannot be added it returns the error as types/error/error.go Error
 // Note that the server is removed when an error has occured
 // The following state callbacks are mandatory to handle:
 //   - OAUTH_STARTED: This indicates that the OAuth procedure has been started, it returns the URL as the data.
@@ -230,7 +247,7 @@ func AddServer(c C.uintptr_t, _type C.int, id *C.char, ni C.int) *C.char {
 // - In case of secure internet: The organization ID
 // - In case of custom server: The base URL
 // - In case of institute access: The base URL
-// If the server cannot be removed it returns the error as a string
+// If the server cannot be removed it returns the error types/error/error.go Error
 // Note that the server is not removed when an error has occured
 //
 //export RemoveServer
@@ -295,7 +312,7 @@ func ServerList() (*C.char, *C.char) {
 // - In case of custom server: The base URL
 // - In case of institute access: The base URL
 // pTCP is if we prefer TCP or not to get the configuration, non-zero means yes
-// If the server cannot be added it returns the error as a string
+// If the server cannot be added it returns the error as types/error/error.go Error
 // Note that the server is removed when an error has occured
 // The current state callbacks MUST be handled
 //   - ASK_PROFILE:   This asks the client for profile.
@@ -329,7 +346,7 @@ func ServerList() (*C.char, *C.char) {
 //
 // After getting a configuration, the FSM moves to the GOT_CONFIG state
 // The return data is the configuration, marshalled as JSON and defined in types/server/server.go Configuration
-// This is nil if an error is returned as a string
+// This is nil if an error is returned as types/error/error.go Error
 //
 //export GetConfig
 func GetConfig(c C.uintptr_t, _type C.int, id *C.char, pTCP C.int) (*C.char, *C.char) {

@@ -1,0 +1,466 @@
+{
+    "language": "en",
+    "messages": [
+        {
+            "id": "Internal state transition error",
+            "message": "Internal state transition error",
+            "translation": "Internal state transition error",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "The client registered with an invalid client ID: '{Name}'",
+            "message": "The client registered with an invalid client ID: '{Name}'",
+            "translation": "The client registered with an invalid client ID: '{Name}'",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Name",
+                    "string": "%[1]v",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "name"
+                }
+            ],
+            "fuzzy": true
+        },
+        {
+            "id": "The client registered with an invalid version: '{Version}'",
+            "message": "The client registered with an invalid version: '{Version}'",
+            "translation": "The client registered with an invalid version: '{Version}'",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Version",
+                    "string": "%[1]v",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "version"
+                }
+            ],
+            "fuzzy": true
+        },
+        {
+            "id": "The log file with directory: '{Directory}' failed to initialize",
+            "message": "The log file with directory: '{Directory}' failed to initialize",
+            "translation": "The log file with directory: '{Directory}' failed to initialize",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Directory",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "directory"
+                }
+            ],
+            "fuzzy": true
+        },
+        {
+            "id": "Client has an invalid state",
+            "message": "Client has an invalid state",
+            "translation": "Client has an invalid state",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "Server/organization discovery with Let's Connect is not supported",
+            "message": "Server/organization discovery with Let's Connect is not supported",
+            "translation": "Server/organization discovery with Let's Connect is not supported",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "An error occurred after getting the discovery files for the list of organizations",
+            "message": "An error occurred after getting the discovery files for the list of organizations",
+            "translation": "An error occurred after getting the discovery files for the list of organizations",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "An error occurred after getting the discovery files for the list of servers",
+            "message": "An error occurred after getting the discovery files for the list of servers",
+            "translation": "An error occurred after getting the discovery files for the list of servers",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "The current server could not be found when getting it for expiry",
+            "message": "The current server could not be found when getting it for expiry",
+            "translation": "The current server could not be found when getting it for expiry",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "The secure internet location could not be set",
+            "message": "The secure internet location could not be set",
+            "translation": "The secure internet location could not be set",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "The authorization procedure failed to complete",
+            "message": "The authorization procedure failed to complete",
+            "translation": "The authorization procedure failed to complete",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "No suitable profiles could be found",
+            "message": "No suitable profiles could be found",
+            "translation": "No suitable profiles could be found",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "Profile with ID: '{PID}' could not be set",
+            "message": "Profile with ID: '{PID}' could not be set",
+            "translation": "Profile with ID: '{PID}' could not be set",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "PID",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "pID"
+                }
+            ],
+            "fuzzy": true
+        },
+        {
+            "id": "Profile with ID: '{PID}' could not be obtained from the server",
+            "message": "Profile with ID: '{PID}' could not be obtained from the server",
+            "translation": "Profile with ID: '{PID}' could not be obtained from the server",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "PID",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "pID"
+                }
+            ],
+            "fuzzy": true
+        },
+        {
+            "id": "The identifier that was passed to the library is incorrect",
+            "message": "The identifier that was passed to the library is incorrect",
+            "translation": "The identifier that was passed to the library is incorrect",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "Could not retrieve institute access server with URL: '{Identifier}' from discovery",
+            "message": "Could not retrieve institute access server with URL: '{Identifier}' from discovery",
+            "translation": "Could not retrieve institute access server with URL: '{Identifier}' from discovery",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Identifier",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "identifier"
+                }
+            ],
+            "fuzzy": true
+        },
+        {
+            "id": "The institute access server with URL: '{Identifier}' could not be added",
+            "message": "The institute access server with URL: '{Identifier}' could not be added",
+            "translation": "The institute access server with URL: '{Identifier}' could not be added",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Identifier",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "identifier"
+                }
+            ],
+            "fuzzy": true
+        },
+        {
+            "id": "The secure internet server with organisation ID: '{Identifier}' could not be retrieved from discovery",
+            "message": "The secure internet server with organisation ID: '{Identifier}' could not be retrieved from discovery",
+            "translation": "The secure internet server with organisation ID: '{Identifier}' could not be retrieved from discovery",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Identifier",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "identifier"
+                }
+            ],
+            "fuzzy": true
+        },
+        {
+            "id": "The secure internet server with organisation ID: '{Identifier}' could not be added",
+            "message": "The secure internet server with organisation ID: '{Identifier}' could not be added",
+            "translation": "The secure internet server with organisation ID: '{Identifier}' could not be added",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Identifier",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "identifier"
+                }
+            ],
+            "fuzzy": true
+        },
+        {
+            "id": "The custom server with URL: '{Identifier}' could not be added",
+            "message": "The custom server with URL: '{Identifier}' could not be added",
+            "translation": "The custom server with URL: '{Identifier}' could not be added",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Identifier",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "identifier"
+                }
+            ],
+            "fuzzy": true
+        },
+        {
+            "id": "Server type: '{Type}' is not valid to be added",
+            "message": "Server type: '{Type}' is not valid to be added",
+            "translation": "Server type: '{Type}' is not valid to be added",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Type",
+                    "string": "%[1]v",
+                    "type": "github.com/eduvpn/eduvpn-common/types/server.Type",
+                    "underlyingType": "int8",
+                    "argNum": 1,
+                    "expr": "_type"
+                }
+            ],
+            "fuzzy": true
+        },
+        {
+            "id": "The VPN configuration could not be obtained",
+            "message": "The VPN configuration could not be obtained",
+            "translation": "The VPN configuration could not be obtained",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "The current profile could not be found",
+            "message": "The current profile could not be found",
+            "translation": "The current profile could not be found",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "Not a valid server type: {Type}",
+            "message": "Not a valid server type: {Type}",
+            "translation": "Not a valid server type: {Type}",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Type",
+                    "string": "%[1]v",
+                    "type": "github.com/eduvpn/eduvpn-common/types/server.Type",
+                    "underlyingType": "int8",
+                    "argNum": 1,
+                    "expr": "_type"
+                }
+            ],
+            "fuzzy": true
+        },
+        {
+            "id": "Identifier: '{Identifier}' for server with type: '{Type}' is not valid",
+            "message": "Identifier: '{Identifier}' for server with type: '{Type}' is not valid",
+            "translation": "Identifier: '{Identifier}' for server with type: '{Type}' is not valid",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Identifier",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "identifier"
+                },
+                {
+                    "id": "Type",
+                    "string": "%[2]d",
+                    "type": "github.com/eduvpn/eduvpn-common/types/server.Type",
+                    "underlyingType": "int8",
+                    "argNum": 2,
+                    "expr": "_type"
+                }
+            ],
+            "fuzzy": true
+        },
+        {
+            "id": "The operation for getting a VPN configuration was canceled",
+            "message": "The operation for getting a VPN configuration was canceled",
+            "translation": "The operation for getting a VPN configuration was canceled",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "Failed to set the server with identifier: '{Identifier}' as the current",
+            "message": "Failed to set the server with identifier: '{Identifier}' as the current",
+            "translation": "Failed to set the server with identifier: '{Identifier}' as the current",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Identifier",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "identifier"
+                }
+            ],
+            "fuzzy": true
+        },
+        {
+            "id": "Identifier: '{Identifier}' for server with type: '{Type}' is not valid for removal",
+            "message": "Identifier: '{Identifier}' for server with type: '{Type}' is not valid for removal",
+            "translation": "Identifier: '{Identifier}' for server with type: '{Type}' is not valid for removal",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Identifier",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "identifier"
+                },
+                {
+                    "id": "Type",
+                    "string": "%[2]d",
+                    "type": "github.com/eduvpn/eduvpn-common/types/server.Type",
+                    "underlyingType": "int8",
+                    "argNum": 2,
+                    "expr": "_type"
+                }
+            ],
+            "fuzzy": true
+        },
+        {
+            "id": "Failed to get the current server to cleanup the connection",
+            "message": "Failed to get the current server to cleanup the connection",
+            "translation": "Failed to get the current server to cleanup the connection",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "Failed to cleanup the VPN connection for the current server",
+            "message": "Failed to cleanup the VPN connection for the current server",
+            "translation": "Failed to cleanup the VPN connection for the current server",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "Setting a secure internet location with Let's Connect! is not supported",
+            "message": "Setting a secure internet location with Let's Connect! is not supported",
+            "translation": "Setting a secure internet location with Let's Connect! is not supported",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "No secure internet server available to set a location for",
+            "message": "No secure internet server available to set a location for",
+            "translation": "No secure internet server available to set a location for",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "Failed to get current server for renewing the session",
+            "message": "Failed to get current server for renewing the session",
+            "translation": "Failed to get current server for renewing the session",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "Failover failed to complete with gateway: '{Gateway}' and mtu: '{Mtu}'",
+            "message": "Failover failed to complete with gateway: '{Gateway}' and mtu: '{Mtu}'",
+            "translation": "Failover failed to complete with gateway: '{Gateway}' and mtu: '{Mtu}'",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "Gateway",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "gateway"
+                },
+                {
+                    "id": "Mtu",
+                    "string": "%[2]d",
+                    "type": "int",
+                    "underlyingType": "int",
+                    "argNum": 2,
+                    "expr": "mtu"
+                }
+            ],
+            "fuzzy": true
+        },
+        {
+            "id": "Failed internal state transition requested by the client from: '{StateNamecurr}' to '{StateNamestate}'",
+            "message": "Failed internal state transition requested by the client from: '{StateNamecurr}' to '{StateNamestate}'",
+            "translation": "Failed internal state transition requested by the client from: '{StateNamecurr}' to '{StateNamestate}'",
+            "translatorComment": "Copied from source.",
+            "placeholders": [
+                {
+                    "id": "StateNamecurr",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "GetStateName(curr)"
+                },
+                {
+                    "id": "StateNamestate",
+                    "string": "%[2]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 2,
+                    "expr": "GetStateName(state)"
+                }
+            ],
+            "fuzzy": true
+        },
+        {
+            "id": "timeout reached",
+            "message": "timeout reached",
+            "translation": "timeout reached",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        },
+        {
+            "id": "with cause:",
+            "message": "with cause:",
+            "translation": "with cause:",
+            "translatorComment": "Copied from source.",
+            "fuzzy": true
+        }
+    ]
+}

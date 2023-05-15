@@ -1,13 +1,15 @@
+//go:generate go run golang.org/x/text/cmd/gotext -srclang=en update -out=zgotext.go -lang=da,de,en,es,fr,it,nl,ukr
+
 // Package client implements the public interface for creating eduVPN/Let's Connect! clients
 package client
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"sync"
 	"time"
 
+	"github.com/eduvpn/eduvpn-common/i18nerr"
 	"github.com/eduvpn/eduvpn-common/internal/config"
 	"github.com/eduvpn/eduvpn-common/internal/discovery"
 	"github.com/eduvpn/eduvpn-common/internal/failover"
@@ -73,15 +75,6 @@ func userAgentName(clientID string) string {
 	}
 }
 
-func (c *Client) logError(err error) {
-	// Logs the error with the same level/verbosity as the error
-	if c.Debug {
-		log.Logger.Inherit(err, fmt.Sprintf("\nwith stacktrace: %s\n", err.(*errors.Error).ErrorStack()))
-	} else {
-		log.Logger.Inherit(err, "")
-	}
-}
-
 func (c *Client) isLetsConnect() bool {
 	// see https://git.sr.ht/~fkooman/vpn-user-portal/tree/v3/item/src/OAuth/VpnClientDb.php
 	return strings.HasPrefix(c.Name, "org.letsconnect-vpn.app")
@@ -121,7 +114,7 @@ type Client struct {
 
 func (c *Client) updateTokens(srv server.Server) error {
 	if c.TokenGetter == nil {
-		return errors.New("no tokken getter defined")
+		return errors.New("no token getter defined")
 	}
 	pSrv, err := c.pubCurrentServer(srv)
 	if err != nil {
@@ -168,10 +161,10 @@ func (c *Client) forwardTokens(srv server.Server) error {
 func (c *Client) goTransition(id fsm.StateID) error {
 	handled, err := c.FSM.GoTransition(id)
 	if err != nil {
-		return err
+		return i18nerr.Wrapf(err, "Internal state transition error")
 	}
 	if !handled {
-		log.Logger.Debugf("transition not handled by the client: %s", GetStateName(id))
+		log.Logger.Debugf("transition not handled by the client to internal state: '%s'", GetStateName(id))
 	}
 	return nil
 }
@@ -188,11 +181,11 @@ func New(name string, version string, directory string, stateCallback func(FSMSt
 	c = &Client{}
 
 	if !isAllowedClientID(name) {
-		return nil, errors.Errorf("client ID is not allowed: '%v', see https://git.sr.ht/~fkooman/vpn-user-portal/tree/v3/item/src/OAuth/VpnClientDb.php for a list of allowed IDs", name)
+		return nil, i18nerr.Newf("The client registered with an invalid client ID: '%v'", name)
 	}
 
 	if len([]rune(version)) > 20 {
-		return nil, errors.Errorf("version is not allowed: '%s', must be max 20 characters", version)
+		return nil, i18nerr.Newf("The client registered with an invalid version: '%v'", version)
 	}
 
 	// Initialize the logger
@@ -202,7 +195,7 @@ func New(name string, version string, directory string, stateCallback func(FSMSt
 	}
 
 	if err = log.Logger.Init(lvl, directory); err != nil {
-		return nil, err
+		return nil, i18nerr.Wrapf(err, "The log file with directory: '%s' failed to initialize", directory)
 	}
 
 	// set client name
@@ -235,11 +228,11 @@ func New(name string, version string, directory string, stateCallback func(FSMSt
 // Registering means updating the FSM to get to the initial state correctly
 func (c *Client) Register() error {
 	if !c.FSM.InState(StateDeregistered) {
-		return errors.Errorf("fsm attempt to register while in '%v'", c.FSM.Current)
+		return i18nerr.Wrapf(errors.New("The client tried to re-initialize without deregistering first"), "Client has an invalid state")
 	}
 	err := c.goTransition(StateNoServer)
 	if err != nil {
-		return errors.WrapPrefix(err, "failed to register", 0)
+		return err
 	}
 	return nil
 }
@@ -253,7 +246,7 @@ func (c *Client) Deregister() {
 
 	// Save the config
 	if err := c.Config.Save(&c); err != nil {
-		log.Logger.Infof("c.Config.Save failed: %s\nstacktrace:\n%s", err.Error(), err.(*errors.Error).ErrorStack())
+		log.Logger.Infof("failed saving state configuration: '%v'", err)
 	}
 
 	// Empty out the state
@@ -265,15 +258,9 @@ func (c *Client) Deregister() {
 // If this is the case then a previous version of the list is returned if there is any.
 // This takes into account the frequency of updates, see: https://github.com/eduvpn/documentation/blob/v3/SERVER_DISCOVERY.md#organization-list.
 func (c *Client) DiscoOrganizations(ck *cookie.Cookie) (orgs *discotypes.Organizations, err error) {
-	defer func() {
-		if err != nil {
-			c.logError(err)
-		}
-	}()
-
 	// Not supported with Let's Connect!
 	if c.isLetsConnect() {
-		return nil, errors.Errorf("discovery with Let's Connect is not supported")
+		return nil, i18nerr.Newf("Server/organization discovery with Let's Connect is not supported")
 	}
 
 	// Mark organizations as expired if we have not set an organization yet
@@ -281,8 +268,11 @@ func (c *Client) DiscoOrganizations(ck *cookie.Cookie) (orgs *discotypes.Organiz
 		c.Discovery.MarkOrganizationsExpired()
 	}
 
-	// TODO: pass a context
-	return c.Discovery.Organizations(ck.Context())
+	orgs, err = c.Discovery.Organizations(ck.Context())
+	if err != nil {
+		err = i18nerr.Wrap(err, "An error occurred after getting the discovery files for the list of organizations")
+	}
+	return
 }
 
 // DiscoServers gets the servers list from the discovery server
@@ -290,19 +280,16 @@ func (c *Client) DiscoOrganizations(ck *cookie.Cookie) (orgs *discotypes.Organiz
 // If this is the case then a previous version of the list is returned if there is any.
 // This takes into account the frequency of updates, see: https://github.com/eduvpn/documentation/blob/v3/SERVER_DISCOVERY.md#server-list.
 func (c *Client) DiscoServers(ck *cookie.Cookie) (dss *discotypes.Servers, err error) {
-	defer func() {
-		if err != nil {
-			c.logError(err)
-		}
-	}()
-
 	// Not supported with Let's Connect!
 	if c.isLetsConnect() {
-		return nil, errors.Errorf("discovery with Let's Connect is not supported")
+		return nil, i18nerr.Newf("Server/organization discovery with Let's Connect is not supported")
 	}
 
-	// TODO: pass a context
-	return c.Discovery.Servers(ck.Context())
+	dss, err = c.Discovery.Servers(ck.Context())
+	if err != nil {
+		err = i18nerr.Wrap(err, "An error occurred after getting the discovery files for the list of servers")
+	}
+	return
 }
 
 // ExpiryTimes returns the different Unix timestamps regarding expiry
@@ -314,17 +301,15 @@ func (c *Client) ExpiryTimes() (*srvtypes.Expiry, error) {
 	// Get current expiry time
 	srv, err := c.Servers.Current()
 	if err != nil {
-		c.logError(err)
-		return nil, err
+		return nil, i18nerr.Wrap(err, "The current server could not be found when getting it for expiry")
 	}
 	b, err := srv.Base()
 	if err != nil {
-		c.logError(err)
 		return nil, err
 	}
 
 	if b.StartTime.IsZero() {
-		return nil, errors.New("start time is zero, did you get a configuration?")
+		return nil, i18nerr.New("No start time is defined for this server")
 	}
 
 	bT := b.RenewButtonTime()
@@ -387,7 +372,7 @@ func (c *Client) callbacks(ck *cookie.Cookie, srv server.Server, forceauth bool)
 	if srv.NeedsLocation() {
 		err := c.locationCallback(ck)
 		if err != nil {
-			return err
+			return i18nerr.Wrap(err, "The secure internet location could not be set")
 		}
 	}
 
@@ -412,7 +397,7 @@ func (c *Client) callbacks(ck *cookie.Cookie, srv server.Server, forceauth bool)
 		}
 		err := c.loginCallback(ck, srv)
 		if err != nil {
-			return err
+			return i18nerr.Wrap(err, "The authorization procedure failed to complete")
 		}
 	}
 	err = c.goTransition(StateAuthorized)
@@ -426,19 +411,18 @@ func (c *Client) callbacks(ck *cookie.Cookie, srv server.Server, forceauth bool)
 func (c *Client) profileCallback(ck *cookie.Cookie, srv server.Server) error {
 	vp, err := server.HasValidProfile(ck.Context(), srv, c.SupportsWireguard)
 	if err != nil {
-		return err
+		log.Logger.Warningf("failed to determine whether the current protocol is valid with error: %v", err)
 	}
 	if !vp {
-		b, err := srv.Base()
+		vps, err := server.ValidProfiles(srv, c.SupportsWireguard)
 		if err != nil {
-			return err
+			return i18nerr.Wrapf(err, "No suitable profiles could be found")
 		}
-		ps := b.Profiles.Public()
 		errChan := make(chan error)
 		go func() {
 			err := c.FSM.GoTransitionRequired(StateAskProfile, &srvtypes.RequiredAskTransition{
 				C:    ck,
-				Data: ps,
+				Data: vps.Public(),
 			})
 			if err != nil {
 				errChan <- err
@@ -446,11 +430,11 @@ func (c *Client) profileCallback(ck *cookie.Cookie, srv server.Server) error {
 		}()
 		pID, err := ck.Receive(errChan)
 		if err != nil {
-			return err
+			return i18nerr.Wrapf(err, "Profile with ID: '%s' could not be set", pID)
 		}
 		err = server.Profile(srv, pID)
 		if err != nil {
-			return err
+			return i18nerr.Wrapf(err, "Profile with ID: '%s' could not be obtained from the server", pID)
 		}
 	}
 	err = c.goTransition(StateChosenProfile)
@@ -473,13 +457,13 @@ func (c *Client) AddServer(ck *cookie.Cookie, identifier string, _type srvtypes.
 		}
 		// If we must run callbacks, go to the previous state if we're not in it
 		if !ni && !c.FSM.InState(previousState) {
-			c.FSM.GoTransition(previousState)
+			c.FSM.GoTransition(previousState) //nolint:errcheck
 		}
 	}()
 
 	if !ni {
-		// This only returns a boolean if it was handled
 		err = c.goTransition(StateLoadingServer)
+		// this is already wrapped in an UI error
 		if err != nil {
 			return err
 		}
@@ -488,7 +472,7 @@ func (c *Client) AddServer(ck *cookie.Cookie, identifier string, _type srvtypes.
 	if _type != srvtypes.TypeSecureInternet {
 		identifier, err = http.EnsureValidURL(identifier, true)
 		if err != nil {
-			return err
+			return i18nerr.Wrapf(err, "The identifier that was passed to the library is incorrect")
 		}
 	}
 
@@ -498,11 +482,11 @@ func (c *Client) AddServer(ck *cookie.Cookie, identifier string, _type srvtypes.
 	case srvtypes.TypeInstituteAccess:
 		dSrv, err := c.Discovery.ServerByURL(identifier, "institute_access")
 		if err != nil {
-			return err
+			return i18nerr.Wrapf(err, "Could not retrieve institute access server with URL: '%s' from discovery", identifier)
 		}
 		srv, err = c.Servers.AddInstituteAccess(ck.Context(), c.Name ,dSrv)
 		if err != nil {
-			return err
+			return i18nerr.Wrapf(err, "The institute access server with URL: '%s' could not be added", identifier)
 		}
 	case srvtypes.TypeSecureInternet:
 		dOrg, dSrv, err := c.Discovery.SecureHomeArgs(identifier)
@@ -511,19 +495,19 @@ func (c *Client) AddServer(ck *cookie.Cookie, identifier string, _type srvtypes.
 			// Note that in the docs it states that it only should happen when the Org ID doesn't exist
 			// However, this is nice as well because it also catches the error where the SecureInternetHome server is not found
 			c.Discovery.MarkOrganizationsExpired()
-			return err
+			return i18nerr.Wrapf(err, "The secure internet server with organisation ID: '%s' could not be retrieved from discovery", identifier)
 		}
 		srv, err = c.Servers.AddSecureInternet(ck.Context(), c.Name, dOrg, dSrv)
 		if err != nil {
-			return err
+			return i18nerr.Wrapf(err, "The secure internet server with organisation ID: '%s' could not be added", identifier)
 		}
 	case srvtypes.TypeCustom:
 		srv, err = c.Servers.AddCustom(ck.Context(), c.Name, identifier)
 		if err != nil {
-			return err
+			return i18nerr.Wrapf(err, "The custom server with URL: '%s' could not be added", identifier)
 		}
 	default:
-		return errors.Errorf("not a valid server type: %v", _type)
+		return i18nerr.Newf("Server type: '%v' is not valid to be added", _type)
 	}
 
 	// if we are non interactive, we run no callbacks
@@ -533,6 +517,7 @@ func (c *Client) AddServer(ck *cookie.Cookie, identifier string, _type srvtypes.
 
 	// callbacks
 	err = c.callbacks(ck, srv, false)
+	// error is already UI wrapped
 	if err != nil {
 		return err
 	}
@@ -562,16 +547,13 @@ func (c *Client) config(ck *cookie.Cookie, srv server.Server, pTCP bool, forceAu
 
 	cfgS, err := server.Config(ck.Context(), srv, c.SupportsWireguard, pTCP)
 	if err != nil {
-		return nil, err
+		return nil, i18nerr.Wrap(err, "The VPN configuration could not be obtained")
 	}
 	p, err := server.CurrentProfile(srv)
 	if err != nil {
-		return nil, err
+		return nil, i18nerr.Wrap(err, "The current profile could not be found")
 	}
 	pcfg := cfgS.Public(p.DefaultGateway)
-	if err != nil {
-		return nil, err
-	}
 	return &pcfg, nil
 }
 
@@ -587,7 +569,7 @@ func (c *Client) server(identifier string, _type srvtypes.Type) (srv server.Serv
 		srv, err = c.Servers.CustomServer(identifier)
 		setter = c.Servers.SetCustom
 	default:
-		return nil, nil, errors.Errorf("not a valid server type: %v", _type)
+		return nil, nil, i18nerr.Newf("Not a valid server type: %v", _type)
 	}
 	return srv, setter, err
 }
@@ -599,18 +581,16 @@ func (c *Client) GetConfig(ck *cookie.Cookie, identifier string, _type srvtypes.
 	previousState := c.FSM.Current
 	defer func() {
 		if err == nil {
-			c.FSM.GoTransition(StateGotConfig)
-		} else {
-			if !c.FSM.InState(previousState) {
-				// go back to the previous state if an error occurred
-				c.FSM.GoTransition(previousState)
-			}
+			c.FSM.GoTransition(StateGotConfig) //nolint:errcheck
+		} else if !c.FSM.InState(previousState) {
+			// go back to the previous state if an error occurred
+			c.FSM.GoTransition(previousState) //nolint:errcheck
 		}
 	}()
 	if _type != srvtypes.TypeSecureInternet {
 		identifier, err = http.EnsureValidURL(identifier, true)
 		if err != nil {
-			return nil, err
+			return nil, i18nerr.Wrapf(err, "Identifier: '%s' for server with type: '%d' is not valid", identifier, _type)
 		}
 	}
 	err = c.goTransition(StateLoadingServer)
@@ -625,10 +605,9 @@ func (c *Client) GetConfig(ck *cookie.Cookie, identifier string, _type srvtypes.
 	err = server.RefreshEndpoints(ck.Context(), srv)
 
 	// If we get a canceled error, return that, otherwise just log the error
-	cErr := context.Canceled
 	if err != nil {
-		if errors.As(err, &cErr) {
-			return nil, err
+		if errors.Is(err, context.Canceled) {
+			return nil, i18nerr.Wrap(err, "The operation for getting a VPN configuration was canceled")
 		}
 
 		log.Logger.Warningf("failed to refresh server endpoints: %v", err)
@@ -638,6 +617,7 @@ func (c *Client) GetConfig(ck *cookie.Cookie, identifier string, _type srvtypes.
 	cfg, err = c.config(ck, srv, pTCP, false)
 	tErr := &oauth.TokensInvalidError{}
 	if err != nil && errors.As(err, &tErr) {
+		log.Logger.Debugf("the tokens were invalid, trying again...")
 		cfg, err = c.config(ck, srv, pTCP, true)
 	}
 
@@ -656,7 +636,7 @@ func (c *Client) GetConfig(ck *cookie.Cookie, identifier string, _type srvtypes.
 
 	// set the current server
 	if err = set(srv); err != nil {
-		return nil, err
+		return nil, i18nerr.Wrapf(err, "Failed to set the server with identifier: '%s' as the current", identifier)
 	}
 
 	return cfg, nil
@@ -666,19 +646,25 @@ func (c *Client) RemoveServer(identifier string, _type srvtypes.Type) (err error
 	if _type != srvtypes.TypeSecureInternet {
 		identifier, err = http.EnsureValidURL(identifier, true)
 		if err != nil {
-			return err
+			return i18nerr.Wrapf(err, "Identifier: '%s' for server with type: '%d' is not valid for removal", identifier, _type)
 		}
 	}
+	// miscellaneous error
+	var mErr error
 	switch _type {
 	case srvtypes.TypeInstituteAccess:
-		return c.Servers.RemoveInstituteAccess(identifier)
+		mErr = c.Servers.RemoveInstituteAccess(identifier)
 	case srvtypes.TypeSecureInternet:
-		return c.Servers.RemoveSecureInternet(identifier)
+		mErr = c.Servers.RemoveSecureInternet(identifier)
 	case srvtypes.TypeCustom:
-		return c.Servers.RemoveCustom(identifier)
+		mErr = c.Servers.RemoveCustom(identifier)
 	default:
-		return errors.Errorf("not a valid server type: %v", _type)
+		return i18nerr.Newf("Not a valid server type: %v", _type)
 	}
+	if mErr != nil {
+		log.Logger.Debugf("failed to remove server with identifier: '%s' and type: '%d', error: %v", identifier, _type, mErr)
+	}
+	return nil
 }
 
 func (c *Client) CurrentServer() (*srvtypes.Current, error) {
@@ -759,7 +745,7 @@ func (c *Client) pubServer(srv server.Server) (interface{}, error) {
 
 func (c *Client) ServerList() (*srvtypes.List, error) {
 	if c.FSM.InState(StateDeregistered) {
-		return nil, errors.New("client is not registered")
+		return nil, i18nerr.New("Client is not registered")
 	}
 	var customServers []srvtypes.Server
 	for _, v := range c.Servers.CustomServers.Map {
@@ -821,7 +807,7 @@ func (c *Client) Cleanup(ck *cookie.Cookie) (err error) {
 	// get the current server
 	srv, err := c.Servers.Current()
 	if err != nil {
-		return err
+		return i18nerr.Wrap(err, "Failed to get the current server to cleanup the connection")
 	}
 	err = c.updateTokens(srv)
 	if err != nil {
@@ -829,7 +815,7 @@ func (c *Client) Cleanup(ck *cookie.Cookie) (err error) {
 	}
 	err = server.Disconnect(ck.Context(), srv)
 	if err != nil {
-		return err
+		return i18nerr.Wrap(err, "Failed to cleanup the VPN connection for the current server")
 	}
 	err = c.forwardTokens(srv)
 	if err != nil {
@@ -840,11 +826,11 @@ func (c *Client) Cleanup(ck *cookie.Cookie) (err error) {
 
 func (c *Client) SetSecureLocation(ck *cookie.Cookie, countryCode string) (err error) {
 	if c.isLetsConnect() {
-		return errors.Errorf("setting a secure internet location with Let's Connect! is not supported")
+		return i18nerr.Newf("Setting a secure internet location with Let's Connect! is not supported")
 	}
 
 	if !c.Servers.HasSecureInternet() {
-		return errors.Errorf("no secure internet server available to set a location for")
+		return i18nerr.Newf("No secure internet server available to set a location for")
 	}
 
 	dSrv, err := c.Discovery.ServerByCountryCode(countryCode)
@@ -860,13 +846,13 @@ func (c *Client) RenewSession(ck *cookie.Cookie) (err error) {
 	defer c.mu.Unlock()
 	srv, err := c.Servers.Current()
 	if err != nil {
-		return err
+		return i18nerr.Wrap(err, "Failed to get current server for renewing the session")
 	}
 	// The server has not been chosen yet, this means that we want to manually renew
 	// TODO: is this needed?
 	if !c.FSM.InState(StateChosenServer) {
-		c.FSM.GoTransition(StateLoadingServer)
-		c.FSM.GoTransition(StateChosenServer)
+		c.FSM.GoTransition(StateLoadingServer) //nolint:errcheck
+		c.FSM.GoTransition(StateChosenServer) //nolint:errcheck
 	}
 	// update tokens in the end
 	defer func() {
@@ -884,12 +870,17 @@ func (c *Client) RenewSession(ck *cookie.Cookie) (err error) {
 func (c *Client) StartFailover(ck *cookie.Cookie, gateway string, mtu int, readRxBytes func() (int64, error)) (bool, error) {
 	f := failover.New(readRxBytes)
 
-	return f.Start(ck.Context(), gateway, mtu)
+	d, err := f.Start(ck.Context(), gateway, mtu)
+	if err != nil {
+		return d, i18nerr.Wrapf(err, "Failover failed to complete with gateway: '%s' and mtu: '%d'", gateway, mtu)
+	}
+	return d, nil
 }
 
 func (c *Client) SetState(state FSMStateID) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
+	curr := c.FSM.Current
 	_, err := c.FSM.GoTransition(state)
 	if err != nil {
 		// self-transitions are only debug errors
@@ -897,7 +888,7 @@ func (c *Client) SetState(state FSMStateID) error {
 			log.Logger.Debugf("attempt an invalid self-transition: %s", c.FSM.GetStateName(state))
 			return nil
 		}
-		return err
+		return i18nerr.Wrapf(err, "Failed internal state transition requested by the client from: '%s' to '%s'", GetStateName(curr), GetStateName(state))
 	}
 	return nil
 }

@@ -1,0 +1,392 @@
+{
+    "language": "uk",
+    "messages": [
+        {
+            "id": "Internal state transition error",
+            "message": "Internal state transition error",
+            "translation": ""
+        },
+        {
+            "id": "The client registered with an invalid client ID: '{Name}'",
+            "message": "The client registered with an invalid client ID: '{Name}'",
+            "translation": "",
+            "placeholders": [
+                {
+                    "id": "Name",
+                    "string": "%[1]v",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "name"
+                }
+            ]
+        },
+        {
+            "id": "The client registered with an invalid version: '{Version}'",
+            "message": "The client registered with an invalid version: '{Version}'",
+            "translation": "",
+            "placeholders": [
+                {
+                    "id": "Version",
+                    "string": "%[1]v",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "version"
+                }
+            ]
+        },
+        {
+            "id": "The log file with directory: '{Directory}' failed to initialize",
+            "message": "The log file with directory: '{Directory}' failed to initialize",
+            "translation": "",
+            "placeholders": [
+                {
+                    "id": "Directory",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "directory"
+                }
+            ]
+        },
+        {
+            "id": "Client has an invalid state",
+            "message": "Client has an invalid state",
+            "translation": ""
+        },
+        {
+            "id": "Server/organization discovery with Let's Connect is not supported",
+            "message": "Server/organization discovery with Let's Connect is not supported",
+            "translation": ""
+        },
+        {
+            "id": "An error occurred after getting the discovery files for the list of organizations",
+            "message": "An error occurred after getting the discovery files for the list of organizations",
+            "translation": ""
+        },
+        {
+            "id": "An error occurred after getting the discovery files for the list of servers",
+            "message": "An error occurred after getting the discovery files for the list of servers",
+            "translation": ""
+        },
+        {
+            "id": "The current server could not be found when getting it for expiry",
+            "message": "The current server could not be found when getting it for expiry",
+            "translation": ""
+        },
+        {
+            "id": "The secure internet location could not be set",
+            "message": "The secure internet location could not be set",
+            "translation": ""
+        },
+        {
+            "id": "The authorization procedure failed to complete",
+            "message": "The authorization procedure failed to complete",
+            "translation": ""
+        },
+        {
+            "id": "No suitable profiles could be found",
+            "message": "No suitable profiles could be found",
+            "translation": ""
+        },
+        {
+            "id": "Profile with ID: '{PID}' could not be set",
+            "message": "Profile with ID: '{PID}' could not be set",
+            "translation": "",
+            "placeholders": [
+                {
+                    "id": "PID",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "pID"
+                }
+            ]
+        },
+        {
+            "id": "Profile with ID: '{PID}' could not be obtained from the server",
+            "message": "Profile with ID: '{PID}' could not be obtained from the server",
+            "translation": "",
+            "placeholders": [
+                {
+                    "id": "PID",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "pID"
+                }
+            ]
+        },
+        {
+            "id": "The identifier that was passed to the library is incorrect",
+            "message": "The identifier that was passed to the library is incorrect",
+            "translation": ""
+        },
+        {
+            "id": "Could not retrieve institute access server with URL: '{Identifier}' from discovery",
+            "message": "Could not retrieve institute access server with URL: '{Identifier}' from discovery",
+            "translation": "",
+            "placeholders": [
+                {
+                    "id": "Identifier",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "identifier"
+                }
+            ]
+        },
+        {
+            "id": "The institute access server with URL: '{Identifier}' could not be added",
+            "message": "The institute access server with URL: '{Identifier}' could not be added",
+            "translation": "",
+            "placeholders": [
+                {
+                    "id": "Identifier",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "identifier"
+                }
+            ]
+        },
+        {
+            "id": "The secure internet server with organisation ID: '{Identifier}' could not be retrieved from discovery",
+            "message": "The secure internet server with organisation ID: '{Identifier}' could not be retrieved from discovery",
+            "translation": "",
+            "placeholders": [
+                {
+                    "id": "Identifier",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "identifier"
+                }
+            ]
+        },
+        {
+            "id": "The secure internet server with organisation ID: '{Identifier}' could not be added",
+            "message": "The secure internet server with organisation ID: '{Identifier}' could not be added",
+            "translation": "",
+            "placeholders": [
+                {
+                    "id": "Identifier",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "identifier"
+                }
+            ]
+        },
+        {
+            "id": "The custom server with URL: '{Identifier}' could not be added",
+            "message": "The custom server with URL: '{Identifier}' could not be added",
+            "translation": "",
+            "placeholders": [
+                {
+                    "id": "Identifier",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "identifier"
+                }
+            ]
+        },
+        {
+            "id": "Server type: '{Type}' is not valid to be added",
+            "message": "Server type: '{Type}' is not valid to be added",
+            "translation": "",
+            "placeholders": [
+                {
+                    "id": "Type",
+                    "string": "%[1]v",
+                    "type": "github.com/eduvpn/eduvpn-common/types/server.Type",
+                    "underlyingType": "int8",
+                    "argNum": 1,
+                    "expr": "_type"
+                }
+            ]
+        },
+        {
+            "id": "The VPN configuration could not be obtained",
+            "message": "The VPN configuration could not be obtained",
+            "translation": ""
+        },
+        {
+            "id": "The current profile could not be found",
+            "message": "The current profile could not be found",
+            "translation": ""
+        },
+        {
+            "id": "Not a valid server type: {Type}",
+            "message": "Not a valid server type: {Type}",
+            "translation": "",
+            "placeholders": [
+                {
+                    "id": "Type",
+                    "string": "%[1]v",
+                    "type": "github.com/eduvpn/eduvpn-common/types/server.Type",
+                    "underlyingType": "int8",
+                    "argNum": 1,
+                    "expr": "_type"
+                }
+            ]
+        },
+        {
+            "id": "Identifier: '{Identifier}' for server with type: '{Type}' is not valid",
+            "message": "Identifier: '{Identifier}' for server with type: '{Type}' is not valid",
+            "translation": "",
+            "placeholders": [
+                {
+                    "id": "Identifier",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "identifier"
+                },
+                {
+                    "id": "Type",
+                    "string": "%[2]d",
+                    "type": "github.com/eduvpn/eduvpn-common/types/server.Type",
+                    "underlyingType": "int8",
+                    "argNum": 2,
+                    "expr": "_type"
+                }
+            ]
+        },
+        {
+            "id": "The operation for getting a VPN configuration was canceled",
+            "message": "The operation for getting a VPN configuration was canceled",
+            "translation": ""
+        },
+        {
+            "id": "Failed to set the server with identifier: '{Identifier}' as the current",
+            "message": "Failed to set the server with identifier: '{Identifier}' as the current",
+            "translation": "",
+            "placeholders": [
+                {
+                    "id": "Identifier",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "identifier"
+                }
+            ]
+        },
+        {
+            "id": "Identifier: '{Identifier}' for server with type: '{Type}' is not valid for removal",
+            "message": "Identifier: '{Identifier}' for server with type: '{Type}' is not valid for removal",
+            "translation": "",
+            "placeholders": [
+                {
+                    "id": "Identifier",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "identifier"
+                },
+                {
+                    "id": "Type",
+                    "string": "%[2]d",
+                    "type": "github.com/eduvpn/eduvpn-common/types/server.Type",
+                    "underlyingType": "int8",
+                    "argNum": 2,
+                    "expr": "_type"
+                }
+            ]
+        },
+        {
+            "id": "Failed to get the current server to cleanup the connection",
+            "message": "Failed to get the current server to cleanup the connection",
+            "translation": ""
+        },
+        {
+            "id": "Failed to cleanup the VPN connection for the current server",
+            "message": "Failed to cleanup the VPN connection for the current server",
+            "translation": ""
+        },
+        {
+            "id": "Setting a secure internet location with Let's Connect! is not supported",
+            "message": "Setting a secure internet location with Let's Connect! is not supported",
+            "translation": ""
+        },
+        {
+            "id": "No secure internet server available to set a location for",
+            "message": "No secure internet server available to set a location for",
+            "translation": ""
+        },
+        {
+            "id": "Failed to get current server for renewing the session",
+            "message": "Failed to get current server for renewing the session",
+            "translation": ""
+        },
+        {
+            "id": "Failover failed to complete with gateway: '{Gateway}' and mtu: '{Mtu}'",
+            "message": "Failover failed to complete with gateway: '{Gateway}' and mtu: '{Mtu}'",
+            "translation": "",
+            "placeholders": [
+                {
+                    "id": "Gateway",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "gateway"
+                },
+                {
+                    "id": "Mtu",
+                    "string": "%[2]d",
+                    "type": "int",
+                    "underlyingType": "int",
+                    "argNum": 2,
+                    "expr": "mtu"
+                }
+            ]
+        },
+        {
+            "id": "Failed internal state transition requested by the client from: '{StateNamecurr}' to '{StateNamestate}'",
+            "message": "Failed internal state transition requested by the client from: '{StateNamecurr}' to '{StateNamestate}'",
+            "translation": "",
+            "placeholders": [
+                {
+                    "id": "StateNamecurr",
+                    "string": "%[1]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 1,
+                    "expr": "GetStateName(curr)"
+                },
+                {
+                    "id": "StateNamestate",
+                    "string": "%[2]s",
+                    "type": "string",
+                    "underlyingType": "string",
+                    "argNum": 2,
+                    "expr": "GetStateName(state)"
+                }
+            ]
+        },
+        {
+            "id": "timeout reached",
+            "message": "timeout reached",
+            "translation": ""
+        },
+        {
+            "id": "with cause:",
+            "message": "with cause:",
+            "translation": ""
+        }
+    ]
+}

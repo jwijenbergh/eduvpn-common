@@ -462,7 +462,7 @@ func TestInvalidClientID(t *testing.T) {
 		if err == nil {
 			t.Fatalf("expected invalid register with clientID: %v, but got no error", k)
 		}
-		if !strings.HasPrefix(err.Error(), "client ID is not allowed") {
+		if !strings.HasPrefix(err.Error(), "The client registered with an invalid client ID") {
 			t.Fatalf("register error has invalid prefix: %v", err.Error())
 		}
 	}
