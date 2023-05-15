@@ -16,7 +16,7 @@ type (
 	Servers = institute.Servers
 )
 
-func New(ctx context.Context, u string) (*Server, error) {
+func New(ctx context.Context, clientID string, u string) (*Server, error) {
 	pu, err := url.Parse(u)
 	if err != nil {
 		return nil, errors.WrapPrefix(err, "failed to parse custom server URL", 0)
@@ -32,6 +32,6 @@ func New(ctx context.Context, u string) (*Server, error) {
 	API := b.Endpoints.API.V3
 
 	s := &Server{Basic: b}
-	s.Auth.Init(u, API.Authorization, API.Token)
+	s.Auth.Init(clientID, u, API.Authorization, API.Token)
 	return s, nil
 }

@@ -101,9 +101,6 @@ type OAuth struct {
 
 // exchangeSession is a structure that gets passed to the callback for easy access to the current state.
 type exchangeSession struct {
-	// ClientID is the ID of the OAuth client
-	ClientID string
-
 	// ISS indicates the issuer identifier
 	ISS string
 
@@ -237,7 +234,7 @@ func (oauth *OAuth) tokensWithAuthCode(ctx context.Context, authCode string) err
 	}
 
 	data := url.Values{
-		"client_id":     {oauth.session.ClientID},
+		"client_id":     {oauth.ClientID},
 		"code":          {authCode},
 		"code_verifier": {oauth.session.Verifier},
 		"grant_type":    {"authorization_code"},
@@ -432,7 +429,8 @@ func (oauth *OAuth) Handler(w http.ResponseWriter, req *http.Request) {
 // - OAuth server issuer identification
 // - The URL used for authorization
 // - The URL to obtain new tokens.
-func (oauth *OAuth) Init(iss string, baseAuthorizationURL string, tokenURL string) {
+func (oauth *OAuth) Init(clientID string, iss string, baseAuthorizationURL string, tokenURL string) {
+	oauth.ClientID = clientID
 	oauth.ISS = iss
 	oauth.BaseAuthorizationURL = baseAuthorizationURL
 	oauth.TokenURL = tokenURL
@@ -469,7 +467,6 @@ func (oauth *OAuth) AuthURL(name string, postProcessAuth func(string) string) (s
 
 	// Fill the struct with the necessary fields filled for the next call to getting the HTTP client
 	oauth.session = exchangeSession{
-		ClientID: name,
 		ISS:      oauth.ISS,
 		State:    state,
 		Verifier: v,

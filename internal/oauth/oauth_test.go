@@ -175,8 +175,8 @@ func Test_AuthURL(t *testing.T) {
 	}
 
 	// Check if the OAuth session has valid values
-	if o.session.ClientID != id {
-		t.Fatalf("OAuth ClientID not equal, want: %v, got: %v", o.session.ClientID, id)
+	if o.ClientID != id {
+		t.Fatalf("OAuth ClientID not equal, want: %v, got: %v", o.ClientID, id)
 	}
 	if o.session.ISS != iss {
 		t.Fatalf("OAuth ISS not equal, want: %v, got: %v", o.session.ISS, iss)

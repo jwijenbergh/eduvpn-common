@@ -481,7 +481,7 @@ func (c *Client) AddServer(ck *cookie.Cookie, identifier string, _type srvtypes.
 		if err != nil {
 			return err
 		}
-		srv, err = c.Servers.AddInstituteAccess(ck.Context(), dSrv)
+		srv, err = c.Servers.AddInstituteAccess(ck.Context(), c.Name ,dSrv)
 		if err != nil {
 			return err
 		}
@@ -494,12 +494,12 @@ func (c *Client) AddServer(ck *cookie.Cookie, identifier string, _type srvtypes.
 			c.Discovery.MarkOrganizationsExpired()
 			return err
 		}
-		srv, err = c.Servers.AddSecureInternet(ck.Context(), dOrg, dSrv)
+		srv, err = c.Servers.AddSecureInternet(ck.Context(), c.Name, dOrg, dSrv)
 		if err != nil {
 			return err
 		}
 	case srvtypes.TypeCustom:
-		srv, err = c.Servers.AddCustom(ck.Context(), identifier)
+		srv, err = c.Servers.AddCustom(ck.Context(), c.Name, identifier)
 		if err != nil {
 			return err
 		}

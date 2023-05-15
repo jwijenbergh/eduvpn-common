@@ -25,6 +25,7 @@ type Servers struct {
 
 func New(
 	ctx context.Context,
+	clientID string,
 	url string,
 	name map[string]string,
 	supportContact []string,
@@ -41,7 +42,7 @@ func New(
 	API := b.Endpoints.API.V3
 
 	s := &Server{Basic: b}
-	s.Auth.Init(url, API.Authorization, API.Token)
+	s.Auth.Init(clientID, url, API.Authorization, API.Token)
 	return s, nil
 }
 

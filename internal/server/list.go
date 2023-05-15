@@ -44,8 +44,8 @@ func (l *List) Current() (Server, error) {
 	return l.InstituteServers.Current()
 }
 
-func (l *List) AddCustom(ctx context.Context, url string) (Server, error) {
-	srv, err := custom.New(ctx, url)
+func (l *List) AddCustom(ctx context.Context, clientID string, url string) (Server, error) {
+	srv, err := custom.New(ctx, clientID, url)
 	if err != nil {
 		return nil, err
 	}
@@ -53,8 +53,8 @@ func (l *List) AddCustom(ctx context.Context, url string) (Server, error) {
 	return srv, nil
 }
 
-func (l *List) AddInstituteAccess(ctx context.Context, discoServer *discotypes.Server) (Server, error) {
-	srv, err := institute.New(ctx, discoServer.BaseURL, discoServer.DisplayName, discoServer.SupportContact)
+func (l *List) AddInstituteAccess(ctx context.Context, clientID string, discoServer *discotypes.Server) (Server, error) {
+	srv, err := institute.New(ctx, clientID, discoServer.BaseURL, discoServer.DisplayName, discoServer.SupportContact)
 	if err != nil {
 		return nil, err
 	}
@@ -64,12 +64,13 @@ func (l *List) AddInstituteAccess(ctx context.Context, discoServer *discotypes.S
 
 func (l *List) AddSecureInternet(
 	ctx context.Context,
+	clientID string,
 	secureOrg *discotypes.Organization,
 	secureServer *discotypes.Server,
 ) (*secure.Server, error) {
 	// If we have specified an organization ID
 	// We also need to get an authorization template
-	err := l.SecureInternetHomeServer.Init(ctx, secureOrg, secureServer)
+	err := l.SecureInternetHomeServer.Init(ctx, clientID, secureOrg, secureServer)
 	if err != nil {
 		return nil, err
 	}
