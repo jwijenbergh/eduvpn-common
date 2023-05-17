@@ -468,9 +468,11 @@ func (c *Client) AddServer(ck *cookie.Cookie, identifier string, _type srvtypes.
 		}
 	}
 
-	identifier, err = http.EnsureValidURL(identifier, _type != srvtypes.TypeSecureInternet)
-	if err != nil {
-		return err
+	if _type != srvtypes.TypeSecureInternet {
+		identifier, err = http.EnsureValidURL(identifier, true)
+		if err != nil {
+			return err
+		}
 	}
 
 	var srv server.Server
@@ -583,9 +585,11 @@ func (c *Client) GetConfig(ck *cookie.Cookie, identifier string, _type srvtypes.
 			c.FSM.GoTransition(StateNoServer)
 		}
 	}()
-	identifier, err = http.EnsureValidURL(identifier, _type != srvtypes.TypeSecureInternet)
-	if err != nil {
-		return nil, err
+	if _type != srvtypes.TypeSecureInternet {
+		identifier, err = http.EnsureValidURL(identifier, true)
+		if err != nil {
+			return nil, err
+		}
 	}
 	t := c.FSM.GoTransition(StateLoadingServer)
 	if !t {
@@ -637,9 +641,11 @@ func (c *Client) GetConfig(ck *cookie.Cookie, identifier string, _type srvtypes.
 }
 
 func (c *Client) RemoveServer(identifier string, _type srvtypes.Type) (err error) {
-	identifier, err = http.EnsureValidURL(identifier, _type != srvtypes.TypeSecureInternet)
-	if err != nil {
-		return err
+	if _type != srvtypes.TypeSecureInternet {
+		identifier, err = http.EnsureValidURL(identifier, true)
+		if err != nil {
+			return err
+		}
 	}
 	switch _type {
 	case srvtypes.TypeInstituteAccess:
