@@ -1,4 +1,4 @@
-FROM fedora:36
+FROM fedora:38
 
 # This dockerfile was adapted from https://github.com/eduvpn/documentation/blob/v3/deploy_fedora.sh
 # DO NOT USE THIS IN PRODUCTION, ONLY FOR TESTING
