@@ -10,9 +10,9 @@ In Python, this works like the following:
 ```python
 import eduvpn_common.main as edu
 
-# we will come back to this later
-def handler(common: edu.EduVPN, old: int, old: int, data: str):
-	return False
+class Transitions:
+    def __init__(self, common):
+        self.common = common
 
 # These arguments can be found in the docstring
 # But also in the exports.go file
@@ -20,10 +20,11 @@ def handler(common: edu.EduVPN, old: int, old: int, data: str):
 # Here we pass the client ID for OAuth, the version of the client and the directory where config files should be found
 common=edu.EduVPN("org.eduvpn.app.linux", "0.0.1", "/tmp/test")
 
-# Here we create a state handler with the class passed to it
-state_handler = lambda old, new, data: handler(common, old, new, data)
+common.register(debug=True)
 
-common.register(handler=state_handler, debug=True)
+# we will come back to this later
+transitions = Transitions(common)
+common.register_class_callbacks(transitions)
 ```
 
 Now after registering, we know that we have no servers configured (unless you're following this tutorial again with an existing `/tmp/test`). So we continue with step 4
@@ -88,20 +89,35 @@ eduvpn_common.main.WrappedError: fsm failed transition from 'Chosen_Server' to '
 
 This is the state machine we briefly mentioned before. Some functions require that you handle certain transitions. From the Go documentation, we can find this in the documentation as well that you must handle this transition. Let's handle it in Python to open the webbrowser for the OAuth process.
 
-In the registering code, we previously defined a handler that does nothing. Let's extend it to handle the OAuth state transition:
+We do this with the python wrapper by defining a class of state transitions. This class was already added and registered with `register_class_callbacks`. However, there was no transition added. Let's add it
 ```python
 import webbrowser
+from eduvpn_common.event import class_state_transition
+from eduvpn_common.state import State, StateType
 
-def handler(common: edu.EduVPN, old: int, new: int, data: str):
-	# you would define an enumeration with all the states so that you can also extend them
-	# it's 6 because https://github.com/eduvpn/eduvpn-common/blob/b660911b5db000b43970f3754b5767bb50741360/client/fsm.go#L33
-	if new == 6:
-		webbrowser.open(data)
-		return True
-	return False
+class Transitions:
+    def __init__(self, common):
+        self.common = common
+
+    @class_state_transition(State.OAUTH_STARTED, StateType.ENTER)
+    def enter_oauth(self, old_state: State, url: str):
+        webbrowser.open(url)
 ```
 
-Now if you re-rerun the whole code with this handler added, your webbrowser should open.
+Now if you re-rerun the whole code with this transition added, your webbrowser should open.
+
+Note that this state transition is essentially the same as the following code:
+
+```python
+-def handler(old: int, new: int, data: str):
+-    # it's 6 because https://github.com/eduvpn/eduvpn-common/blob/b660911b5db000b43970f3754b5767bb50741360/client/fsm.go#L33
+-    if new == 6:
+-        webbrowser.open(data)
+-        return True
+-    return False
+```
+
+This is the code that is passed to the Go library. It handles certain states and returns `False` (zero) if a state is not handled, `True` (non-zero) if it is. If you define your own wrapper you should build an abstraction layer that resolves to a handler similar as above. This handler should be passed as a C function to the Go library when registering.
 
 After you have authorized the application through the portal using the webbrowser, the server should have been added:
 
@@ -154,16 +170,16 @@ eduvpn_common.main.WrappedError: fsm failed transition from 'Request_Config' to 
 A similar error to the OAuth error we had before. This `Ask_Profile` transition is there for the client/user to choose a profile as this server has multiple profiles defined.
 
 To handle this transition and thus choose a profile to continue, we must do multiple steps:
-- Add the condition to the handler to return true
+- Add the condition to the transitions class
 - Parse the data that we get back
 - Reply with a choice for the profile 
 
 If we add the condition and print the data:
 
 ```python
-if new == 9:
-    print(f"profiles received: {data}")
-    return True
+@class_state_transition(State.ASK_PROFILE, StateType.ENTER)
+def enter_ask_profile(self, old_state: State, data: str):
+    print("profiles:", data)
 ```
 
 we get back the following JSON (from the Go docs: `The data for this transition is defined in types/server/server.go RequiredAskTransition with embedded data Profiles in types/server/server.go`):
@@ -197,13 +213,18 @@ we get back the following JSON (from the Go docs: `The data for this transition 
 }
 ```
 
-This thus gives you the list of profiles with a so-called "cookie". This *cookie* is used to confirm the choice to the Go library. To do so we must do the following in the handler:
+This thus gives you the list of profiles with a so-called "cookie". This *cookie* is used to confirm the choice to the Go library. To do so we must do the following to handle this:
 
 ```python
-if new == 9:
+import json
+
+# Do this inside the Transitions class
+@class_state_transition(State.ASK_PROFILE, StateType.ENTER)
+def enter_ask_profile(self, old_state: State, data: str):
+    # parse the json
     json_dict = json.loads(data)
-    common.cookie_reply(json_dict["cookie"], "internet")
-    return True
+    
+    self.common.cookie_reply(json_dict["cookie"], "internet")
 ```
 
 If we then re-run the code, we get back the following JSON (from the Go docs: `The return data is the configuration, marshalled as JSON and defined in types/server/server.go Configuration`)
@@ -238,7 +259,7 @@ But when we register again and then get the list of servers, the servers are ret
 
 ```python
 common=edu.EduVPN("org.eduvpn.app.linux", "0.0.1", "/tmp/test")
-common.register(handler=state_handler, debug=True)
+common.register(debug=True)
 print(common.get_servers())
 ```
 
@@ -289,7 +310,7 @@ If the `/tmp/test` directory is removed (the argument that was passed to registe
 import shutil
 shutil.rmtree("/tmp/test")
 common=edu.EduVPN("org.eduvpn.app.linux", "0.0.1", "/tmp/test")
-common.register(handler=state_handler, debug=True)
+common.register(debug=True)
 print(common.get_servers())
 ```
 
