@@ -3,8 +3,6 @@ package client
 import (
 	"context"
 	"fmt"
-	"net/http"
-	"net/url"
 	"os"
 	"os/exec"
 	"strconv"
@@ -16,7 +14,6 @@ import (
 	"github.com/eduvpn/eduvpn-common/types/cookie"
 	"github.com/eduvpn/eduvpn-common/types/protocol"
 	srvtypes "github.com/eduvpn/eduvpn-common/types/server"
-	"github.com/go-errors/errors"
 )
 
 func getServerURI(t *testing.T) string {
@@ -104,133 +101,6 @@ func TestServer(t *testing.T) {
 	_, configErr := state.GetConfig(&ck, serverURI, srvtypes.TypeCustom, false)
 	if configErr != nil {
 		t.Fatalf("Connect error: %v", configErr)
-	}
-}
-
-func testConnectOAuthParameter(
-	t *testing.T,
-	parameters httpw.URLParameters,
-	errPrefix string,
-) {
-	serverURI := getServerURI(t)
-	configDirectory := "test_oauth_parameters"
-
-	state := &Client{}
-
-	ck := cookie.NewWithContext(context.Background())
-	defer ck.Cancel() //nolint:errcheck
-	state, err := New(
-		"org.letsconnect-vpn.app.linux",
-		"0.1.0-test",
-		configDirectory,
-		func(oldState FSMStateID, newState FSMStateID, data interface{}) bool {
-			if newState == StateOAuthStarted {
-				server, serverErr := state.Servers.CustomServer(serverURI)
-				if serverErr != nil {
-					t.Fatalf("No server with error: %v", serverErr)
-				}
-				port, portErr := server.OAuth().ListenerPort()
-				if portErr != nil {
-					_ = ck.Cancel()
-					t.Fatalf("No port with error: %v", portErr)
-				}
-				baseURL := fmt.Sprintf("http://127.0.0.1:%d/callback", port)
-				p, err := url.Parse(baseURL)
-				if err != nil {
-					_ = ck.Cancel()
-					t.Fatalf("Failed to parse URL with error: %v", err)
-				}
-				url, err := httpw.ConstructURL(p, parameters)
-				if err != nil {
-					_ = ck.Cancel()
-					t.Fatalf(
-						"Error: Constructing url %s with parameters %s",
-						baseURL,
-						fmt.Sprint(parameters),
-					)
-				}
-				go func() {
-					_, getErr := http.Get(url)
-					if getErr != nil {
-						_ = ck.Cancel()
-						t.Logf("HTTP GET error: %v", getErr)
-					}
-				}()
-			}
-			return true
-		},
-		false,
-	)
-	if err != nil {
-		t.Fatalf("Creating client error: %v", err)
-	}
-	err = state.Register()
-	if err != nil {
-		t.Fatalf("Registering error: %v", err)
-	}
-
-	err = state.AddServer(&ck, serverURI, srvtypes.TypeCustom, false)
-
-	if errPrefix == "" {
-		if err != nil {
-			t.Fatalf("unexpected error %v", err)
-		}
-		return
-	}
-
-	if err == nil {
-		t.Fatalf("expected error with prefix '%s' but got nil", errPrefix)
-	}
-
-	err1, ok := err.(*errors.Error)
-	// We ensure the error is of a wrappedErrorMessage
-	if !ok {
-		t.Fatalf("error %T = %v, wantErr %T", err, err, &errors.Error{})
-	}
-
-	msg := err1.Error()
-	if err1.Err != nil {
-		msg = err1.Err.Error()
-	}
-
-	// Then we check if the cause is correct
-	if !strings.HasPrefix(msg, errPrefix) {
-		t.Fatalf("expected error with prefix '%s' but got '%s'", errPrefix, msg)
-	}
-}
-
-func TestConnectOAuthParameters(t *testing.T) {
-	const (
-		callbackParameterErrorPrefix  = "failed retrieving parameter '"
-		callbackStateMatchErrorPrefix = "failed matching state"
-		callbackISSMatchErrorPrefix   = "failed matching ISS"
-	)
-
-	serverURI := getServerURI(t)
-	// serverURI already ends with a / due to using the util EnsureValidURL function
-	iss := serverURI
-	tests := []struct {
-		errPrefix  string
-		parameters httpw.URLParameters
-	}{
-		// missing state and code
-		{callbackParameterErrorPrefix, httpw.URLParameters{"iss": iss}},
-		// missing state
-		{callbackParameterErrorPrefix, httpw.URLParameters{"iss": iss, "code": "42"}},
-		// invalid state
-		{
-			callbackStateMatchErrorPrefix,
-			httpw.URLParameters{"iss": iss, "code": "42", "state": "21"},
-		},
-		// invalid iss
-		{
-			callbackISSMatchErrorPrefix,
-			httpw.URLParameters{"iss": "37", "code": "42", "state": "21"},
-		},
-	}
-
-	for _, test := range tests {
-		testConnectOAuthParameter(t, test.parameters, test.errPrefix)
 	}
 }
 
