@@ -2,6 +2,8 @@
 
 import unittest
 import eduvpn_common.main as eduvpn
+import eduvpn_common.event as event
+from eduvpn_common.state import State, StateType
 import sys
 import os
 
@@ -13,17 +15,19 @@ sys.path.append(
 from selenium_eduvpn import login_eduvpn
 
 
-def handler(_old_state, new_state, data):
-    if new_state == 6:
+class Handler:
+    @event.class_state_transition(State.OAUTH_STARTED, StateType.ENTER)
+    def on_oauth(self, old_state: State, data: str):
         login_eduvpn(data)
-        return True
 
 
 class ConfigTests(unittest.TestCase):
     def testConfig(self):
         _eduvpn = eduvpn.EduVPN("org.letsconnect-vpn.app.linux", "0.1.0", "testconfigs")
         # This can throw an exception
-        _eduvpn.register(handler=handler)
+        _eduvpn.register()
+        handler = Handler()
+        _eduvpn.register_class_callbacks(handler)
 
         server_uri = os.getenv("SERVER_URI")
         if not server_uri:
@@ -42,6 +46,8 @@ class ConfigTests(unittest.TestCase):
         _eduvpn = eduvpn.EduVPN("org.letsconnect-vpn.app.linux", "0.1.0", "testconfigs")
         # This can throw an exception
         _eduvpn.register()
+        handler = Handler()
+        _eduvpn.register_class_callbacks(handler)
         # This should throw
         try:
             _eduvpn.register()
