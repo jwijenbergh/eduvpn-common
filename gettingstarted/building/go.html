@@ -1,0 +1,242 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Go library - eduVPN-common documentation</title>
+        <!-- Custom HTML head -->
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="../../favicon.svg">
+        <link rel="shortcut icon" href="../../favicon.png">
+        <link rel="stylesheet" href="../../css/variables.css">
+        <link rel="stylesheet" href="../../css/general.css">
+        <link rel="stylesheet" href="../../css/chrome.css">
+        <link rel="stylesheet" href="../../css/print.css" media="print">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../fonts/fonts.css">
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../../highlight.css">
+        <link rel="stylesheet" href="../../tomorrow-night.css">
+        <link rel="stylesheet" href="../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../../custom.css">
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../../about.html"><strong aria-hidden="true">1.</strong> About</a></li><li class="chapter-item expanded "><a href="../../gettingstarted/index.html"><strong aria-hidden="true">2.</strong> Getting Started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../gettingstarted/building/index.html"><strong aria-hidden="true">2.1.</strong> Building</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../gettingstarted/building/go.html" class="active"><strong aria-hidden="true">2.1.1.</strong> Go library</a></li><li class="chapter-item expanded "><a href="../../gettingstarted/building/python.html"><strong aria-hidden="true">2.1.2.</strong> Python wrapper</a></li><li class="chapter-item expanded "><a href="../../gettingstarted/building/example.html"><strong aria-hidden="true">2.1.3.</strong> Example from scratch</a></li><li class="chapter-item expanded "><a href="../../gettingstarted/building/packageformats.html"><strong aria-hidden="true">2.1.4.</strong> Package Formats</a></li><li class="chapter-item expanded "><a href="../../gettingstarted/building/release.html"><strong aria-hidden="true">2.1.5.</strong> Building for release</a></li></ol></li><li class="chapter-item expanded "><a href="../../gettingstarted/testing.html"><strong aria-hidden="true">2.2.</strong> Testing</a></li></ol></li><li class="chapter-item expanded "><a href="../../api/index.html"><strong aria-hidden="true">3.</strong> API</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../api/languageinterop.html"><strong aria-hidden="true">3.1.</strong> Language Interop</a></li><li class="chapter-item expanded "><a href="../../api/architecture.html"><strong aria-hidden="true">3.2.</strong> Architecture</a></li><li class="chapter-item expanded "><a href="../../api/typicalflow.html"><strong aria-hidden="true">3.3.</strong> Typical flow</a></li><li class="chapter-item expanded "><a href="../../api/wheretofinddocs.html"><strong aria-hidden="true">3.4.</strong> Where to find docs</a></li><li class="chapter-item expanded "><a href="../../api/statemachine.html"><strong aria-hidden="true">3.5.</strong> State Machine</a></li><li class="chapter-item expanded "><a href="../../api/letsbuildaclient.html"><strong aria-hidden="true">3.6.</strong> Let's build a client</a></li><li class="chapter-item expanded "><a href="../../api/codeexamples.html"><strong aria-hidden="true">3.7.</strong> Code examples</a></li><li class="chapter-item expanded "><a href="../../api/functiondocs.html"><strong aria-hidden="true">3.8.</strong> Function docs</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">eduVPN-common documentation</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="building-the-go-library"><a class="header" href="#building-the-go-library">Building the Go library</a></h1>
+<p>To build the Go library, you need the dependencies for your system installed. We will go over the needed dependencies for Linux and Windows. Afterwards, we explain the basic commands to build the library.</p>
+<h2 id="dependencies"><a class="header" href="#dependencies">Dependencies</a></h2>
+<h3 id="linux"><a class="header" href="#linux">Linux</a></h3>
+<p>To build the Go shared library using Linux you need the following dependencies:</p>
+<ul>
+<li><a href="https://go.dev/doc/install">Go</a> 1.18 or later</li>
+<li><a href="https://gcc.gnu.org/">Gcc</a></li>
+<li><a href="https://www.gnu.org/software/make/">GNU Make</a></li>
+<li>Dependencies for each wrapper you are interested in (read next sections)</li>
+</ul>
+<h3 id="windows"><a class="header" href="#windows">Windows</a></h3>
+<p>On Windows, you can install gcc and make (or even Go) via MinGW or Cygwin or use WSL. For MinGW:</p>
+<ol>
+<li><a href="https://www.msys2.org/#installation">Install MinGW</a> (you don't need to install any extra packages yet) and open some
+MSYS2 terminal (e.g. from the start menu or one of the installed binaries)</li>
+<li>Install the <a href="https://packages.msys2.org/package/make?repo=msys"><code>make</code></a> package (or
+e.g. <a href="https://packages.msys2.org/package/mingw-w64-x86_64-make?repo=mingw64"><code>mingw-w64-x86_64-make</code></a> and
+use <code>mingw32-make</code> in the command line)</li>
+<li>To compile for x86_64:
+<ol>
+<li>Install the <a href="https://packages.msys2.org/package/mingw-w64-x86_64-gcc?repo=mingw64"><code>mingw-w64-x86_64-gcc</code></a>
+package</li>
+<li>Open the MinGW 64-bit console, via the start menu, or in your current
+terminal: <code>path/to/msys64/msys2_shell.cmd -mingw64 -defterm -no-start -use-full-path</code></li>
+<li>Run the make commands in the project directory</li>
+</ol>
+</li>
+<li>To compile for x86 (32-bit):
+<ol>
+<li>Install the <a href="https://packages.msys2.org/package/mingw-w64-i686-gcc?repo=mingw32"><code>mingw-w64-i686-gcc</code></a> package</li>
+<li>Open the MinGW 32-bit console, via the start menu, or in your current
+terminal: <code>path/to/msys64/msys2_shell.cmd -mingw32 -defterm -no-start -use-full-path</code></li>
+<li>Run the make commands in the project directory</li>
+</ol>
+</li>
+</ol>
+<h2 id="commands"><a class="header" href="#commands">Commands</a></h2>
+<p>Before we can begin building the wrapper code, we need to build the Go code as a shared library. This section will tell you how to do so.</p>
+<p>To build the shared library for the current platform issue the following command in the root directory:</p>
+<pre><code class="language-bash">make
+</code></pre>
+<p>You can also build the shared library for a specified OS &amp; architecture (example):</p>
+<pre><code class="language-bash">make GOOS=windows GOARCH=386
+</code></pre>
+<p>We use cgo to build a shared library, to list all platform supported by cgo issue <code>go tool dist list</code>.</p>
+<p>The shared library will be output in <code>exports/lib/</code>.</p>
+<p>For cross compiling, you usually need to specify the compiler, for example:</p>
+<pre><code class="language-bash">make GOOS=windows GOARCH=amd64 CC=x86_64-w64-mingw32-gcc
+</code></pre>
+<p>For example, you can cross compile for Windows from Linux using <a href="https://www.mingw-w64.org/downloads/">MinGW-w64</a>.</p>
+<p>This shared library gets loaded by the different wrappers. To build the actual wrapper code, you need other build commands. This will be explained now.</p>
+<h3 id="cleaning"><a class="header" href="#cleaning">Cleaning</a></h3>
+<p>To clean build the library and wrapper, issue the following command in the root directory:</p>
+<pre><code class="language-bash">make -j clean
+</code></pre>
+<p>Usually you won't need to do this, as changes in the library should automatically be incorporated in wrappers.
+Specify <code>CLEAN_ALL=1</code> to also remove downloaded dependencies for some wrappers. You can clean individual wrappers by
+executing clean in their directories, or specify <code>WRAPPERS=...</code>.</p>
+<h2 id="note-on-releases"><a class="header" href="#note-on-releases">Note on releases</a></h2>
+<p>Releases are build with the go tag &quot;release&quot; (add flag &quot;-tags=release&quot;) to bundle the discovery JSON files and embed them in the shared library. See the <a href="https://github.com/eduvpn/eduvpn-common/blob/main/make_release.sh">make_release</a> script on how we bundle the files. A full command without the Makefile to build this library is:</p>
+<pre><code class="language-bash">go build -o lib/libeduvpn_common-${VERSION}.so -tags=release -buildmode=c-shared ./exports
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../gettingstarted/building/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                            <a rel="next" href="../../gettingstarted/building/python.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../gettingstarted/building/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                    <a rel="next" href="../../gettingstarted/building/python.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        <script src="../../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../../searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        <script type="text/javascript" src="../../mermaid.min.js"></script>
+        <script type="text/javascript" src="../../mermaid-init.js"></script>
+    </body>
+</html>

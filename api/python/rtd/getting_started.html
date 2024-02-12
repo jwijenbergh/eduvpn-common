@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Getting Started &mdash; python-eduvpn-common 1.1.2 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="_static/documentation_options.js?v=6f037312"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API Documentation" href="api.html" />
+    <link rel="prev" title="Welcome to the eduvpn-common documentation" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            python-eduvpn-common
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#introduction">1 Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#overview">2 Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-by-step-simple-example">3 Step by step simple example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#api-documentation">4 API Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">python-eduvpn-common</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Getting Started</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/getting_started.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="getting-started">
+<h1><a class="toc-backref" href="#id1" role="doc-backlink">Getting Started</a><a class="headerlink" href="#getting-started" title="Link to this heading"></a></h1>
+<nav class="contents" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#getting-started" id="id1">Getting Started</a></p>
+<ul>
+<li><p><a class="reference internal" href="#introduction" id="id2">1 Introduction</a></p></li>
+<li><p><a class="reference internal" href="#overview" id="id3">2 Overview</a></p></li>
+<li><p><a class="reference internal" href="#step-by-step-simple-example" id="id4">3 Step by step simple example</a></p></li>
+<li><p><a class="reference internal" href="#api-documentation" id="id5">4 API Documentation</a></p></li>
+</ul>
+</li>
+</ul>
+</nav>
+<section id="introduction">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">1 Introduction</a><a class="headerlink" href="#introduction" title="Link to this heading"></a></h2>
+<p>This documentation page describes the API for the python-eduvpn-common library. Eduvpn-common is a library to write eduVPN clients in. The library is written in Go and this documentation describes the Python glue code that interacts with this library. We first give a general overview and then dive deep into the various components. We recommend, however, to first read the <a class="reference external" href="https://eduvpn.github.io/eduvpn-common">eduvpn-common documentation</a> first to get an overview of how the library works and which problems it solves.</p>
+</section>
+<section id="overview">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">2 Overview</a><a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>This library interfaces with the Go library by loading the library as a shared C library (e.g. <em>.so</em> file for Linux) and then defining <em>ctypes</em>. This means that the library and the glue code needs to be in sync. When you install this library with a package manager or pip, we bundle this shared library with it so that the exact version matches. Note that you can also compile this shared library from source by following instructions at <a class="reference external" href="https://github.com/eduvpn/eduvpn-common">the official documentation</a>.</p>
+<p>There are various modules that this library defines, some are meant to be extensively used by the resulting eduVPN client, while others are purely meant for internal use. We give a general overview for each:</p>
+<ul class="simple">
+<li><p><em>main</em>: This is the main entry point for the glue code. It defines a class <em>EduVPN</em> that is used to interact with the library</p></li>
+<li><p><em>loader</em>: This loads the shared library and defines the functions that this shared library has</p></li>
+<li><p><em>types</em>: This defines types that are returned by the library. For example, the type of an Institute Access server</p></li>
+<li><p><em>server</em>: This converts the type returned by the library to a type that can be consumed by Python. You would then import these Python types from this module</p></li>
+<li><p><em>discovery</em>: The same as the server module, but then for the <a class="reference external" href="https://github.com/eduvpn/documentation/tree/master/SERVER_DISCOVERY.md">Discovery phase</a></p></li>
+<li><p><em>state</em>: This defines the states as used by the eduvpn-common library. You would import these to define state transitions on these states</p></li>
+<li><p><em>event</em>: This defines the <em>EventHandler</em> class that is internally used to handle the FSM events/transitions</p></li>
+<li><p><em>error</em>: This defines error types that are returned by the library. You would use this to import the <em>WrappedError</em> type that returns an exception from the Go library</p></li>
+</ul>
+</section>
+<section id="step-by-step-simple-example">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">3 Step by step simple example</a><a class="headerlink" href="#step-by-step-simple-example" title="Link to this heading"></a></h2>
+<p>The first thing is to bring the library into scope</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">eduvpn_common</span> <span class="kn">import</span> <span class="n">main</span>
+</pre></div>
+</div>
+<p>We can now create the main <em>EduVPN</em> class to interface with the library</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># The name of the client, use one of https://git.sr.ht/~fkooman/vpn-user-portal/tree/v3/item/src/OAuth/ClientDb.php</span>
+<span class="c1"># We specify the linux client</span>
+<span class="c1"># You can also specify a Let&#39;s Connect! variant</span>
+<span class="n">client_name</span> <span class="o">=</span> <span class="s2">&quot;org.eduvpn.app.linux&quot;</span>
+
+<span class="c1"># The absolute or relative directory where the configs should be stored</span>
+<span class="n">config_dir</span> <span class="o">=</span> <span class="s2">&quot;configs&quot;</span>
+
+<span class="c1"># The language of the client, in practice you should not use such a hard coded value</span>
+<span class="c1"># But rather specify one as returned by Python internationalization&#39;s modules</span>
+<span class="n">language</span> <span class="o">=</span> <span class="s2">&quot;en&quot;</span>
+
+<span class="c1"># Create the class</span>
+<span class="n">eduvpn</span> <span class="o">=</span> <span class="n">main</span><span class="o">.</span><span class="n">EduVPN</span><span class="p">(</span><span class="n">client_name</span><span class="p">,</span> <span class="n">config_dir</span><span class="p">,</span> <span class="n">language</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This code has not yet actually done anything when it comes to interfacing with the library. For that we have the <em>register</em> method on the class</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># We register as debug, meaning we want debug logging. When using for release, set this to &#39;False&#39;</span>
+<span class="n">eduvpn</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Great! We have registered our client with the Go library and can now start to do something more interesting. Let’s try to get an OpenVPN/WireGuard VPN configuration from our own server.</p>
+<p>First we define the URL of the server we want to get a configuration for</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">server_url</span> <span class="o">=</span> <span class="s2">&quot;vpn.example.com&quot;</span>
+</pre></div>
+</div>
+<p>Then we need to define a few state handlers that specify what the library should do when the OAuth process has started. We do that with the <em>.event.on</em> handler for the <em>EduVPN</em> class:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Necessary imports to act on states</span>
+<span class="kn">from</span> <span class="nn">eduvpn_common.state</span> <span class="kn">import</span> <span class="n">State</span><span class="p">,</span> <span class="n">StateType</span>
+
+<span class="c1"># Enter means, run this when the Go FSM signals we have entered the OAUTH_STARTED state</span>
+<span class="nd">@eduvpn</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">on</span><span class="p">(</span><span class="n">State</span><span class="o">.</span><span class="n">OAUTH_STARTED</span><span class="p">,</span> <span class="n">StateType</span><span class="o">.</span><span class="n">ENTER</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">enter_oauth</span><span class="p">(</span><span class="n">old_state</span><span class="p">:</span> <span class="n">State</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Please open the browser at URL: </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If our server does not use multiple profiles, we can then get the OpenVPN/WireGuard configuration as follows</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># First add the server</span>
+<span class="n">eduvpn</span><span class="o">.</span><span class="n">add_custom_server</span><span class="p">(</span><span class="n">server_url</span><span class="p">)</span>
+
+<span class="c1"># Then get the config</span>
+<span class="c1"># prefer_tcp set to False means we do not care whether or not TCP is preferred by the client</span>
+<span class="c1"># You can set this to True so that an OpenVPN configuration with TCP is preferred</span>
+<span class="c1"># Note that this can return an exception, so you should handle this</span>
+<span class="n">eduvpn</span><span class="o">.</span><span class="n">get_config_custom_server</span><span class="p">(</span><span class="n">server_url</span><span class="p">,</span> <span class="n">prefer_tcp</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now for the final step, let’s try connect to a server that has multiple profiles defined. For this, we need another callback using the <em>event.on</em> decorator</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">eduvpn_common.server</span> <span class="kn">import</span> <span class="n">Profiles</span>
+
+<span class="nd">@eduvpn</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">on</span><span class="p">(</span><span class="n">State</span><span class="o">.</span><span class="n">ASK_PROFILE</span><span class="p">,</span> <span class="n">StateType</span><span class="o">.</span><span class="n">ENTER</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">enter_ask_profile</span><span class="p">(</span><span class="n">old_state</span><span class="p">:</span> <span class="n">State</span><span class="p">,</span> <span class="n">profiles</span><span class="p">:</span> <span class="n">Profiles</span><span class="p">):</span>
+    <span class="c1"># We choose the first profile</span>
+    <span class="n">eduvpn</span><span class="o">.</span><span class="n">set_profile</span><span class="p">(</span><span class="n">profiles</span><span class="o">.</span><span class="n">profiles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">identifier</span><span class="p">)</span>
+
+<span class="n">server_multiple_profiles</span> <span class="o">=</span> <span class="s2">&quot;vpn-multiple-profiles.example.com&quot;</span>
+
+<span class="n">eduvpn</span><span class="o">.</span><span class="n">add_custom_server</span><span class="p">(</span><span class="n">server_multiple_profiles</span><span class="p">)</span>
+<span class="n">eduvpn</span><span class="o">.</span><span class="n">get_config_custom_server</span><span class="p">(</span><span class="n">server_multiple_profiles</span><span class="p">,</span> <span class="n">prefer_tcp</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In practice, you should define these callbacks on every state transition (at least <em>ENTER</em> transitions) such that every case is handled. For example, there are also mandatory callbacks when asking for a location to connect to in case of secure internet.</p>
+<p>A more elaborate example of the library can be found at <a class="reference external" href="https://github.com/eduvpn/eduvpn-common/tree/main/wrappers/python/main.py">the GitHub repository</a>.
+Or, a full featured example can be found by looking at <a class="reference external" href="https://github.com/eduvpn/python-eduvpn-client">the official Linux client</a>.</p>
+</section>
+<section id="api-documentation">
+<h2><a class="toc-backref" href="#id5" role="doc-backlink">4 API Documentation</a><a class="headerlink" href="#api-documentation" title="Link to this heading"></a></h2>
+<p>The detailed API documentation is available on the next page.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to the eduvpn-common documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="api.html" class="btn btn-neutral float-right" title="API Documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Jeroen Wijenbergh.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

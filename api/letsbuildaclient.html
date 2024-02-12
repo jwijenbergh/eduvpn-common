@@ -1,0 +1,436 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Let&#x27;s build a client - eduVPN-common documentation</title>
+        <!-- Custom HTML head -->
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../custom.css">
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../about.html"><strong aria-hidden="true">1.</strong> About</a></li><li class="chapter-item expanded "><a href="../gettingstarted/index.html"><strong aria-hidden="true">2.</strong> Getting Started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../gettingstarted/building/index.html"><strong aria-hidden="true">2.1.</strong> Building</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../gettingstarted/building/go.html"><strong aria-hidden="true">2.1.1.</strong> Go library</a></li><li class="chapter-item expanded "><a href="../gettingstarted/building/python.html"><strong aria-hidden="true">2.1.2.</strong> Python wrapper</a></li><li class="chapter-item expanded "><a href="../gettingstarted/building/example.html"><strong aria-hidden="true">2.1.3.</strong> Example from scratch</a></li><li class="chapter-item expanded "><a href="../gettingstarted/building/packageformats.html"><strong aria-hidden="true">2.1.4.</strong> Package Formats</a></li><li class="chapter-item expanded "><a href="../gettingstarted/building/release.html"><strong aria-hidden="true">2.1.5.</strong> Building for release</a></li></ol></li><li class="chapter-item expanded "><a href="../gettingstarted/testing.html"><strong aria-hidden="true">2.2.</strong> Testing</a></li></ol></li><li class="chapter-item expanded "><a href="../api/index.html"><strong aria-hidden="true">3.</strong> API</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../api/languageinterop.html"><strong aria-hidden="true">3.1.</strong> Language Interop</a></li><li class="chapter-item expanded "><a href="../api/architecture.html"><strong aria-hidden="true">3.2.</strong> Architecture</a></li><li class="chapter-item expanded "><a href="../api/typicalflow.html"><strong aria-hidden="true">3.3.</strong> Typical flow</a></li><li class="chapter-item expanded "><a href="../api/wheretofinddocs.html"><strong aria-hidden="true">3.4.</strong> Where to find docs</a></li><li class="chapter-item expanded "><a href="../api/statemachine.html"><strong aria-hidden="true">3.5.</strong> State Machine</a></li><li class="chapter-item expanded "><a href="../api/letsbuildaclient.html" class="active"><strong aria-hidden="true">3.6.</strong> Let's build a client</a></li><li class="chapter-item expanded "><a href="../api/codeexamples.html"><strong aria-hidden="true">3.7.</strong> Code examples</a></li><li class="chapter-item expanded "><a href="../api/functiondocs.html"><strong aria-hidden="true">3.8.</strong> Function docs</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">eduVPN-common documentation</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="lets-build-a-client-using-python"><a class="header" href="#lets-build-a-client-using-python">Let's build a client using Python</a></h1>
+<p>To begin, let's follow the flow and see if we can figure out how it works.</p>
+<h2 id="registering"><a class="header" href="#registering">Registering</a></h2>
+<blockquote>
+<p>The client starts up. It calls the Register function that communicates with the library that it has initialized</p>
+</blockquote>
+<p>In Python, this works like the following:</p>
+<ul>
+<li>First import the library</li>
+</ul>
+<pre><code class="language-python">import eduvpn_common.main as edu
+
+class Transitions:
+    def __init__(self, common):
+        self.common = common
+
+# These arguments can be found in the docstring
+# But also in the exports.go file
+# For Python it's a bit different, we have split the arguments into the constructor and register
+# Here we pass the client ID for OAuth, the version of the client and the directory where config files should be found
+common=edu.EduVPN(&quot;org.eduvpn.app.linux&quot;, &quot;0.0.1&quot;, &quot;/tmp/test&quot;)
+
+common.register(debug=True)
+
+# we will come back to this later
+transitions = Transitions(common)
+common.register_class_callbacks(transitions)
+</code></pre>
+<p>Now after registering, we know that we have no servers configured (unless you're following this tutorial again with an existing <code>/tmp/test</code>). So we continue with step 4</p>
+<h2 id="discovery"><a class="header" href="#discovery">Discovery</a></h2>
+<blockquote>
+<p>If the client has no servers, or it wants to add a new server, the client calls <code>DiscoOrganizations</code> and <code>DiscoServers</code> to get the discovery files from the library.</p>
+</blockquote>
+<pre><code class="language-python"># Let's get them and print them
+print(common.get_disco_organizations())
+print(common.get_disco_servers())
+</code></pre>
+<p>We get a big JSON blob, so which format is this? From the Go documentation:</p>
+<blockquote>
+<p>DiscoOrganizations gets the organizations from discovery, returned as types/discovery/discovery.go Organizations marshalled as JSON</p>
+</blockquote>
+<blockquote>
+<p>DiscoServers gets the servers from discovery, returned as types/discovery/discovery.go Servers marshalled as JSON</p>
+</blockquote>
+<p>If you follow these files, you see two structs, Servers and Organizations. These structs have json tags associated with them. You can use this structure to figure out how to parse the returned data. In case of discovery, it's very similar to the <a href="https://disco.eduvpn.org/v2">JSON files from the discovery server</a>.</p>
+<h2 id="adding-a-server"><a class="header" href="#adding-a-server">Adding a server</a></h2>
+<p>The next bullet point that we implement is the following:</p>
+<blockquote>
+<p>From this discovery list, it calls AddServer to add the server to the internal server list of eduvpn-common. This also calls necessary state transitions, e.g. for authorizing the server. The next call to ServerList then has this server included</p>
+</blockquote>
+<p>The discovery servers contains a server called the demo server. Let's try to add it. To add it we need to pass the type of server we're adding. From discovery we can deduce that this is an institute access server as the JSON looks like the following:</p>
+<pre><code class="language-json">{
+    &quot;authentication_url_template&quot;: &quot;&quot;,
+    &quot;base_url&quot;: &quot;https://demo.eduvpn.nl/&quot;,
+    &quot;display_name&quot;: {
+        &quot;en&quot;: &quot;Demo&quot;
+    },
+    &quot;server_type&quot;: &quot;institute_access&quot;, # this is why we know it is Institute Access
+    &quot;support_contact&quot;: [
+        &quot;mailto:eduvpn@surf.nl&quot;
+    ]
+},
+</code></pre>
+<p>From the Go documentation, we know that the identifier must be the Base URL:</p>
+<blockquote>
+<p>id is the identifier of the string</p>
+<ul>
+<li>In case of secure internet: The organization ID</li>
+<li>In case of custom server: The base URL</li>
+<li>In case of institute access: The base URL</li>
+</ul>
+</blockquote>
+<pre><code class="language-python"># Compare this to the Go version, the non-interactive field is optional here as it is default False
+common.add_server(edu.ServerType.INSTITUTE_ACCESS, &quot;https://demo.eduvpn.nl/&quot;)
+</code></pre>
+<p>But we get an error!</p>
+<pre><code class="language-bash">eduvpn_common.main.WrappedError: fsm failed transition from 'Chosen_Server' to 'OAuth_Started', is this required transition handled?
+</code></pre>
+<p>This is the state machine we briefly mentioned before. Some functions require that you handle certain transitions. From the Go documentation, we can find this in the documentation as well that you must handle this transition. Let's handle it in Python to open the webbrowser for the OAuth process.</p>
+<p>We do this with the python wrapper by defining a class of state transitions. This class was already added and registered with <code>register_class_callbacks</code>. However, there was no transition added. Let's add it</p>
+<pre><code class="language-python">import webbrowser
+from eduvpn_common.event import class_state_transition
+from eduvpn_common.state import State, StateType
+
+class Transitions:
+    def __init__(self, common):
+        self.common = common
+
+    @class_state_transition(State.OAUTH_STARTED, StateType.ENTER)
+    def enter_oauth(self, old_state: State, url: str):
+        webbrowser.open(url)
+</code></pre>
+<p>Now if you re-rerun the whole code with this transition added, your webbrowser should open.</p>
+<p>Note that this state transition is essentially the same as the following code:</p>
+<pre><code class="language-python">-def handler(old: int, new: int, data: str):
+-    # it's 6 because https://github.com/eduvpn/eduvpn-common/blob/b660911b5db000b43970f3754b5767bb50741360/client/fsm.go#L33
+-    if new == 6:
+-        webbrowser.open(data)
+-        return True
+-    return False
+</code></pre>
+<p>This is the code that is passed to the Go library. It handles certain states and returns <code>False</code> (zero) if a state is not handled, <code>True</code> (non-zero) if it is. If you define your own wrapper you should build an abstraction layer that resolves to a handler similar as above. This handler should be passed as a C function to the Go library when registering.</p>
+<p>After you have authorized the application through the portal using the webbrowser, the server should have been added:</p>
+<pre><code class="language-python">print(common.get_servers())
+</code></pre>
+<p>Returns:</p>
+<pre><code class="language-json">{
+  &quot;institute_access_servers&quot;: [
+    {
+      &quot;display_name&quot;: {
+        &quot;en&quot;: &quot;Demo&quot;
+      },
+      &quot;identifier&quot;: &quot;https://demo.eduvpn.nl/&quot;,
+      &quot;profiles&quot;: {
+        &quot;current&quot;: &quot;&quot;
+      },
+      &quot;delisted&quot;: false
+    }
+  ]
+}
+</code></pre>
+<p>The format of this JSON is specified in the Go documentation:</p>
+<p><code>(in exports/exports.go)</code></p>
+<blockquote>
+<p>It returns the server list as a JSON string defined in types/server/server.go List</p>
+</blockquote>
+<h2 id="obtaining-a-vpn-configuration-from-the-server"><a class="header" href="#obtaining-a-vpn-configuration-from-the-server">Obtaining a VPN configuration from the server</a></h2>
+<p>The next part of the flow is:</p>
+<blockquote>
+<p>When the user selects a server to connect to in the UI, it calls the GetConfig to get a VPN configuration for this server. This function transitions the state machine multiple times. The client uses these state transitions for logging or even updating the UI. The client then connects</p>
+</blockquote>
+<p>Let's try it, the required arguments are the same for adding a config in the Python wrapper:</p>
+<pre><code class="language-python">print(common.get_config(edu.ServerType.INSTITUTE_ACCESS, &quot;https://demo.eduvpn.nl&quot;))
+</code></pre>
+<p>However, this gives an exception:</p>
+<pre><code class="language-bash">eduvpn_common.main.WrappedError: fsm failed transition from 'Request_Config' to 'Ask_Profile', is this required transition handled?
+</code></pre>
+<p>A similar error to the OAuth error we had before. This <code>Ask_Profile</code> transition is there for the client/user to choose a profile as this server has multiple profiles defined.</p>
+<p>To handle this transition and thus choose a profile to continue, we must do multiple steps:</p>
+<ul>
+<li>Add the condition to the transitions class</li>
+<li>Parse the data that we get back</li>
+<li>Reply with a choice for the profile </li>
+</ul>
+<p>If we add the condition and print the data:</p>
+<pre><code class="language-python">@class_state_transition(State.ASK_PROFILE, StateType.ENTER)
+def enter_ask_profile(self, old_state: State, data: str):
+    print(&quot;profiles:&quot;, data)
+</code></pre>
+<p>we get back the following JSON (from the Go docs: <code>The data for this transition is defined in types/server/server.go RequiredAskTransition with embedded data Profiles in types/server/server.go</code>):</p>
+<pre><code class="language-python">{
+  &quot;cookie&quot;: 4,
+  &quot;data&quot;: {
+    &quot;map&quot;: {
+      &quot;internet&quot;: {
+        &quot;display_name&quot;: {
+          &quot;en&quot;: &quot;Internet&quot;
+        },
+        &quot;supported_protocols&quot;: [
+          1,
+          2
+        ]
+      },
+      &quot;internet-split&quot;: {
+        &quot;display_name&quot;: {
+          &quot;en&quot;: &quot;No rfc1918 routes&quot;
+        },
+        &quot;supported_protocols&quot;: [
+          1,
+          2
+        ]
+      }
+    },
+    &quot;current&quot;: &quot;&quot;
+  }
+}
+</code></pre>
+<p>This thus gives you the list of profiles with a so-called &quot;cookie&quot;. This <em>cookie</em> is used to confirm the choice to the Go library. To do so we must do the following to handle this:</p>
+<pre><code class="language-python">import json
+
+# Do this inside the Transitions class
+@class_state_transition(State.ASK_PROFILE, StateType.ENTER)
+def enter_ask_profile(self, old_state: State, data: str):
+    # parse the json
+    json_dict = json.loads(data)
+    
+    self.common.cookie_reply(json_dict[&quot;cookie&quot;], &quot;internet&quot;)
+</code></pre>
+<p>If we then re-run the code, we get back the following JSON (from the Go docs: <code>The return data is the configuration, marshalled as JSON and defined in types/server/server.go Configuration</code>)</p>
+<pre><code class="language-python">{
+  &quot;config&quot;: &quot;the WireGuard config&quot;,
+  &quot;protocol&quot;: 2, # 2 specifies WireGuard
+  &quot;default_gateway&quot;: true
+}
+</code></pre>
+<h2 id="cleanup"><a class="header" href="#cleanup">Cleanup</a></h2>
+<p>The flow also mentioned:</p>
+<blockquote>
+<p>When the client is done, it calls <code>Deregister</code> such that the most up to date internal state is saved to disk. Note that eduvpn-common also saves the internal state .e.g. after obtaining a VPN configuration</p>
+</blockquote>
+<p>Let's be a nice client and do this:</p>
+<pre><code class="language-python">common.deregister()
+</code></pre>
+<p>If we then call any function, we get an error, so it is important that you do this on exit:</p>
+<pre><code class="language-python">print(common.get_servers())
+&gt;&gt;&gt; eduvpn_common.main.WrappedError: No state available, did you register the client?
+</code></pre>
+<p>But when we register again and then get the list of servers, the servers are retrieved from disk:</p>
+<pre><code class="language-python">common=edu.EduVPN(&quot;org.eduvpn.app.linux&quot;, &quot;0.0.1&quot;, &quot;/tmp/test&quot;)
+common.register(debug=True)
+print(common.get_servers())
+</code></pre>
+<p>gives</p>
+<pre><code class="language-json">{
+  &quot;institute_access_servers&quot;: [
+    {
+      &quot;display_name&quot;: {
+        &quot;en&quot;: &quot;Demo&quot;
+      },
+      &quot;identifier&quot;: &quot;https://demo.eduvpn.nl/&quot;,
+      &quot;profiles&quot;: {
+        &quot;map&quot;: {
+          &quot;internet&quot;: {
+            &quot;display_name&quot;: {
+              &quot;en&quot;: &quot;Internet&quot;
+            },
+            &quot;supported_protocols&quot;: [
+              1,
+              2
+            ]
+          },
+          &quot;internet-split&quot;: {
+            &quot;display_name&quot;: {
+              &quot;en&quot;: &quot;No rfc1918 routes&quot;
+            },
+            &quot;supported_protocols&quot;: [
+              1,
+              2
+            ]
+          }
+        },
+        &quot;current&quot;: &quot;internet&quot;
+      },
+      &quot;delisted&quot;: false
+    }
+  ]
+}
+</code></pre>
+<p>Note the difference with the previous JSON, the profiles are now initialized because we have gotten a configuration before.</p>
+<p>If the <code>/tmp/test</code> directory is removed (the argument that was passed to register), we get no servers again:</p>
+<pre><code class="language-python">import shutil
+shutil.rmtree(&quot;/tmp/test&quot;)
+common=edu.EduVPN(&quot;org.eduvpn.app.linux&quot;, &quot;0.0.1&quot;, &quot;/tmp/test&quot;)
+common.register(debug=True)
+print(common.get_servers())
+</code></pre>
+<p>gives <code>&quot;{}&quot;</code>, an empty JSON object string</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../api/statemachine.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                            <a rel="next" href="../api/codeexamples.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../api/statemachine.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                    <a rel="next" href="../api/codeexamples.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        <script type="text/javascript" src="../mermaid.min.js"></script>
+        <script type="text/javascript" src="../mermaid-init.js"></script>
+    </body>
+</html>

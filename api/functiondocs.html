@@ -1,0 +1,927 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Function docs - eduVPN-common documentation</title>
+        <!-- Custom HTML head -->
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../custom.css">
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../about.html"><strong aria-hidden="true">1.</strong> About</a></li><li class="chapter-item expanded "><a href="../gettingstarted/index.html"><strong aria-hidden="true">2.</strong> Getting Started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../gettingstarted/building/index.html"><strong aria-hidden="true">2.1.</strong> Building</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../gettingstarted/building/go.html"><strong aria-hidden="true">2.1.1.</strong> Go library</a></li><li class="chapter-item expanded "><a href="../gettingstarted/building/python.html"><strong aria-hidden="true">2.1.2.</strong> Python wrapper</a></li><li class="chapter-item expanded "><a href="../gettingstarted/building/example.html"><strong aria-hidden="true">2.1.3.</strong> Example from scratch</a></li><li class="chapter-item expanded "><a href="../gettingstarted/building/packageformats.html"><strong aria-hidden="true">2.1.4.</strong> Package Formats</a></li><li class="chapter-item expanded "><a href="../gettingstarted/building/release.html"><strong aria-hidden="true">2.1.5.</strong> Building for release</a></li></ol></li><li class="chapter-item expanded "><a href="../gettingstarted/testing.html"><strong aria-hidden="true">2.2.</strong> Testing</a></li></ol></li><li class="chapter-item expanded "><a href="../api/index.html"><strong aria-hidden="true">3.</strong> API</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../api/languageinterop.html"><strong aria-hidden="true">3.1.</strong> Language Interop</a></li><li class="chapter-item expanded "><a href="../api/architecture.html"><strong aria-hidden="true">3.2.</strong> Architecture</a></li><li class="chapter-item expanded "><a href="../api/typicalflow.html"><strong aria-hidden="true">3.3.</strong> Typical flow</a></li><li class="chapter-item expanded "><a href="../api/wheretofinddocs.html"><strong aria-hidden="true">3.4.</strong> Where to find docs</a></li><li class="chapter-item expanded "><a href="../api/statemachine.html"><strong aria-hidden="true">3.5.</strong> State Machine</a></li><li class="chapter-item expanded "><a href="../api/letsbuildaclient.html"><strong aria-hidden="true">3.6.</strong> Let's build a client</a></li><li class="chapter-item expanded "><a href="../api/codeexamples.html"><strong aria-hidden="true">3.7.</strong> Code examples</a></li><li class="chapter-item expanded "><a href="../api/functiondocs.html" class="active"><strong aria-hidden="true">3.8.</strong> Function docs</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">eduVPN-common documentation</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <p>This document was automatically generated from the exports/exports.go file</p>
+<h1 id="table-of-contents"><a class="header" href="#table-of-contents">Table of contents</a></h1>
+<ul>
+<li><a href="#about-the-api">About the API</a></li>
+<li><a href="#functions">Functions</a>
+<ul>
+<li><a href="#addserver">AddServer</a></li>
+<li><a href="#cleanup">Cleanup</a></li>
+<li><a href="#cookiecancel">CookieCancel</a></li>
+<li><a href="#cookiedelete">CookieDelete</a></li>
+<li><a href="#cookienew">CookieNew</a></li>
+<li><a href="#cookiereply">CookieReply</a></li>
+<li><a href="#currentserver">CurrentServer</a></li>
+<li><a href="#deregister">Deregister</a></li>
+<li><a href="#discoorganizations">DiscoOrganizations</a></li>
+<li><a href="#discoservers">DiscoServers</a></li>
+<li><a href="#expirytimes">ExpiryTimes</a></li>
+<li><a href="#freestring">FreeString</a></li>
+<li><a href="#getconfig">GetConfig</a></li>
+<li><a href="#instate">InState</a></li>
+<li><a href="#register">Register</a></li>
+<li><a href="#removeserver">RemoveServer</a></li>
+<li><a href="#renewsession">RenewSession</a></li>
+<li><a href="#serverlist">ServerList</a></li>
+<li><a href="#setprofileid">SetProfileID</a></li>
+<li><a href="#setsecurelocation">SetSecureLocation</a></li>
+<li><a href="#setstate">SetState</a></li>
+<li><a href="#setsupportwireguard">SetSupportWireguard</a></li>
+<li><a href="#settokenhandler">SetTokenHandler</a></li>
+<li><a href="#startfailover">StartFailover</a></li>
+<li><a href="#startproxyguard">StartProxyguard</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="about-the-api"><a class="header" href="#about-the-api">About the API</a></h1>
+<p>package main implements the main exported API to be used by other languages</p>
+<p>Some notes:</p>
+<ul>
+<li>
+<p>Errors are returned as JSON c strings. The JSON type is defined in
+types/error/error.go Error. Free them using FreeString. Same is the case for
+other string types, you should also free them. The errors are always localized</p>
+</li>
+<li>
+<p>Types are converted from the Go representation to C using JSON strings</p>
+</li>
+<li>
+<p>Cookies are used for cancellation, just fancy contexts. Create a cookie using
+<code>CookieNew</code>, pass it to the function that needs one as the first argument. To
+cancel the function, call <code>CookieCancel</code>, passing in the same cookie as argument</p>
+</li>
+<li>
+<p>Cookies must also be freed, by using the CookieDelete function if the cookie
+is no longer needed</p>
+</li>
+<li>
+<p>The state machine is used to track the state of a client. It is mainly used
+for asking for certain data from the client, e.g. asking for profiles and
+locations. But a client may also wish to build upon this state machine to build
+the whole UI around it. The SetState and InState functions are useful for this</p>
+</li>
+</ul>
+<h1 id="functions"><a class="header" href="#functions">Functions</a></h1>
+<h2 id="addserver"><a class="header" href="#addserver">AddServer</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func AddServer(c C.uintptr_t, _type C.int, id *C.char, ni C.int) *C.char
+</code></pre>
+<p>AddServer adds a server to the eduvpn-common server list <code>c</code> is the cookie
+that is used for cancellation. Create a cookie first with CookieNew.
+This same cookie is also used for replying to state transitions</p>
+<p><code>_type</code> is the type of server that needs to be added. This type is defined
+in types/server/server.go Type</p>
+<p><code>id</code> is the identifier of the string:</p>
+<ul>
+<li>
+<p>In case of secure internet: The organization ID</p>
+</li>
+<li>
+<p>In case of custom server: The base URL</p>
+</li>
+<li>
+<p>In case of institute access: The base URL</p>
+</li>
+</ul>
+<p><code>ni</code> stands for non-interactive. If non-zero, any state transitions will not
+be run.</p>
+<p>This <code>ni</code> flag is useful for preprovisioned servers. For normal usage,
+you want to set this to zero (meaning: False)</p>
+<p>If the server cannot be added it returns the error as types/error/error.go
+Error. Note that the server is removed when an error has occured</p>
+<p>The following state callbacks are mandatory to handle:</p>
+<ul>
+<li>OAUTH_STARTED: This indicates that the OAuth procedure has been started,
+it returns the URL as the data. The client should open the webbrowser
+with this URL and continue the authorization process. Note: For mobile
+platforms this returns a Cookie and data (json: <code>{&quot;cookie&quot;: x, &quot;data&quot;: url}</code>). This <code>url</code> should also be opened in the browser like desktop
+platforms. But these platforms also need to reply to the library to give
+back the full authorization code URI with <code>CookieReply(x, uri)</code>. E.g.
+<code>CookieReply(x, &quot;/callback?code=...&amp;state=...&amp;iss=...&quot;)</code> this is the
+path of the request that the apps get back when the user clicks approve.
+For this, apps need to register an app url or sorts. For the valid
+values for app URLs, see the redirect URIs for mobile platforms here
+https://git.sr.ht/~fkooman/vpn-user-portal/tree/v3/item/src/OAuth/VpnClientDb.php</li>
+</ul>
+<p>Example Input (3=custom server): <code>AddServer(mycookie, 3, &quot;https://demo.eduvpn.nl&quot;, 0)</code></p>
+<p>Example Output:</p>
+<pre><code>{
+  &quot;message&quot;: {
+    &quot;en&quot;: &quot;failed to add server&quot;
+  },
+  &quot;misc&quot;: false
+}
+</code></pre>
+<h2 id="cleanup"><a class="header" href="#cleanup">Cleanup</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func Cleanup(c C.uintptr_t) *C.char
+</code></pre>
+<p>Cleanup sends a /disconnect to cleanup the connection</p>
+<p>This MUST be called when disconnecting, see
+https://docs.eduvpn.org/server/v3/api.html#application-flow <code>c</code> is the
+Cookie that needs to be passed. Create a new Cookie using <code>CookieNew</code></p>
+<p>If it was unsuccessful, it returns an error.</p>
+<p>Example Input: <code>Cleanup(myCookie)</code></p>
+<p>Example Output:</p>
+<pre><code>{
+  &quot;message&quot;: {
+    &quot;en&quot;: &quot;cleanup was not successful&quot;
+  },
+  &quot;misc&quot;: false
+}
+</code></pre>
+<h2 id="cookiecancel"><a class="header" href="#cookiecancel">CookieCancel</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func CookieCancel(c C.uintptr_t) *C.char
+</code></pre>
+<p>CookieCancel cancels the cookie</p>
+<p>This means that functions which take this as first argument, return if
+they're still running The error cause is always context.Canceled for that
+cancelled function: https://pkg.go.dev/context#pkg-variables</p>
+<p>This CookieCancel function can also return an error if cancelling was
+unsuccessful Example Input: <code>CookieCancel(myCookie)</code></p>
+<p>Example Output: null</p>
+<h2 id="cookiedelete"><a class="header" href="#cookiedelete">CookieDelete</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func CookieDelete(c C.uintptr_t) *C.char
+</code></pre>
+<p>CookieDelete deletes the cookie by cancelling it and deleting the underlying
+cgo handle</p>
+<p>This function MUST be called when the cookie that is created using
+<code>CookieNew</code> is no longer needed. Example Input: <code>CookieDelete(myCookie)</code></p>
+<p>Example Output: null</p>
+<h2 id="cookienew"><a class="header" href="#cookienew">CookieNew</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func CookieNew() C.uintptr_t
+</code></pre>
+<p>CookieNew creates a new cookie and returns it</p>
+<p>This value should not be parsed or converted somehow by the client This
+value is simply to pass back to the Go library This value has two purposes:</p>
+<ul>
+<li>
+<p>Cancel a long running function</p>
+</li>
+<li>
+<p>Send a reply to a state transition (ASK_PROFILE and ASK_LOCATION)</p>
+</li>
+</ul>
+<h1 id="functions-that-take-a-cookie-have-it-as-the-first-argument"><a class="header" href="#functions-that-take-a-cookie-have-it-as-the-first-argument">Functions that take a cookie have it as the first argument</a></h1>
+<p>Example Input: <code>CookieNew()</code></p>
+<p>Example Output: <code>5</code></p>
+<h2 id="cookiereply"><a class="header" href="#cookiereply">CookieReply</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func CookieReply(c C.uintptr_t, data *C.char) *C.char
+</code></pre>
+<p>CookieReply replies to a state transition using the cookie</p>
+<p>The data that is sent to the Go library is the second argument of this
+function</p>
+<ul>
+<li>
+<p><code>c</code> is the Cookie</p>
+</li>
+<li>
+<p><code>data</code> is the data to send, e.g. a profile ID</p>
+</li>
+</ul>
+<p>Example Input: <code>CookieReply(myCookie, &quot;split-tunnel-profile&quot;)</code></p>
+<p>Example Output: <code>null</code></p>
+<h2 id="currentserver"><a class="header" href="#currentserver">CurrentServer</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func CurrentServer() (*C.char, *C.char)
+</code></pre>
+<p>CurrentServer gets the current server from eduvpn-common</p>
+<p>In eduvpn-common, a server is marked as 'current' if you have gotten a VPN
+configuration for it</p>
+<p>It returns the server as JSON, defined in types/server/server.go Current</p>
+<p>If there is no current server or some other, e.g. there is no current state,
+an error is returned with a nil string</p>
+<p>Example Input: <code>CurrentServer()</code></p>
+<p>Example Output:</p>
+<pre><code>{
+  &quot;institute_access_server&quot;: {
+    &quot;display_name&quot;: {
+      &quot;en&quot;: &quot;Demo&quot;
+    },
+    &quot;identifier&quot;: &quot;https://demo.eduvpn.nl/&quot;,
+    &quot;profiles&quot;: {
+      &quot;map&quot;: {
+        &quot;internet&quot;: {
+          &quot;display_name&quot;: {
+            &quot;en&quot;: &quot;Internet&quot;
+          },
+          &quot;supported_protocols&quot;: [
+            1,
+            2
+          ]
+        },
+        &quot;internet-split&quot;: {
+          &quot;display_name&quot;: {
+            &quot;en&quot;: &quot;No rfc1918 routes&quot;
+          },
+          &quot;supported_protocols&quot;: [
+            1,
+            2
+          ]
+        }
+      },
+      &quot;current&quot;: &quot;internet&quot;
+    },
+    &quot;support_contacts&quot;: [
+      &quot;mailto:eduvpn@surf.nl&quot;
+    ],
+    &quot;delisted&quot;: false
+  },
+  &quot;server_type&quot;: 1
+}, null
+</code></pre>
+<h2 id="deregister"><a class="header" href="#deregister">Deregister</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func Deregister() *C.char
+</code></pre>
+<p>Deregister cleans up the state for the client.</p>
+<p>This function SHOULD be called when the application exits such that the
+configuration file is saved correctly. Note that saving of the configuration
+file also happens in other cases, such as after getting a VPN configuration.
+Thus it is often not problematic if this function cannot be called due to a
+client crash</p>
+<p>If no client is available or deregistering fails, it returns an error.</p>
+<p>Example Input: <code>Deregister()</code></p>
+<p>Example Output:</p>
+<pre><code>{
+  &quot;message&quot;: {
+    &quot;en&quot;: &quot;failed to deregister&quot;
+  },
+  &quot;misc&quot;: false
+}
+</code></pre>
+<h2 id="discoorganizations"><a class="header" href="#discoorganizations">DiscoOrganizations</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func DiscoOrganizations(c C.uintptr_t) (*C.char, *C.char)
+</code></pre>
+<p>DiscoOrganizations gets the organizations from discovery, returned as
+types/discovery/discovery.go Organizations marshalled as JSON</p>
+<p><code>c</code> is the Cookie that needs to be passed. Create a new Cookie using
+<code>CookieNew</code></p>
+<p>If it was unsuccessful, it returns an error. Note that when the lib was
+built in release mode the data is almost always non-nil, even when an error
+has occurred This means it has just returned the cached list</p>
+<p>Example Input: <code>DiscoOrganizations(myCookie)</code></p>
+<p>Example Output:</p>
+<pre><code>{
+ &quot;v&quot;: 1695291170,
+ &quot;organization_list&quot;: [
+   {
+     &quot;display_name&quot;: {
+       &quot;en&quot;: &quot;Academic Network of Albania - RASH&quot;
+     },
+     &quot;org_id&quot;: &quot;https://idp.rash.al/simplesaml/saml2/idp/metadata.php&quot;,
+     &quot;secure_internet_home&quot;: &quot;https://eduvpn.rash.al/&quot;
+   },
+   {
+     &quot;display_name&quot;: {
+       &quot;da&quot;: &quot;Dansk Sprognævn&quot;,
+       &quot;en&quot;: &quot;Danish Language Council&quot;
+     },
+     &quot;org_id&quot;: &quot;http://idp.dsn.dk/adfs/services/trust&quot;,
+     &quot;secure_internet_home&quot;: &quot;https://eduvpn.deic.dk/&quot;
+   },
+   {
+     &quot;display_name&quot;: {
+       &quot;da&quot;: &quot;Erhvervsakademi Aarhus&quot;,
+       &quot;en&quot;: &quot;Business Academy Aarhus&quot;
+     },
+     &quot;org_id&quot;: &quot;http://adfs.eaaa.dk/adfs/services/trust&quot;,
+     &quot;secure_inte .....................
+}, null
+</code></pre>
+<h2 id="discoservers"><a class="header" href="#discoservers">DiscoServers</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func DiscoServers(c C.uintptr_t) (*C.char, *C.char)
+</code></pre>
+<p>DiscoServers gets the servers from discovery, returned as
+types/discovery/discovery.go Servers marshalled as JSON</p>
+<p><code>c</code> is the Cookie that needs to be passed. Create a new Cookie using
+<code>CookieNew</code></p>
+<p>If it was unsuccessful, it returns an error. Note that when the lib was
+built in release mode the data is almost always non-nil, even when an error
+has occurred This means it has just returned the cached list</p>
+<p>Example Input: <code>DiscoServers(myCookie)</code></p>
+<p>Example Output:</p>
+<pre><code>{
+ &quot;v&quot;: 1695291170,
+ &quot;server_list&quot;: [
+   {
+     &quot;base_url&quot;: &quot;https://eduvpn.rash.al/&quot;,
+     &quot;country_code&quot;: &quot;AL&quot;,
+     &quot;public_key_list&quot;: [
+       &quot;k7.pub.S4j5JJiTEz1fWMkI.hzU_xJasWzD6Da2WR7hgbobx9n3o4XSDeqFh03tgM-0&quot;
+     ],
+     &quot;server_type&quot;: &quot;secure_internet&quot;,
+     &quot;support_contact&quot;: [
+       &quot;mailto:helpdesk@rash.al&quot;
+     ]
+   },
+   {
+     &quot;base_url&quot;: &quot;https://eduvpn.deic.dk/&quot;,
+     &quot;country_code&quot;: &quot;DK&quot;,
+     &quot;public_key_list&quot;: [
+       &quot;k7.pub.RNOJIYbemlfsE7EL.BxmV2l2UV7pCqz135ofBgyG9-xLg0R9rILQedZrfLtE&quot;
+     ], ..................
+} , null
+</code></pre>
+<h2 id="expirytimes"><a class="header" href="#expirytimes">ExpiryTimes</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func ExpiryTimes() (*C.char, *C.char)
+</code></pre>
+<p>ExpiryTimes gets the expiry times for the current server</p>
+<p>Expiry times are just fields that represent unix timestamps at which to
+do certain events regarding expiry, e.g. when to show the renew button,
+when to show expiry notifications</p>
+<p>The expiry times structure is defined in types/server/server.go <code>Expiry</code> If
+some error occurs, it is returned as types/error/error.go Error</p>
+<p>Example Input: <code>ExpiryTimes()</code></p>
+<p>Example Output (1...4 are unix timestamps):</p>
+<pre><code>{
+     &quot;start_time&quot;: 1,
+     &quot;end_time&quot;: 2,
+     &quot;button_time&quot;: 3,
+     &quot;countdown_time&quot;: 4,
+     &quot;notification_times&quot;: [
+         1,
+         2,
+     ],
+}, null
+</code></pre>
+<h2 id="freestring"><a class="header" href="#freestring">FreeString</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func FreeString(addr *C.char)
+</code></pre>
+<p>FreeString frees a string that was allocated by the eduvpn-common Go library</p>
+<p>This happens when we return strings, such as errors from the Go lib back to
+the client. The client MUST thus ensure that this memory is freed using this
+function. Simply pass the pointer to the string in here</p>
+<p>Example Input: <code>FreeString(strPtr)</code></p>
+<h2 id="getconfig"><a class="header" href="#getconfig">GetConfig</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func GetConfig(c C.uintptr_t, _type C.int, id *C.char, pTCP C.int, startup C.int) (*C.char, *C.char)
+</code></pre>
+<p>GetConfig gets a configuration for the server. It returns additional
+information in case WireGuard over Proxyguard is used (see the last example)</p>
+<p><code>c</code> is the cookie that is used for cancellation. Create a cookie first with
+CookieNew, this same cookie is also used for replying to state transitions</p>
+<p><code>_type</code> is the type of server that needs to be added. This type is defined
+in types/server/server.go Type</p>
+<p><code>id</code> is the identifier of the string</p>
+<ul>
+<li>In case of secure internet: The organization ID</li>
+<li>In case of custom server: The base URL</li>
+<li>In case of institute access: The base URL</li>
+</ul>
+<p><code>pTCP</code> is if we prefer TCP or not to get the configuration, non-zero means
+yes</p>
+<p><code>startup</code> is if the client is just starting up, set this to true (non-zero)
+if you autoconnect to a server on startup. If this startup value is true
+(non-zero) then any authorization or other callacks (profile/location) are
+not triggered</p>
+<p>After getting a configuration, the FSM moves to the GOT_CONFIG state
+The return data is the configuration, marshalled as JSON and defined in
+types/server/server.go Configuration</p>
+<p>If the config cannot be retrieved it returns an error as
+types/error/error.go Error.</p>
+<p>The current state callbacks MUST be handled:</p>
+<h3 id="ask_profile"><a class="header" href="#ask_profile">ASK_PROFILE</a></h3>
+<p>This asks the client for profile.</p>
+<p>This is called when the user/client has not set a profile for this server
+before, or the current profile is invalid</p>
+<p>When the user has selected a profile, reply with the choice using the
+<code>CookieReply</code> function and the profile ID e.g. CookieReply(cookie,
+&quot;wireguard&quot;). CookieReply can be done in the background as the Go library
+waits for a reply</p>
+<p>The data for this transition is defined in types/server/server.go
+RequiredAskTransition with embedded data Profiles in types/server/server.go.
+Note that RequiredTransition contains the cookie to be used for the
+CookieReply</p>
+<p>So a client would:</p>
+<ul>
+<li>
+<p>Parse the data to get the cookie and data</p>
+</li>
+<li>
+<p>get the cookie</p>
+</li>
+<li>
+<p>get the profiles from the data</p>
+</li>
+<li>
+<p>show it in the UI and then reply with CookieReply using the choice</p>
+</li>
+</ul>
+<h3 id="ask_location"><a class="header" href="#ask_location">ASK_LOCATION</a></h3>
+<p>This asks the client for a location. Note that under normal circumstances,
+this callback is not actually called as the home organization for the
+secure internet server is set as the current if for some reason, an invalid
+location has been configured, the library will ask the client for a new one</p>
+<p>When the user has selected a location, reply with the choice using the
+<code>CookieReply</code> function and the location ID e.g. CookieReply(cookie, &quot;nl&quot;)</p>
+<p>CookieReply can be done in the background as the Go library waits for a
+reply The data for this transition is defined in types/server/server.go
+RequiredAskTransition with embedded data a list of strings ([]string)</p>
+<p>Note that RequiredTransition contains the cookie to be used for the
+CookieReply,</p>
+<p>So a client would:</p>
+<ul>
+<li>
+<p>Parse the data to get the cookie and data</p>
+</li>
+<li>
+<p>get the cookie</p>
+</li>
+<li>
+<p>get the list of locations from the data</p>
+</li>
+<li>
+<p>show it in the UI and then reply with CookieReply using the choice</p>
+</li>
+</ul>
+<h3 id="oauth_started"><a class="header" href="#oauth_started">OAUTH_STARTED</a></h3>
+<ul>
+<li>OAUTH_STARTED: This indicates that the OAuth procedure has been started,
+it returns the URL as the data. The client should open the webbrowser
+with this URL and continue the authorization process. Note: For mobile
+platforms this returns a Cookie and data (json: <code>{&quot;cookie&quot;: x, &quot;data&quot;: url}</code>). This <code>url</code> should also be opened in the browser like desktop
+platforms. But these platforms also need to reply to the library to give
+back the full authorization code URI with <code>CookieReply(x, uri)</code>. E.g.
+<code>CookieReply(x, &quot;/callback?code=...&amp;state=...&amp;iss=...&quot;)</code> this is the
+path of the request that the apps get back when the user clicks approve.
+For this, apps need to register an app url or sorts. For the valid
+values for app URLs, see the redirect URIs for mobile platforms here
+https://git.sr.ht/~fkooman/vpn-user-portal/tree/v3/item/src/OAuth/VpnClientDb.php</li>
+</ul>
+<p>The client should open the webbrowser with this URL and continue the
+authorization process. This is only called if authorization needs to be
+retriggered</p>
+<p>Example Input (3=custom server): <code>GetConfig(myCookie, 3, &quot;https://demo.eduvpn.nl/&quot;, 0, 0)</code></p>
+<p>Example Output (2=WireGuard):</p>
+<pre><code>{
+ &quot;config&quot;: &quot;[Interface]\nPrivateKey = ...\nAddress = ...\nDNS = ...\n\n[Peer]\nPublicKey = ...=\nAllowedIPs = 0.0.0.0/0,::/0\nEndpoint = ...&quot;,
+ &quot;protocol&quot;: 2,
+ &quot;default_gateway&quot;: true,
+ &quot;should_failover&quot;: true, &lt;- whether or not the failover procedure should happen
+}
+</code></pre>
+<p>Example Output (3=WireGuard + Proxyguard):</p>
+<pre><code>{
+&quot;config&quot;:&quot;[Interface]\nMTU = ...\nAddress = ...\nDNS = ...\nPrivateKey = ...\n[Peer]\nPublicKey = ...\nAllowedIPs = ...\nEndpoint = 127.0.0.1:x\n&quot;,
+&quot;protocol&quot;:3,
+&quot;default_gateway&quot;:true,
+&quot;should_failover&quot;:true,
+&quot;proxy&quot;:{&quot;source_port&quot;:38683,&quot;listen&quot;:&quot;127.0.0.1:59812&quot;,&quot;peer&quot;:&quot;https://...&quot;}
+}
+</code></pre>
+<h2 id="instate"><a class="header" href="#instate">InState</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func InState(fsmState C.int) (C.int, *C.char)
+</code></pre>
+<p>InState checks if the FSM is in <code>fsmState</code></p>
+<p>Example Input: <code>InState(5)</code></p>
+<p>Example Output: <code>1, null</code></p>
+<h2 id="register"><a class="header" href="#register">Register</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func Register(
+</code></pre>
+<pre><code>name *C.char,
+version *C.char,
+configDirectory *C.char,
+cb C.StateCB,
+debug C.int,
+</code></pre>
+<p>) *C.char
+Register creates a new client and also registers the FSM to go to the
+initial state</p>
+<p><code>Name</code> is the name of the client, must be a valid client ID</p>
+<p><code>Version</code> is the version of the client. This version field is used for the
+user agent in all HTTP requests</p>
+<p><code>cb</code> is the state callback. It takes three arguments: The old state, the new
+state and the data for the state as JSON</p>
+<ul>
+<li>
+<p>Note that the states are defined in client/fsm.go, e.g. NO_SERVER (in
+Go: StateNoServer), ASK_PROFILE (in Go: StateAskProfile)</p>
+</li>
+<li>
+<p>This callback returns non-zero if the state transition is handled.
+This is used to check if the client handles the needed transitions</p>
+</li>
+</ul>
+<p>debug, if non-zero, enables debugging mode for the library, this means:</p>
+<ul>
+<li>
+<p>Log everything in debug mode, so you can get more detail of what is
+going on</p>
+</li>
+<li>
+<p>Write the state graph to a file in the configDirectory. This can be used
+to create a FSM png file with mermaid https://mermaid.js.org/</p>
+</li>
+</ul>
+<p>After registering, the FSM is initialized and the state transition NO_SERVER
+should have been completed If some error occurs during registering, it is
+returned as a types/error/error.go Error</p>
+<p>Example Input: <code>Register(&quot;org.eduvpn.app.linux&quot;, &quot;0.0.1&quot;, &quot;/tmp/eduvpn-common&quot;, myCallbackFunc, 1)</code></p>
+<p>Example Output:</p>
+<pre><code>{
+  &quot;message&quot;: {
+    &quot;en&quot;: &quot;failed to register, a VPN state is already present&quot;
+  },
+  &quot;misc&quot;: false
+}
+</code></pre>
+<h2 id="removeserver"><a class="header" href="#removeserver">RemoveServer</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func RemoveServer(_type C.int, id *C.char) *C.char
+</code></pre>
+<p>RemoveServer removes a server from the eduvpn-common server list</p>
+<p><code>_type</code> is the type of server that needs to be added. This type is defined
+in types/server/server.go Type</p>
+<p><code>id</code> is the identifier of the string:</p>
+<ul>
+<li>
+<p>In case of secure internet: The organization ID</p>
+</li>
+<li>
+<p>In case of custom server: The base URL</p>
+</li>
+<li>
+<p>In case of institute access: The base URL</p>
+</li>
+</ul>
+<p>If the server cannot be removed it returns the error types/error/error.go
+Error.</p>
+<p>Example Input (3=custom server): <code>RemoveServer(3, &quot;bogus&quot;)</code></p>
+<p>Example Output:</p>
+<pre><code>{
+  &quot;message&quot;: {
+    &quot;en&quot;: &quot;failed to remove server&quot;
+  },
+  &quot;misc&quot;: false
+}
+</code></pre>
+<h2 id="renewsession"><a class="header" href="#renewsession">RenewSession</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func RenewSession(c C.uintptr_t) *C.char
+</code></pre>
+<p>RenewSession renews the session of the VPN</p>
+<p>This essentially means that the OAuth tokens are deleted. And it also
+possibly re-runs every state callback you need when getting a config.
+So least you MUST handle the OAuth started transition</p>
+<p>It returns an error if unsuccessful. Example Input:
+<code>RenewSession(myCookie)</code></p>
+<p>Example Output:</p>
+<pre><code>{
+  &quot;message&quot;: {
+    &quot;en&quot;: &quot;could not renew session&quot;
+  },
+  &quot;misc&quot;: false
+}
+</code></pre>
+<h2 id="serverlist"><a class="header" href="#serverlist">ServerList</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func ServerList() (*C.char, *C.char)
+</code></pre>
+<p>ServerList gets the list of servers that are currently added</p>
+<p>This is NOT the discovery list, but the servers that have previously been
+added with <code>AddServer</code></p>
+<p>It returns the server list as a JSON string defined in
+types/server/server.go List. If the server list cannot be retrieved it
+returns a nil string and an error</p>
+<p>Example Input: <code>ServerList()</code></p>
+<p>Example Output (current profile here is empty as none has been chosen yet):</p>
+<pre><code>{
+  &quot;institute_access_servers&quot;: [
+    {
+      &quot;display_name&quot;: {
+        &quot;en&quot;: &quot;Demo&quot;
+      },
+      &quot;identifier&quot;: &quot;https://demo.eduvpn.nl/&quot;,
+      &quot;profiles&quot;: {
+        &quot;current&quot;: &quot;&quot;
+      },
+      &quot;support_contacts&quot;: [
+        &quot;mailto:eduvpn@surf.nl&quot;
+      ],
+      &quot;delisted&quot;: false
+    }
+  ]
+}, null
+</code></pre>
+<h2 id="setprofileid"><a class="header" href="#setprofileid">SetProfileID</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func SetProfileID(data *C.char) *C.char
+</code></pre>
+<p>SetProfileID sets the profile ID of the current serrver</p>
+<p>This MUST only be called if the user/client wishes to manually set a profile
+instead of the common lib asking for one using a transition</p>
+<p><code>Data</code> is the profile ID</p>
+<p>It returns an error if unsuccessful. Example Input:
+<code>SetProfileID(&quot;splittunnel&quot;)</code></p>
+<p>Example Output:</p>
+<pre><code>{
+  &quot;message&quot;: {
+    &quot;en&quot;: &quot;profile does not exist&quot;
+  },
+  &quot;misc&quot;: false
+}
+</code></pre>
+<h2 id="setsecurelocation"><a class="header" href="#setsecurelocation">SetSecureLocation</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func SetSecureLocation(orgID *C.char, cc *C.char) *C.char
+</code></pre>
+<p>SetSecureLocation sets the location for the secure internet server if it
+exists</p>
+<p>This MUST only be called if the user/client wishes to manually set a
+location instead of the common lib asking for one using a transition</p>
+<p><code>orgID</code> is the organisation ID for the secure internet server <code>cc</code> is the
+location ID/country code</p>
+<p>It returns an error if unsuccessful. Example Input:
+<code>SetSecureLocation(&quot;http://idp.geant.org/&quot;, &quot;nl&quot;)</code></p>
+<p>Example Output:</p>
+<pre><code>{
+  &quot;message&quot;: {
+    &quot;en&quot;: &quot;location does not exist&quot;
+  },
+  &quot;misc&quot;: false
+}
+</code></pre>
+<h2 id="setstate"><a class="header" href="#setstate">SetState</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func SetState(fsmState C.int) *C.char
+</code></pre>
+<p>SetState sets the state of the statemachine</p>
+<p>Note: this transitions the FSM into the new state without passing any data
+to it. Example Input: <code>SetState(5)</code></p>
+<p>Example Output: <code>null</code></p>
+<h2 id="setsupportwireguard"><a class="header" href="#setsupportwireguard">SetSupportWireguard</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func SetSupportWireguard(support C.int) *C.char
+</code></pre>
+<p>SetSupportWireguard enables or disables WireGuard for the client. <em>WARNING:
+This function will be removed</em></p>
+<p>By default WireGuard support is enabled To disable it you can pass a 0 int
+to this</p>
+<p><code>support</code> thus indicates whether or not to enable WireGuard An error is
+returned if this is not possible</p>
+<h2 id="settokenhandler"><a class="header" href="#settokenhandler">SetTokenHandler</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func SetTokenHandler(getter C.TokenGetter, setter C.TokenSetter) *C.char
+</code></pre>
+<p>SetTokenHandler sets the token getters and token setters for OAuth</p>
+<p>Because the data that is saved does not contain OAuth tokens for server,
+the common lib asks and sets the tokens using these callback functions.
+The client can thus pass callbacks to this function so that the tokens can
+be securely stored in a keyring</p>
+<p>Client must pass two arguments to these functions</p>
+<ul>
+<li>
+<p>getter is the void function that gets tokens from the client. It takes
+three arguments:</p>
+</li>
+<li>
+<p>The <code>server</code> for which to get the tokens for, marshalled as JSON and
+defined in types/server/server.go <code>Current</code></p>
+</li>
+<li>
+<p>The <code>output</code> buffer</p>
+</li>
+<li>
+<p>The <code>length</code> of the output buffer. This 'output buffer' must contain the
+tokens, marshalled as JSON that is defined in types/server/server.go
+<code>Tokens</code></p>
+</li>
+</ul>
+<p>setter is the void function that sets tokens. It takes two arguments:</p>
+<ul>
+<li>
+<p>The <code>server</code> for which to get the tokens for, marshalled as JSON and
+defined in types/server/server.go <code>Current</code></p>
+</li>
+<li>
+<p>The <code>tokens</code>, defined in types/server/server.go <code>Tokens</code> marshalled as
+JSON</p>
+</li>
+</ul>
+<p>It returns an error when the tokens cannot be set. Example Input:
+<code>SetTokenHandler(getterFunc, setterFunc)</code></p>
+<p>Example Output: <code>null</code></p>
+<h2 id="startfailover"><a class="header" href="#startfailover">StartFailover</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func StartFailover(c C.uintptr_t, gateway *C.char, mtu C.int, readRxBytes C.ReadRxBytes) (C.int, *C.char)
+</code></pre>
+<p>StartFailover starts the 'failover' procedure in eduvpn-common</p>
+<p>Failover has one primary goal: check if the VPN can reach the gateway.
+This can be used to check whether or not the client needs to 'failover' to
+prefer TCP (if currently using UDP). Which is useful to go from a broken
+WireGuard connection to OpenVPN over TCP</p>
+<ul>
+<li><code>c</code> is the cookie that is passed for cancellation. To create a cookie,
+use the <code>CookieNew</code> function</li>
+<li><code>gateway</code> is the gateway IP of the VPN</li>
+<li><code>readRxBytes</code> is a function that returns the current rx bytes of the VPN
+interface, this should return a <code>long long int</code> in c</li>
+</ul>
+<p>It returns a boolean whether or not the common lib has determined
+that it cannot reach the gateway. Non-zero=dropped, zero=not dropped.
+It also returns an error, if it fails to indicate if it has dropped or not.
+In this case, dropped is also set to zero</p>
+<p>Example Input: <code>StartFailover(myCookie, &quot;10.10.10.1&quot;, 1400, myRxBytesReader)</code></p>
+<p>Example Output: <code>1, null</code></p>
+<h2 id="startproxyguard"><a class="header" href="#startproxyguard">StartProxyguard</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func StartProxyguard(c C.uintptr_t, listen *C.char, tcpsp C.int, peer *C.char, proxyFD C.ProxyFD) *C.char
+</code></pre>
+<p>StartProxyguard starts the 'proxyguard' procedure in
+eduvpn-common. This proxies WireGuard UDP connections over HTTP:
+https://codeberg.org/eduvpn/proxyguard. These input variables can be gotten
+from the configuration that is retrieved using the <code>proxy</code> JSON key</p>
+<ul>
+<li><code>c</code> is the cookie</li>
+<li><code>listen</code> is the ip:port of the local udp connection, this is what is set
+to the WireGuard endpoint</li>
+<li><code>tcpsp</code> is the TCP source port</li>
+<li><code>peer</code> is the ip:port of the remote server</li>
+<li><code>proxyFD</code> is a callback with the file descriptor as only argument.
+It can be used to set certain socket option, e.g. to exclude the proxy
+connection from going over the VPN</li>
+</ul>
+<p>If the proxy cannot be started it returns an error</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../api/codeexamples.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../api/codeexamples.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        <script type="text/javascript" src="../mermaid.min.js"></script>
+        <script type="text/javascript" src="../mermaid-init.js"></script>
+    </body>
+</html>

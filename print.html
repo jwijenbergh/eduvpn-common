@@ -1,0 +1,1759 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>eduVPN-common documentation</title>
+        <meta name="robots" content="noindex" />
+        <!-- Custom HTML head -->
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="custom.css">
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="about.html"><strong aria-hidden="true">1.</strong> About</a></li><li class="chapter-item expanded "><a href="gettingstarted/index.html"><strong aria-hidden="true">2.</strong> Getting Started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="gettingstarted/building/index.html"><strong aria-hidden="true">2.1.</strong> Building</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="gettingstarted/building/go.html"><strong aria-hidden="true">2.1.1.</strong> Go library</a></li><li class="chapter-item expanded "><a href="gettingstarted/building/python.html"><strong aria-hidden="true">2.1.2.</strong> Python wrapper</a></li><li class="chapter-item expanded "><a href="gettingstarted/building/example.html"><strong aria-hidden="true">2.1.3.</strong> Example from scratch</a></li><li class="chapter-item expanded "><a href="gettingstarted/building/packageformats.html"><strong aria-hidden="true">2.1.4.</strong> Package Formats</a></li><li class="chapter-item expanded "><a href="gettingstarted/building/release.html"><strong aria-hidden="true">2.1.5.</strong> Building for release</a></li></ol></li><li class="chapter-item expanded "><a href="gettingstarted/testing.html"><strong aria-hidden="true">2.2.</strong> Testing</a></li></ol></li><li class="chapter-item expanded "><a href="api/index.html"><strong aria-hidden="true">3.</strong> API</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="api/languageinterop.html"><strong aria-hidden="true">3.1.</strong> Language Interop</a></li><li class="chapter-item expanded "><a href="api/architecture.html"><strong aria-hidden="true">3.2.</strong> Architecture</a></li><li class="chapter-item expanded "><a href="api/typicalflow.html"><strong aria-hidden="true">3.3.</strong> Typical flow</a></li><li class="chapter-item expanded "><a href="api/wheretofinddocs.html"><strong aria-hidden="true">3.4.</strong> Where to find docs</a></li><li class="chapter-item expanded "><a href="api/statemachine.html"><strong aria-hidden="true">3.5.</strong> State Machine</a></li><li class="chapter-item expanded "><a href="api/letsbuildaclient.html"><strong aria-hidden="true">3.6.</strong> Let's build a client</a></li><li class="chapter-item expanded "><a href="api/codeexamples.html"><strong aria-hidden="true">3.7.</strong> Code examples</a></li><li class="chapter-item expanded "><a href="api/functiondocs.html"><strong aria-hidden="true">3.8.</strong> Function docs</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">eduVPN-common documentation</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="about"><a class="header" href="#about">About</a></h1>
+<p>This chapter contains background information for the library. We give a general introduction to eduVPN and explain what problems this library aims to solve.</p>
+<h2 id="eduvpn-introduction"><a class="header" href="#eduvpn-introduction">EduVPN introduction</a></h2>
+<p>eduVPN-common is a library for <a href="https://www.eduvpn.org/">eduVPN</a>, which is a VPN by <a href="https://www.surf.nl">SURF</a> and a project by <a href="https://geant.org/">GÉANT</a>, for research institutes and universities. Each institute that uses eduVPN has its own server. To discover these servers and establish a VPN connection with them, eduVPN clients are used. eduVPN has clients for each common platform:</p>
+<ul>
+<li><a href="https://github.com/eduvpn/android">Android</a></li>
+<li><a href="https://github.com/eduvpn/python-eduvpn-client">Linux</a></li>
+<li><a href="https://github.com/eduvpn/apple">MacOS/iOS</a></li>
+<li><a href="https://github.com/Amebis/eduVPN">Windows</a></li>
+</ul>
+<h2 id="the-problem"><a class="header" href="#the-problem">The problem</a></h2>
+<p>However, as these clients are rather similar in functionality, apart from platform specific differences, right now there is duplicate code between them. For example, the process to discover institution's servers, the authorization process (OAuth) and Wireguard key generation.
+This goal of this library is to provide the common functionality between these clients into one codebase. The library is written in the <a href="https://go.dev/">Go</a> language and aims to have wrapper code for each of the languages that are used by the current clients. </p>
+<p>The main goal is thus the following:
+<img src="./godifferences.png" alt="" /></p>
+<p>This library tries to remove non-platform specific common functionality. This way eduVPN clients have less duplicate code. The building blocks that are removed by the library is not just the four depicted in this figure. You can think of other building blocks, such as logging and local configuration file saving. As can be seen in the figure, no User Interface (UI) code will be implemented. This is left to the eduVPN clients, on top of platform-specific code.</p>
+<h2 id="license"><a class="header" href="#license">License</a></h2>
+<p><a href="https://github.com/eduvpn/eduvpn-common/blob/main/LICENSE">MIT</a></p>
+<h2 id="authors"><a class="header" href="#authors">Authors</a></h2>
+<p>This library is written by <a href="https://github.com/stevenwdv">Steven Wallis de Vries</a> and <a href="https://github.com/jwijenbergh">Jeroen Wijenbergh</a> at the <a href="https://www.surf.nl/">SURF</a> and <a href="https://geant.org/">GÉANT</a> organization.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="getting-started"><a class="header" href="#getting-started">Getting started</a></h1>
+<p>This chapter contains the steps to get started with the Go library and the Python wrapper. You will learn how to build the library/wrapper, how to run the test suite and how to debug possible errors.</p>
+<p>Note that the Python wrapper is currently the only wrapper. So for now, we only document the Python wrapper in this documentation and in the future document the other wrappers as well.</p>
+<p>The documentation on how to use this library in your own code will be given in the next chapter: <a href="gettingstarted/../api/index.html">API</a>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="building"><a class="header" href="#building">Building</a></h1>
+<p>This section contains the instruction on how to build the library and associated wrappers. We first explain how to build the Go library and then further explain the wrapper specific building process. As the Python wrapper is the only wrapper at the moment, this only consists of this wrapper language for now.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="building-the-go-library"><a class="header" href="#building-the-go-library">Building the Go library</a></h1>
+<p>To build the Go library, you need the dependencies for your system installed. We will go over the needed dependencies for Linux and Windows. Afterwards, we explain the basic commands to build the library.</p>
+<h2 id="dependencies"><a class="header" href="#dependencies">Dependencies</a></h2>
+<h3 id="linux"><a class="header" href="#linux">Linux</a></h3>
+<p>To build the Go shared library using Linux you need the following dependencies:</p>
+<ul>
+<li><a href="https://go.dev/doc/install">Go</a> 1.18 or later</li>
+<li><a href="https://gcc.gnu.org/">Gcc</a></li>
+<li><a href="https://www.gnu.org/software/make/">GNU Make</a></li>
+<li>Dependencies for each wrapper you are interested in (read next sections)</li>
+</ul>
+<h3 id="windows"><a class="header" href="#windows">Windows</a></h3>
+<p>On Windows, you can install gcc and make (or even Go) via MinGW or Cygwin or use WSL. For MinGW:</p>
+<ol>
+<li><a href="https://www.msys2.org/#installation">Install MinGW</a> (you don't need to install any extra packages yet) and open some
+MSYS2 terminal (e.g. from the start menu or one of the installed binaries)</li>
+<li>Install the <a href="https://packages.msys2.org/package/make?repo=msys"><code>make</code></a> package (or
+e.g. <a href="https://packages.msys2.org/package/mingw-w64-x86_64-make?repo=mingw64"><code>mingw-w64-x86_64-make</code></a> and
+use <code>mingw32-make</code> in the command line)</li>
+<li>To compile for x86_64:
+<ol>
+<li>Install the <a href="https://packages.msys2.org/package/mingw-w64-x86_64-gcc?repo=mingw64"><code>mingw-w64-x86_64-gcc</code></a>
+package</li>
+<li>Open the MinGW 64-bit console, via the start menu, or in your current
+terminal: <code>path/to/msys64/msys2_shell.cmd -mingw64 -defterm -no-start -use-full-path</code></li>
+<li>Run the make commands in the project directory</li>
+</ol>
+</li>
+<li>To compile for x86 (32-bit):
+<ol>
+<li>Install the <a href="https://packages.msys2.org/package/mingw-w64-i686-gcc?repo=mingw32"><code>mingw-w64-i686-gcc</code></a> package</li>
+<li>Open the MinGW 32-bit console, via the start menu, or in your current
+terminal: <code>path/to/msys64/msys2_shell.cmd -mingw32 -defterm -no-start -use-full-path</code></li>
+<li>Run the make commands in the project directory</li>
+</ol>
+</li>
+</ol>
+<h2 id="commands"><a class="header" href="#commands">Commands</a></h2>
+<p>Before we can begin building the wrapper code, we need to build the Go code as a shared library. This section will tell you how to do so.</p>
+<p>To build the shared library for the current platform issue the following command in the root directory:</p>
+<pre><code class="language-bash">make
+</code></pre>
+<p>You can also build the shared library for a specified OS &amp; architecture (example):</p>
+<pre><code class="language-bash">make GOOS=windows GOARCH=386
+</code></pre>
+<p>We use cgo to build a shared library, to list all platform supported by cgo issue <code>go tool dist list</code>.</p>
+<p>The shared library will be output in <code>exports/lib/</code>.</p>
+<p>For cross compiling, you usually need to specify the compiler, for example:</p>
+<pre><code class="language-bash">make GOOS=windows GOARCH=amd64 CC=x86_64-w64-mingw32-gcc
+</code></pre>
+<p>For example, you can cross compile for Windows from Linux using <a href="https://www.mingw-w64.org/downloads/">MinGW-w64</a>.</p>
+<p>This shared library gets loaded by the different wrappers. To build the actual wrapper code, you need other build commands. This will be explained now.</p>
+<h3 id="cleaning"><a class="header" href="#cleaning">Cleaning</a></h3>
+<p>To clean build the library and wrapper, issue the following command in the root directory:</p>
+<pre><code class="language-bash">make -j clean
+</code></pre>
+<p>Usually you won't need to do this, as changes in the library should automatically be incorporated in wrappers.
+Specify <code>CLEAN_ALL=1</code> to also remove downloaded dependencies for some wrappers. You can clean individual wrappers by
+executing clean in their directories, or specify <code>WRAPPERS=...</code>.</p>
+<h2 id="note-on-releases"><a class="header" href="#note-on-releases">Note on releases</a></h2>
+<p>Releases are build with the go tag &quot;release&quot; (add flag &quot;-tags=release&quot;) to bundle the discovery JSON files and embed them in the shared library. See the <a href="https://github.com/eduvpn/eduvpn-common/blob/main/make_release.sh">make_release</a> script on how we bundle the files. A full command without the Makefile to build this library is:</p>
+<pre><code class="language-bash">go build -o lib/libeduvpn_common-${VERSION}.so -tags=release -buildmode=c-shared ./exports
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="python-wrapper"><a class="header" href="#python-wrapper">Python wrapper</a></h1>
+<p>To build the python wrapper issue the following command (in the root directory of the eduvpn-common project):</p>
+<pre><code class="language-bash">make -C wrappers/python
+</code></pre>
+<p>This uses the makefile in <code>wrappers/python/Makefile</code> to build the python file into a wheel placed in <code>wrappers/python/dist/eduvpncommon-[version]-py3-none-[platform].whl</code>. Where version is the version of the library and platform is your current platform. Like Go you can also build for a specific platform:</p>
+<pre><code class="language-bash">make PLAT_NAME=win32
+</code></pre>
+<p>The wheel can be installed with <code>pip</code>:</p>
+<pre><code class="language-bash">pip install ./wrappers/python/dist/eduvpncommon-[version]-py3-none-[platform].whl
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="example-commands-to-build-for-python"><a class="header" href="#example-commands-to-build-for-python">Example: commands to build for Python</a></h1>
+<p>This section gives an example on how to build and install the library from scratch (assuming you have all the dependencies). It builds the Go library and then builds and installs the Python wrapper.</p>
+<ol>
+<li>Clone the library</li>
+</ol>
+<pre><code class="language-bash">git clone https://github.com/eduvpn/eduvpn-common
+</code></pre>
+<ol start="2">
+<li>Go to the library directory</li>
+</ol>
+<pre><code class="language-bash">cd eduvpn-common
+</code></pre>
+<ol start="3">
+<li>Build the go library</li>
+</ol>
+<pre><code class="language-bash">make
+</code></pre>
+<ol start="4">
+<li>Build the python wrapper</li>
+</ol>
+<pre><code class="language-bash">make -C wrappers/python
+</code></pre>
+<ol start="5">
+<li>Install the wheel using pip</li>
+</ol>
+<pre><code class="language-bash"># x.x.x is the version here
+pip install wrappers/python/dist/eduvpncommon-x.x.x-py3-none-linux_x86_64.whl
+</code></pre>
+<p>Note that the name of your wheel changes on the platform and version.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="package-formats"><a class="header" href="#package-formats">Package formats</a></h1>
+<p>We support the following additional package formats: RPM (Linux, Fedora) and Deb (Linux, Debian derivatives)</p>
+<h1 id="linux-rpm"><a class="header" href="#linux-rpm">Linux: RPM</a></h1>
+<p>To build a RPM, issue the following commands:</p>
+<pre><code class="language-bash"># Make sure we have make
+sudo dnf install -y make
+
+# Install dependencies to build RPMs
+sudo make rpm-depends
+
+# Create RPM
+make rpm
+</code></pre>
+<p>This outputs RPMs (the Go library and each wrapper) and a SRPM to the <code>dist/</code> folder.</p>
+<p>To install these rpms, use <code>rpm -i</code> where you first install the <code>libeduvpncommon</code> RPM and then the associated wrapper. We provide a COPR to make this whole process easy:</p>
+<pre><code class="language-bash">sudo dnf copr enable jwijenbergh/eduvpn-common 
+
+# E.g. install the python wrapper
+# This automatically installs the Go shared library ('libeduvpncommon') as well
+sudo dnf install python3-eduvpncommon
+</code></pre>
+<p>To cross compile manually (without COPR), use the <code>make rpm-mock</code> target instead of <code>make rpm</code>. This uses the <a href="https://github.com/rpm-software-management/mock">mock</a> utility which runs each build in a separate environment. The target distro and architecture can be changed with the <code>MOCK_TARGET</code> flag. E.g:</p>
+<pre><code class="language-bash"># Create a rpm for centos stream 8 aarch64
+# You will be prompted for a password if you're not in the 'mock' group
+make rpm-mock MOCK_TARGET=centos-stream-8-aarch64
+</code></pre>
+<p>A list of targets can be found in <code>/etc/mock/*.cfg</code>. The default target is <code>fedora-36-x86_64</code></p>
+<h1 id="linux-deb"><a class="header" href="#linux-deb">Linux: Deb</a></h1>
+<p>The debian files can be found on a different <a href="https://github.com/jwijenbergh/python-eduvpn-common.deb">GitHub repository</a>. The debian packages for this repository are then build with <a href="https://git.sr.ht/%7Efkooman/nbuilder.deb">nbuilder.deb</a>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="building-for-release"><a class="header" href="#building-for-release">Building for release</a></h1>
+<p>To build for release, make sure you obtain the tarball artifacts in the release (ending with <code>.tar.xz</code>) at <a href="https://github.com/eduvpn/eduvpn-common/releases">https://github.com/eduvpn/eduvpn-common/releases</a>.</p>
+<p>These are signed with minisign and gpg keys, make sure to verify these signatures using the public keys available here: <a href="https://github.com/eduvpn/eduvpn-common/tree/main/keys">https://github.com/eduvpn/eduvpn-common/tree/main/keys</a>, they are also available externally:</p>
+<ul>
+<li><a href="https://app.eduvpn.org/linux/v4/deb/app+linux@eduvpn.org.asc">https://app.eduvpn.org/linux/v4/deb/app+linux@eduvpn.org.asc</a></li>
+<li><a href="https://git.sr.ht/%7Ejwijenbergh/python3-eduvpn-common.rpm/tree/main/item/SOURCES/minisign-CA9409316AC93C07.pub">https://git.sr.ht/~jwijenbergh/python3-eduvpn-common.rpm/tree/main/item/SOURCES/minisign-CA9409316AC93C07.pub</a></li>
+</ul>
+<p>To build for release, make sure to extract the tarball, and then add <code>-tags=release</code> to the <code>GOFLAGS</code> environment variable:</p>
+<pre><code class="language-bash">GOFLAGS=&quot;-tags=release&quot; make
+</code></pre>
+<p>Proceed the build like normally.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="testing"><a class="header" href="#testing">Testing</a></h1>
+<p>The Go library right now has various tests defined. E.g. server interaction, oauth, discovery and signature verification tests.</p>
+<p>To run the test suite, issue the following command in a shell</p>
+<pre><code class="language-bash">make test-go
+</code></pre>
+<p>Note that this runs the tests without any server interaction (so for now only the signature verification tests). To run the tests with an eduVPN server you need to specify environment variables:</p>
+<pre><code class="language-bash">SERVER_URI=&quot;eduvpn.example.com&quot; PORTAL_USER=&quot;example&quot; PORTAL_PASS=&quot;example&quot; make test-go
+</code></pre>
+<p>This needs <a href="https://selenium-python.readthedocs.io/">python3-selenium</a> and <a href="https://github.com/mozilla/geckodriver/releases">geckodriver</a> (extract and put in your <code>$PATH</code>). Note that testing with a server assumes it uses a default portal, due to it needing to click on buttons on the web page. You can add your own portal by customizing the <a href="https://github.com/eduvpn/eduvpn-common/blob/main/selenium_eduvpn.py">called Selenium script</a>.</p>
+<p>If you have <a href="https://www.docker.com/get-started/">Docker</a> installed and <a href="https://docs.docker.com/compose/install/">Docker-compose</a> you can use a convenient helper script which starts up two containers</p>
+<ul>
+<li>An eduVPN server for testing</li>
+<li>A Go container that builds and runs the test-suite</li>
+</ul>
+<pre><code class="language-bash">PORTAL_USER=&quot;example&quot; PORTAL_PASS=&quot;example&quot; ./ci/startcompose.sh
+</code></pre>
+<p>Note that this helper script also assumes you have the <a href="https://www.openssl.org/">OpenSSL</a> command line tool installed. This is used to install the self-signed certificates for testing.</p>
+<p>This script is also used in the continuous integration, so we recommend to run this before you submit any changes.</p>
+<p>There are other environment variables that can be used:</p>
+<ul>
+<li><code>OAUTH_EXPIRED_TTL</code>: Use this for a server which has a low OAuth access token expiry time, e.g. 10 seconds. You would then set this variable to <code>&quot;10&quot;</code> so that a test is ran which waits for 10 seconds for the OAuth tokens to expire</li>
+<li><code>EDUVPN_PODCOMP</code>: Set this to 1 to instruct the <code>./ci/startcompose.sh</code> script to use <a href="https://github.com/containers/podman-compose">podman-compose</a> if you prefer this over using docker-compose.</li>
+</ul>
+<h2 id="testing-the-wrappers"><a class="header" href="#testing-the-wrappers">Testing the wrappers</a></h2>
+<p>To test the wrappers, issue the following command in a shell (you will need dependencies for all wrappers if you do this<sup class="footnote-reference"><a href="#1">1</a></sup>):</p>
+<pre><code class="language-bash">make test-wrappers
+</code></pre>
+<p>Specify <code>-j</code> to execute tests in parallel. You can specify specific wrappers to test by appending
+e.g. <code>WRAPPERS=&quot;csharp php&quot;</code>.</p>
+<h2 id="test-everything"><a class="header" href="#test-everything">Test everything</a></h2>
+<p>To test all the code at once, issue the following command:</p>
+<pre><code class="language-bash">make test
+</code></pre>
+<p>This accepts the same environment variables as we have explained before.</p>
+<div class="footnote-definition" id="1"><sup class="footnote-definition-label">1</sup>
+<p>For now, this is only the Python wrapper.</p>
+</div>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="api"><a class="header" href="#api">API</a></h1>
+<p>This chapter is an introduction to the eduvpn-common API. It is meant as a high-level overview on how to use API and build your own eduVPN/Let's Connect! client. In this chapter, we <em>go</em> over the basics of how the interop between Go and language x works, say something about the architecture, explain where to find detailed API documentation, explain the state machine, give a typical flow for a client and give a follow along tutorial on building an eduVPN client using Python code. At last, we will also have a few code examples that can be used as a short reference.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="go---language-x-interop"><a class="header" href="#go---language-x-interop">Go &lt;-&gt; language X interop</a></h1>
+<p>Because this library is meant to be a <em>general</em> library for other clients to use that are written in different programming languages, we need to find a way to make this Go library available on each platform and codebase. The approach that we take is to build a C library from the Go library using Cgo. Cgo can have its disadvantages with performance and the constant conversion between Go and C types. To overcome those barriers, this library has the following goals (with some others noted here):</p>
+<ul>
+<li><strong>Be high-level</strong>. Functions should do as much as possible in Go. The exported API should fit in one file. Lots of low-level functions would be a constant conversion between C and Go which adds overhead</li>
+<li><strong>Move as much state to Go as possible</strong>. For example, Go keeps track of the servers you have configured and discovery. This makes the arguments to functions simple, clients should pass simple identifiers that Go can look up in the state</li>
+<li><strong>Easy type conversion</strong>: to convert between C and Go types, JSON is used. Whereas Protobuf, Cap'n'proto or flatbuffers are more performant, they are harder to debug, add thousands of lines of autogenerated code and are not human friendly. Using JSON, the clients can approach it the same way they would use with a server using a REST API. Another approach is to just  convert from Go -&gt; C types -&gt; language types. This was tried in version 1 of the library, but this ended up being too much work and manual memory management</li>
+<li><strong>Make it as easy as possible for clients to manage UI and internal state</strong>: we use a state machine that gives the clients information in which state the Go library is in, e.g. we're selecting a server profile, we're loading the server endpoints. This library is not only a layer to talk to eduVPN servers, but the whole engine for a client</li>
+<li><strong>Implement features currently not present in existing clients</strong>: WireGuard to OpenVPN failover, WireGuard over TCP</li>
+<li><strong>Follow the official eduVPN specification</strong> and also contribute changes when needed</li>
+<li><strong>Secure</strong>: We aim to follow the latest OAuth recommendations, to not store secret data and e.g. disable OpenVPN scripts from being ran by default</li>
+</ul>
+<p>And finally the most important goal:</p>
+<ul>
+<li><strong>The advantages that this library brings for clients should outweigh the cost of incorporating it into the codebase</strong>. Initial versions would take more work than we get out of it. However, when each eduVPN/Let's Connect! client uses this library we should expect a net gain. New features should be easier to implement for clients by simply requiring a new eduvpn-common version and using the necessary functions</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="architecture"><a class="header" href="#architecture">Architecture</a></h1>
+<p>In the previous section, we have already hinted a bit on the exact architecture. This section will expand upon it by giving a figure of the basic structure</p>
+<pre class="mermaid">graph TD;
+A[Go]-- Compiles to --&gt;B[C shared library .so/.dll];
+C[Language wrapper]-- Loads --&gt;B
+Client -- Uses --&gt; C;
+</pre>
+<p>As can be seen by this architecture, there is an intermediate layer between the client and the <em>shared</em> library. This wrapper eases the way of loading this library and then defining a more language specific API for it. In the eduvpn-common repo, we currently only support a Python wrapper. Clients themselves can define their own wrapper</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="typical-flow-for-a-client"><a class="header" href="#typical-flow-for-a-client">Typical flow for a client</a></h1>
+<blockquote>
+<p><strong><em>NOTE:</em></strong> This uses the function names that are defined in the exports file in Go. For your own wrapper/the Python wrapper they are different. But the general flow is the same</p>
+</blockquote>
+<ol>
+<li>The client starts up. It calls the <code>Register</code> function that communicates with the library that it has initialized</li>
+<li>It gets the list of servers using <code>ServerList</code></li>
+<li>When the user selects a server to connect to in the UI, it calls the <code>GetConfig</code> to get a VPN configuration for this server. This function transitions the state machine multiple times. The client uses these state transitions for logging or even updating the UI. The client then connects
+<ul>
+<li>New feature in eduvpn-common: Check if the VPN can reach the gateway after the client is connected by calling <code>StartFailover</code></li>
+</ul>
+</li>
+<li>If the client has no servers, or it wants to add a new server, the client calls <code>DiscoOrganizations</code> and <code>DiscoServers</code> to get the discovery files from the library. This even returns cached copies if the organizations or servers should not have been updated <a href="https://docs.eduvpn.org/server/v3/server-discovery.html">according to the documentation</a>
+<ul>
+<li>From this discovery list, it calls <code>AddServer</code> to add the server to the internal server list of eduvpn-common. This also calls necessary state transitions, e.g. for authorizing the server. The next call to <code>ServerList</code> then has this server included</li>
+<li>It can then get a configuration for this server like we have explained in <em>step 3</em></li>
+</ul>
+</li>
+<li>When a configuration has been obtained, the internal state has changed and the client can get the current server that was configured using <code>CurrentServer</code>. <code>CurrentServer</code> can also be called after startup if a server was previously set as the current server.</li>
+<li>When the VPN disconnects, the client calls <code>Cleanup</code> so that the server resources are cleaned up by calling the <code>/disconnect</code> endpoint</li>
+<li>A server can be removed with the <code>RemoveServer</code> function</li>
+<li>When the client is done, it calls <code>Deregister</code> such that the most up to date internal state is saved to disk. Note that eduvpn-common also saves the internal state .e.g. after obtaining a VPN configuration</li>
+</ol>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="where-to-find-api-docs"><a class="header" href="#where-to-find-api-docs">Where to find API docs</a></h1>
+<p>The API documentation, depends on which wrapper you are using. If you're writing a wrapper yourself, or want some background information on how it works internally, you can find function docs in the <a href="https://github.com/eduvpn/eduvpn-common/blob/v2/exports/exports.go">exports/exports.go</a> file it is available as autogenerated form <a href="api/./functiondocs.html">here</a>.</p>
+<p>This file is commented using Go comment style. It gives a basic of what the function does, what it returns and what type of arguments you should pass to it. The API documentation for the Python wrapper can be <a href="https://eduvpn.github.io/eduvpn-common/api/python/rtd/index.html">found here</a>.</p>
+<p>There is also a Go API that is defined in the <a href="https://github.com/eduvpn/eduvpn-common/tree/v2/client">client package</a>. However, this is not the primary use case for the library.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="finite-state-machine"><a class="header" href="#finite-state-machine">Finite state machine</a></h1>
+<p>The eduvpn-common library uses a finite state machine internally to keep track of which state the client is in and to communicate data callbacks (e.g. to communicate the Authorization URL in the OAuth process to the client).</p>
+<h2 id="viewing-the-fsm"><a class="header" href="#viewing-the-fsm">Viewing the FSM</a></h2>
+<p>To view the FSM in an image, register to the library with in debug mode. This
+outputs the graph with a <code>.graph</code> extension in the client-specified
+config directory. The format of this
+graph is from <a href="https://mermaid-js.github.io/mermaid/#/">Mermaid</a>. You
+can convert this to an image using the <a href="https://github.com/mermaid-js/mermaid-cli">Mermaid command-line client</a> installed or from the Mermaid web site, the <a href="https://mermaid.live">Mermaid Live Editor</a></p>
+<h2 id="fsm-example"><a class="header" href="#fsm-example">FSM example</a></h2>
+<p>The following is an example of the FSM when the client has obtained a Wireguard/OpenVPN configuration from an eduVPN server</p>
+<div class="statemachine">
+<pre class="mermaid">graph TD
+
+style Deregistered fill:cyan
+Deregistered(Deregistered) --&gt;|Register| Main
+
+style Main fill:white
+Main(Main) --&gt;|Deregister| Deregistered
+
+style Main fill:white
+Main(Main) --&gt;|Add a server| AddingServer
+
+style Main fill:white
+Main(Main) --&gt;|Get a VPN config| GettingConfig
+
+style Main fill:white
+Main(Main) --&gt;|Already connected| Connected
+
+style AddingServer fill:white
+AddingServer(AddingServer) --&gt;|Authorize| OAuthStarted
+
+style OAuthStarted fill:white
+OAuthStarted(OAuthStarted) --&gt;|Authorized| Main
+
+style GettingConfig fill:white
+GettingConfig(GettingConfig) --&gt;|Invalid location| AskLocation
+
+style GettingConfig fill:white
+GettingConfig(GettingConfig) --&gt;|Invalid or no profile| AskProfile
+
+style GettingConfig fill:white
+GettingConfig(GettingConfig) --&gt;|Successfully got a configuration| GotConfig
+
+style GettingConfig fill:white
+GettingConfig(GettingConfig) --&gt;|Authorize| OAuthStarted
+
+style AskLocation fill:white
+AskLocation(AskLocation) --&gt;|Location chosen| GettingConfig
+
+style AskProfile fill:white
+AskProfile(AskProfile) --&gt;|Profile chosen| GettingConfig
+
+style GotConfig fill:white
+GotConfig(GotConfig) --&gt;|Get a VPN config again| GettingConfig
+
+style GotConfig fill:white
+GotConfig(GotConfig) --&gt;|VPN is connecting| Connecting
+
+style Connecting fill:white
+Connecting(Connecting) --&gt;|VPN is connected| Connected
+
+style Connecting fill:white
+Connecting(Connecting) --&gt;|Cancel connecting| Disconnecting
+
+style Connected fill:white
+Connected(Connected) --&gt;|VPN is disconnecting| Disconnecting
+
+style Disconnecting fill:white
+Disconnecting(Disconnecting) --&gt;|VPN is disconnected| Disconnected
+
+style Disconnecting fill:white
+Disconnecting(Disconnecting) --&gt;|Cancel disconnecting| Connected
+
+style Disconnected fill:white
+Disconnected(Disconnected) --&gt;|Connect again| GettingConfig
+
+style Disconnected fill:white
+Disconnected(Disconnected) --&gt;|Renew| OAuthStarted
+</pre>
+</div>
+<p>The current state is highlighted in the <span style="color:cyan">cyan</span> color.</p>
+<h2 id="state-explanation"><a class="header" href="#state-explanation">State explanation</a></h2>
+<p>For the explanation of what all the different states mean, see the <a href="https://github.com/eduvpn/eduvpn-common/blob/v2/client/fsm.go#L14-L50">client documentation</a></p>
+<h2 id="states-that-ask-data"><a class="header" href="#states-that-ask-data">States that ask data</a></h2>
+<p>In eduvpn-common, there are certain states that require attention from the client.</p>
+<ul>
+<li>OAuth Started: A state that must be handled by the client. How a client can 'handle' this state, we will see in the next section. In this state, the client must open the webbrowser with the authorization URL to complete to OAuth process. Note that on mobile platforms, you also need to reply with the authorization URI as these platforms do not support a local callback server using 127.0.0.1</li>
+<li>Ask Profile: The state that asks for a profile selection to the client. Reply to this state by using a &quot;cookie&quot; and the CookieReply function. What this means will be discussed in the Python client example too</li>
+<li>Ask Location: Same for ask profile but for selecting a secure internet location. Only called if one must be chosen, e.g. due to a selection that is no longer valid</li>
+</ul>
+<p>The rest of the states are miscellaneous states, meaning that the client can handle them however it wants to. However, it can be useful to handle most state transitions to e.g. show loading screens or for logging and debugging purposes.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="lets-build-a-client-using-python"><a class="header" href="#lets-build-a-client-using-python">Let's build a client using Python</a></h1>
+<p>To begin, let's follow the flow and see if we can figure out how it works.</p>
+<h2 id="registering"><a class="header" href="#registering">Registering</a></h2>
+<blockquote>
+<p>The client starts up. It calls the Register function that communicates with the library that it has initialized</p>
+</blockquote>
+<p>In Python, this works like the following:</p>
+<ul>
+<li>First import the library</li>
+</ul>
+<pre><code class="language-python">import eduvpn_common.main as edu
+
+class Transitions:
+    def __init__(self, common):
+        self.common = common
+
+# These arguments can be found in the docstring
+# But also in the exports.go file
+# For Python it's a bit different, we have split the arguments into the constructor and register
+# Here we pass the client ID for OAuth, the version of the client and the directory where config files should be found
+common=edu.EduVPN(&quot;org.eduvpn.app.linux&quot;, &quot;0.0.1&quot;, &quot;/tmp/test&quot;)
+
+common.register(debug=True)
+
+# we will come back to this later
+transitions = Transitions(common)
+common.register_class_callbacks(transitions)
+</code></pre>
+<p>Now after registering, we know that we have no servers configured (unless you're following this tutorial again with an existing <code>/tmp/test</code>). So we continue with step 4</p>
+<h2 id="discovery"><a class="header" href="#discovery">Discovery</a></h2>
+<blockquote>
+<p>If the client has no servers, or it wants to add a new server, the client calls <code>DiscoOrganizations</code> and <code>DiscoServers</code> to get the discovery files from the library.</p>
+</blockquote>
+<pre><code class="language-python"># Let's get them and print them
+print(common.get_disco_organizations())
+print(common.get_disco_servers())
+</code></pre>
+<p>We get a big JSON blob, so which format is this? From the Go documentation:</p>
+<blockquote>
+<p>DiscoOrganizations gets the organizations from discovery, returned as types/discovery/discovery.go Organizations marshalled as JSON</p>
+</blockquote>
+<blockquote>
+<p>DiscoServers gets the servers from discovery, returned as types/discovery/discovery.go Servers marshalled as JSON</p>
+</blockquote>
+<p>If you follow these files, you see two structs, Servers and Organizations. These structs have json tags associated with them. You can use this structure to figure out how to parse the returned data. In case of discovery, it's very similar to the <a href="https://disco.eduvpn.org/v2">JSON files from the discovery server</a>.</p>
+<h2 id="adding-a-server"><a class="header" href="#adding-a-server">Adding a server</a></h2>
+<p>The next bullet point that we implement is the following:</p>
+<blockquote>
+<p>From this discovery list, it calls AddServer to add the server to the internal server list of eduvpn-common. This also calls necessary state transitions, e.g. for authorizing the server. The next call to ServerList then has this server included</p>
+</blockquote>
+<p>The discovery servers contains a server called the demo server. Let's try to add it. To add it we need to pass the type of server we're adding. From discovery we can deduce that this is an institute access server as the JSON looks like the following:</p>
+<pre><code class="language-json">{
+    &quot;authentication_url_template&quot;: &quot;&quot;,
+    &quot;base_url&quot;: &quot;https://demo.eduvpn.nl/&quot;,
+    &quot;display_name&quot;: {
+        &quot;en&quot;: &quot;Demo&quot;
+    },
+    &quot;server_type&quot;: &quot;institute_access&quot;, # this is why we know it is Institute Access
+    &quot;support_contact&quot;: [
+        &quot;mailto:eduvpn@surf.nl&quot;
+    ]
+},
+</code></pre>
+<p>From the Go documentation, we know that the identifier must be the Base URL:</p>
+<blockquote>
+<p>id is the identifier of the string</p>
+<ul>
+<li>In case of secure internet: The organization ID</li>
+<li>In case of custom server: The base URL</li>
+<li>In case of institute access: The base URL</li>
+</ul>
+</blockquote>
+<pre><code class="language-python"># Compare this to the Go version, the non-interactive field is optional here as it is default False
+common.add_server(edu.ServerType.INSTITUTE_ACCESS, &quot;https://demo.eduvpn.nl/&quot;)
+</code></pre>
+<p>But we get an error!</p>
+<pre><code class="language-bash">eduvpn_common.main.WrappedError: fsm failed transition from 'Chosen_Server' to 'OAuth_Started', is this required transition handled?
+</code></pre>
+<p>This is the state machine we briefly mentioned before. Some functions require that you handle certain transitions. From the Go documentation, we can find this in the documentation as well that you must handle this transition. Let's handle it in Python to open the webbrowser for the OAuth process.</p>
+<p>We do this with the python wrapper by defining a class of state transitions. This class was already added and registered with <code>register_class_callbacks</code>. However, there was no transition added. Let's add it</p>
+<pre><code class="language-python">import webbrowser
+from eduvpn_common.event import class_state_transition
+from eduvpn_common.state import State, StateType
+
+class Transitions:
+    def __init__(self, common):
+        self.common = common
+
+    @class_state_transition(State.OAUTH_STARTED, StateType.ENTER)
+    def enter_oauth(self, old_state: State, url: str):
+        webbrowser.open(url)
+</code></pre>
+<p>Now if you re-rerun the whole code with this transition added, your webbrowser should open.</p>
+<p>Note that this state transition is essentially the same as the following code:</p>
+<pre><code class="language-python">-def handler(old: int, new: int, data: str):
+-    # it's 6 because https://github.com/eduvpn/eduvpn-common/blob/b660911b5db000b43970f3754b5767bb50741360/client/fsm.go#L33
+-    if new == 6:
+-        webbrowser.open(data)
+-        return True
+-    return False
+</code></pre>
+<p>This is the code that is passed to the Go library. It handles certain states and returns <code>False</code> (zero) if a state is not handled, <code>True</code> (non-zero) if it is. If you define your own wrapper you should build an abstraction layer that resolves to a handler similar as above. This handler should be passed as a C function to the Go library when registering.</p>
+<p>After you have authorized the application through the portal using the webbrowser, the server should have been added:</p>
+<pre><code class="language-python">print(common.get_servers())
+</code></pre>
+<p>Returns:</p>
+<pre><code class="language-json">{
+  &quot;institute_access_servers&quot;: [
+    {
+      &quot;display_name&quot;: {
+        &quot;en&quot;: &quot;Demo&quot;
+      },
+      &quot;identifier&quot;: &quot;https://demo.eduvpn.nl/&quot;,
+      &quot;profiles&quot;: {
+        &quot;current&quot;: &quot;&quot;
+      },
+      &quot;delisted&quot;: false
+    }
+  ]
+}
+</code></pre>
+<p>The format of this JSON is specified in the Go documentation:</p>
+<p><code>(in exports/exports.go)</code></p>
+<blockquote>
+<p>It returns the server list as a JSON string defined in types/server/server.go List</p>
+</blockquote>
+<h2 id="obtaining-a-vpn-configuration-from-the-server"><a class="header" href="#obtaining-a-vpn-configuration-from-the-server">Obtaining a VPN configuration from the server</a></h2>
+<p>The next part of the flow is:</p>
+<blockquote>
+<p>When the user selects a server to connect to in the UI, it calls the GetConfig to get a VPN configuration for this server. This function transitions the state machine multiple times. The client uses these state transitions for logging or even updating the UI. The client then connects</p>
+</blockquote>
+<p>Let's try it, the required arguments are the same for adding a config in the Python wrapper:</p>
+<pre><code class="language-python">print(common.get_config(edu.ServerType.INSTITUTE_ACCESS, &quot;https://demo.eduvpn.nl&quot;))
+</code></pre>
+<p>However, this gives an exception:</p>
+<pre><code class="language-bash">eduvpn_common.main.WrappedError: fsm failed transition from 'Request_Config' to 'Ask_Profile', is this required transition handled?
+</code></pre>
+<p>A similar error to the OAuth error we had before. This <code>Ask_Profile</code> transition is there for the client/user to choose a profile as this server has multiple profiles defined.</p>
+<p>To handle this transition and thus choose a profile to continue, we must do multiple steps:</p>
+<ul>
+<li>Add the condition to the transitions class</li>
+<li>Parse the data that we get back</li>
+<li>Reply with a choice for the profile </li>
+</ul>
+<p>If we add the condition and print the data:</p>
+<pre><code class="language-python">@class_state_transition(State.ASK_PROFILE, StateType.ENTER)
+def enter_ask_profile(self, old_state: State, data: str):
+    print(&quot;profiles:&quot;, data)
+</code></pre>
+<p>we get back the following JSON (from the Go docs: <code>The data for this transition is defined in types/server/server.go RequiredAskTransition with embedded data Profiles in types/server/server.go</code>):</p>
+<pre><code class="language-python">{
+  &quot;cookie&quot;: 4,
+  &quot;data&quot;: {
+    &quot;map&quot;: {
+      &quot;internet&quot;: {
+        &quot;display_name&quot;: {
+          &quot;en&quot;: &quot;Internet&quot;
+        },
+        &quot;supported_protocols&quot;: [
+          1,
+          2
+        ]
+      },
+      &quot;internet-split&quot;: {
+        &quot;display_name&quot;: {
+          &quot;en&quot;: &quot;No rfc1918 routes&quot;
+        },
+        &quot;supported_protocols&quot;: [
+          1,
+          2
+        ]
+      }
+    },
+    &quot;current&quot;: &quot;&quot;
+  }
+}
+</code></pre>
+<p>This thus gives you the list of profiles with a so-called &quot;cookie&quot;. This <em>cookie</em> is used to confirm the choice to the Go library. To do so we must do the following to handle this:</p>
+<pre><code class="language-python">import json
+
+# Do this inside the Transitions class
+@class_state_transition(State.ASK_PROFILE, StateType.ENTER)
+def enter_ask_profile(self, old_state: State, data: str):
+    # parse the json
+    json_dict = json.loads(data)
+    
+    self.common.cookie_reply(json_dict[&quot;cookie&quot;], &quot;internet&quot;)
+</code></pre>
+<p>If we then re-run the code, we get back the following JSON (from the Go docs: <code>The return data is the configuration, marshalled as JSON and defined in types/server/server.go Configuration</code>)</p>
+<pre><code class="language-python">{
+  &quot;config&quot;: &quot;the WireGuard config&quot;,
+  &quot;protocol&quot;: 2, # 2 specifies WireGuard
+  &quot;default_gateway&quot;: true
+}
+</code></pre>
+<h2 id="cleanup"><a class="header" href="#cleanup">Cleanup</a></h2>
+<p>The flow also mentioned:</p>
+<blockquote>
+<p>When the client is done, it calls <code>Deregister</code> such that the most up to date internal state is saved to disk. Note that eduvpn-common also saves the internal state .e.g. after obtaining a VPN configuration</p>
+</blockquote>
+<p>Let's be a nice client and do this:</p>
+<pre><code class="language-python">common.deregister()
+</code></pre>
+<p>If we then call any function, we get an error, so it is important that you do this on exit:</p>
+<pre><code class="language-python">print(common.get_servers())
+&gt;&gt;&gt; eduvpn_common.main.WrappedError: No state available, did you register the client?
+</code></pre>
+<p>But when we register again and then get the list of servers, the servers are retrieved from disk:</p>
+<pre><code class="language-python">common=edu.EduVPN(&quot;org.eduvpn.app.linux&quot;, &quot;0.0.1&quot;, &quot;/tmp/test&quot;)
+common.register(debug=True)
+print(common.get_servers())
+</code></pre>
+<p>gives</p>
+<pre><code class="language-json">{
+  &quot;institute_access_servers&quot;: [
+    {
+      &quot;display_name&quot;: {
+        &quot;en&quot;: &quot;Demo&quot;
+      },
+      &quot;identifier&quot;: &quot;https://demo.eduvpn.nl/&quot;,
+      &quot;profiles&quot;: {
+        &quot;map&quot;: {
+          &quot;internet&quot;: {
+            &quot;display_name&quot;: {
+              &quot;en&quot;: &quot;Internet&quot;
+            },
+            &quot;supported_protocols&quot;: [
+              1,
+              2
+            ]
+          },
+          &quot;internet-split&quot;: {
+            &quot;display_name&quot;: {
+              &quot;en&quot;: &quot;No rfc1918 routes&quot;
+            },
+            &quot;supported_protocols&quot;: [
+              1,
+              2
+            ]
+          }
+        },
+        &quot;current&quot;: &quot;internet&quot;
+      },
+      &quot;delisted&quot;: false
+    }
+  ]
+}
+</code></pre>
+<p>Note the difference with the previous JSON, the profiles are now initialized because we have gotten a configuration before.</p>
+<p>If the <code>/tmp/test</code> directory is removed (the argument that was passed to register), we get no servers again:</p>
+<pre><code class="language-python">import shutil
+shutil.rmtree(&quot;/tmp/test&quot;)
+common=edu.EduVPN(&quot;org.eduvpn.app.linux&quot;, &quot;0.0.1&quot;, &quot;/tmp/test&quot;)
+common.register(debug=True)
+print(common.get_servers())
+</code></pre>
+<p>gives <code>&quot;{}&quot;</code>, an empty JSON object string</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="code-examples"><a class="header" href="#code-examples">Code examples</a></h1>
+<p>This chapter contains code examples that use the API</p>
+<h2 id="go-command-line-client"><a class="header" href="#go-command-line-client">Go command line client</a></h2>
+<p>The following is an example <a href="https://github.com/eduvpn/eduvpn-common/blob/v2/cmd/cli/main.go">in the repository</a>. It is a command line client with the following flags</p>
+<pre><code>  -get-custom string
+        The url of a custom server to connect to
+  -get-institute string
+        The url of an institute to connect to
+  -get-secure string
+        Gets secure internet servers
+</code></pre>
+<pre><code class="language-go">// Package main implements an example CLI client
+package main
+
+import (
+	&quot;context&quot;
+	&quot;flag&quot;
+	&quot;fmt&quot;
+	&quot;os&quot;
+	&quot;reflect&quot;
+	&quot;strings&quot;
+
+	&quot;github.com/eduvpn/eduvpn-common/client&quot;
+	&quot;github.com/eduvpn/eduvpn-common/internal/version&quot;
+	&quot;github.com/eduvpn/eduvpn-common/types/cookie&quot;
+	srvtypes &quot;github.com/eduvpn/eduvpn-common/types/server&quot;
+
+	&quot;github.com/pkg/browser&quot;
+)
+
+// Open a browser with xdg-open.
+func openBrowser(data interface{}) {
+	str, ok := data.(string)
+	if !ok {
+		return
+	}
+	fmt.Printf(&quot;OAuth: Authorization URL: %s\n&quot;, str)
+	fmt.Println(&quot;Opening browser...&quot;)
+	go func() {
+		err := browser.OpenURL(str)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, &quot;failed to open browser with error:&quot;, err)
+			fmt.Println(&quot;Please open your browser manually&quot;)
+		}
+	}()
+}
+
+// GetLanguageMatched uses a map from language tags to strings to extract the right language given the tag
+// It implements it according to https://github.com/eduvpn/documentation/blob/dc4d53c47dd7a69e95d6650eec408e16eaa814a2/SERVER_DISCOVERY.md#language-matching
+func GetLanguageMatched(langMap map[string]string, langTag string) string {
+	// If no map is given, return the empty string
+	if len(langMap) == 0 {
+		return &quot;&quot;
+	}
+	// Try to find the exact match
+	if val, ok := langMap[langTag]; ok {
+		return val
+	}
+	// Try to find a key that starts with the OS language setting
+	for k := range langMap {
+		if strings.HasPrefix(k, langTag) {
+			return langMap[k]
+		}
+	}
+	// Try to find a key that starts with the first part of the OS language (e.g. de-)
+	pts := strings.Split(langTag, &quot;-&quot;)
+	// We have a &quot;-&quot;
+	if len(pts) &gt; 1 {
+		for k := range langMap {
+			if strings.HasPrefix(k, pts[0]+&quot;-&quot;) {
+				return langMap[k]
+			}
+		}
+	}
+	// search for just the language (e.g. de)
+	for k := range langMap {
+		if k == pts[0] {
+			return langMap[k]
+		}
+	}
+
+	// Pick one that is deemed best, e.g. en-US or en, but note that not all languages are always available!
+	// We force an entry that is english exactly or with an english prefix
+	for k := range langMap {
+		if k == &quot;en&quot; || strings.HasPrefix(k, &quot;en-&quot;) {
+			return langMap[k]
+		}
+	}
+
+	// Otherwise just return one
+	for k := range langMap {
+		return langMap[k]
+	}
+
+	return &quot;&quot;
+}
+
+// Ask for a profile in the command line.
+func sendProfile(state *client.Client, data interface{}) {
+	fmt.Printf(&quot;Multiple VPN profiles found. Please select a profile by entering e.g. 1&quot;)
+	d, ok := data.(*srvtypes.RequiredAskTransition)
+	if !ok {
+		fmt.Fprintf(os.Stderr, &quot;\ninvalid data type: %v\n&quot;, reflect.TypeOf(data))
+		return
+	}
+	sps, ok := d.Data.(srvtypes.Profiles)
+	if !ok {
+		fmt.Fprintf(os.Stderr, &quot;\ninvalid data type for profiles: %v\n&quot;, reflect.TypeOf(d.Data))
+		return
+	}
+
+	ps := &quot;&quot;
+	var options []string
+	i := 0
+	for k, v := range sps.Map {
+		ps += fmt.Sprintf(&quot;\n%d - %s&quot;, i+1, GetLanguageMatched(v.DisplayName, &quot;en&quot;))
+		options = append(options, k)
+		i++
+	}
+
+	// Show the profiles
+	fmt.Println(ps)
+
+	var idx int
+	if _, err := fmt.Scanf(&quot;%d&quot;, &amp;idx); err != nil || idx &lt;= 0 ||
+		idx &gt; len(sps.Map) {
+		fmt.Fprintln(os.Stderr, &quot;invalid profile chosen, please retry&quot;)
+		sendProfile(state, data)
+		return
+	}
+
+	p := options[idx-1]
+	fmt.Println(&quot;Sending profile ID&quot;, p)
+	if err := d.C.Send(p); err != nil {
+		fmt.Fprintln(os.Stderr, &quot;failed setting profile with error&quot;, err)
+	}
+}
+
+// The callback function
+// If OAuth is started we open the browser with the Auth URL
+// If we ask for a profile, we send the profile using command line input
+// Note that this has an additional argument, the vpn state which was wrapped into this callback function below.
+func stateCallback(state *client.Client, _ client.FSMStateID, newState client.FSMStateID, data interface{}) {
+	if newState == client.StateOAuthStarted {
+		openBrowser(data)
+	}
+
+	if newState == client.StateAskProfile {
+		sendProfile(state, data)
+	}
+}
+
+// Get a config for Institute Access or Secure Internet Server.
+func getConfig(state *client.Client, url string, srvType srvtypes.Type) (*srvtypes.Configuration, error) {
+	if !strings.HasPrefix(url, &quot;http&quot;) {
+		url = &quot;https://&quot; + url
+	}
+	ck := cookie.NewWithContext(context.Background())
+	defer ck.Cancel() //nolint:errcheck
+	err := state.AddServer(ck, url, srvType, false)
+	if err != nil {
+		return nil, err
+	}
+	return state.GetConfig(ck, url, srvType, false, false)
+}
+
+// Get a config for a single server, Institute Access or Secure Internet.
+func printConfig(url string, srvType srvtypes.Type) {
+	var c *client.Client
+	c, err := client.New(
+		&quot;org.eduvpn.app.linux&quot;,
+		fmt.Sprintf(&quot;%s-cli&quot;, version.Version),
+		&quot;configs&quot;,
+		func(old client.FSMStateID, new client.FSMStateID, data interface{}) bool {
+			stateCallback(c, old, new, data)
+			return true
+		},
+		true,
+	)
+	if err != nil {
+		fmt.Printf(&quot;Register error: %v&quot;, err)
+		return
+	}
+	_ = c.Register()
+
+	ck := cookie.NewWithContext(context.Background())
+	_, err = c.DiscoOrganizations(ck)
+	if err != nil {
+		panic(err)
+	}
+	_, err = c.DiscoServers(ck)
+	if err != nil {
+		panic(err)
+	}
+
+	defer c.Deregister()
+
+	cfg, err := getConfig(c, url, srvType)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, &quot;failed getting a config: %v\n&quot;, err)
+		return
+	}
+	fmt.Println(cfg.Protocol)
+	fmt.Println(&quot;Obtained config:&quot;, cfg.VPNConfig)
+}
+
+// The main function
+// It parses the arguments and executes the correct functions.
+func main() {
+	cu := flag.String(&quot;get-custom&quot;, &quot;&quot;, &quot;The url of a custom server to connect to&quot;)
+	u := flag.String(&quot;get-institute&quot;, &quot;&quot;, &quot;The url of an institute to connect to&quot;)
+	sec := flag.String(&quot;get-secure&quot;, &quot;&quot;, &quot;Gets secure internet servers&quot;)
+	flag.Parse()
+
+	// Connect to a VPN by getting an Institute Access config
+	switch {
+	case *cu != &quot;&quot;:
+		printConfig(*cu, srvtypes.TypeCustom)
+	case *u != &quot;&quot;:
+		printConfig(*u, srvtypes.TypeInstituteAccess)
+	case *sec != &quot;&quot;:
+		printConfig(*sec, srvtypes.TypeSecureInternet)
+	default:
+		flag.PrintDefaults()
+	}
+}
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><p>This document was automatically generated from the exports/exports.go file</p>
+<h1 id="table-of-contents"><a class="header" href="#table-of-contents">Table of contents</a></h1>
+<ul>
+<li><a href="api/functiondocs.html#about-the-api">About the API</a></li>
+<li><a href="api/functiondocs.html#functions">Functions</a>
+<ul>
+<li><a href="api/functiondocs.html#addserver">AddServer</a></li>
+<li><a href="api/functiondocs.html#cleanup">Cleanup</a></li>
+<li><a href="api/functiondocs.html#cookiecancel">CookieCancel</a></li>
+<li><a href="api/functiondocs.html#cookiedelete">CookieDelete</a></li>
+<li><a href="api/functiondocs.html#cookienew">CookieNew</a></li>
+<li><a href="api/functiondocs.html#cookiereply">CookieReply</a></li>
+<li><a href="api/functiondocs.html#currentserver">CurrentServer</a></li>
+<li><a href="api/functiondocs.html#deregister">Deregister</a></li>
+<li><a href="api/functiondocs.html#discoorganizations">DiscoOrganizations</a></li>
+<li><a href="api/functiondocs.html#discoservers">DiscoServers</a></li>
+<li><a href="api/functiondocs.html#expirytimes">ExpiryTimes</a></li>
+<li><a href="api/functiondocs.html#freestring">FreeString</a></li>
+<li><a href="api/functiondocs.html#getconfig">GetConfig</a></li>
+<li><a href="api/functiondocs.html#instate">InState</a></li>
+<li><a href="api/functiondocs.html#register">Register</a></li>
+<li><a href="api/functiondocs.html#removeserver">RemoveServer</a></li>
+<li><a href="api/functiondocs.html#renewsession">RenewSession</a></li>
+<li><a href="api/functiondocs.html#serverlist">ServerList</a></li>
+<li><a href="api/functiondocs.html#setprofileid">SetProfileID</a></li>
+<li><a href="api/functiondocs.html#setsecurelocation">SetSecureLocation</a></li>
+<li><a href="api/functiondocs.html#setstate">SetState</a></li>
+<li><a href="api/functiondocs.html#setsupportwireguard">SetSupportWireguard</a></li>
+<li><a href="api/functiondocs.html#settokenhandler">SetTokenHandler</a></li>
+<li><a href="api/functiondocs.html#startfailover">StartFailover</a></li>
+<li><a href="api/functiondocs.html#startproxyguard">StartProxyguard</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="about-the-api"><a class="header" href="#about-the-api">About the API</a></h1>
+<p>package main implements the main exported API to be used by other languages</p>
+<p>Some notes:</p>
+<ul>
+<li>
+<p>Errors are returned as JSON c strings. The JSON type is defined in
+types/error/error.go Error. Free them using FreeString. Same is the case for
+other string types, you should also free them. The errors are always localized</p>
+</li>
+<li>
+<p>Types are converted from the Go representation to C using JSON strings</p>
+</li>
+<li>
+<p>Cookies are used for cancellation, just fancy contexts. Create a cookie using
+<code>CookieNew</code>, pass it to the function that needs one as the first argument. To
+cancel the function, call <code>CookieCancel</code>, passing in the same cookie as argument</p>
+</li>
+<li>
+<p>Cookies must also be freed, by using the CookieDelete function if the cookie
+is no longer needed</p>
+</li>
+<li>
+<p>The state machine is used to track the state of a client. It is mainly used
+for asking for certain data from the client, e.g. asking for profiles and
+locations. But a client may also wish to build upon this state machine to build
+the whole UI around it. The SetState and InState functions are useful for this</p>
+</li>
+</ul>
+<h1 id="functions"><a class="header" href="#functions">Functions</a></h1>
+<h2 id="addserver"><a class="header" href="#addserver">AddServer</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func AddServer(c C.uintptr_t, _type C.int, id *C.char, ni C.int) *C.char
+</code></pre>
+<p>AddServer adds a server to the eduvpn-common server list <code>c</code> is the cookie
+that is used for cancellation. Create a cookie first with CookieNew.
+This same cookie is also used for replying to state transitions</p>
+<p><code>_type</code> is the type of server that needs to be added. This type is defined
+in types/server/server.go Type</p>
+<p><code>id</code> is the identifier of the string:</p>
+<ul>
+<li>
+<p>In case of secure internet: The organization ID</p>
+</li>
+<li>
+<p>In case of custom server: The base URL</p>
+</li>
+<li>
+<p>In case of institute access: The base URL</p>
+</li>
+</ul>
+<p><code>ni</code> stands for non-interactive. If non-zero, any state transitions will not
+be run.</p>
+<p>This <code>ni</code> flag is useful for preprovisioned servers. For normal usage,
+you want to set this to zero (meaning: False)</p>
+<p>If the server cannot be added it returns the error as types/error/error.go
+Error. Note that the server is removed when an error has occured</p>
+<p>The following state callbacks are mandatory to handle:</p>
+<ul>
+<li>OAUTH_STARTED: This indicates that the OAuth procedure has been started,
+it returns the URL as the data. The client should open the webbrowser
+with this URL and continue the authorization process. Note: For mobile
+platforms this returns a Cookie and data (json: <code>{&quot;cookie&quot;: x, &quot;data&quot;: url}</code>). This <code>url</code> should also be opened in the browser like desktop
+platforms. But these platforms also need to reply to the library to give
+back the full authorization code URI with <code>CookieReply(x, uri)</code>. E.g.
+<code>CookieReply(x, &quot;/callback?code=...&amp;state=...&amp;iss=...&quot;)</code> this is the
+path of the request that the apps get back when the user clicks approve.
+For this, apps need to register an app url or sorts. For the valid
+values for app URLs, see the redirect URIs for mobile platforms here
+https://git.sr.ht/~fkooman/vpn-user-portal/tree/v3/item/src/OAuth/VpnClientDb.php</li>
+</ul>
+<p>Example Input (3=custom server): <code>AddServer(mycookie, 3, &quot;https://demo.eduvpn.nl&quot;, 0)</code></p>
+<p>Example Output:</p>
+<pre><code>{
+  &quot;message&quot;: {
+    &quot;en&quot;: &quot;failed to add server&quot;
+  },
+  &quot;misc&quot;: false
+}
+</code></pre>
+<h2 id="cleanup-1"><a class="header" href="#cleanup-1">Cleanup</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func Cleanup(c C.uintptr_t) *C.char
+</code></pre>
+<p>Cleanup sends a /disconnect to cleanup the connection</p>
+<p>This MUST be called when disconnecting, see
+https://docs.eduvpn.org/server/v3/api.html#application-flow <code>c</code> is the
+Cookie that needs to be passed. Create a new Cookie using <code>CookieNew</code></p>
+<p>If it was unsuccessful, it returns an error.</p>
+<p>Example Input: <code>Cleanup(myCookie)</code></p>
+<p>Example Output:</p>
+<pre><code>{
+  &quot;message&quot;: {
+    &quot;en&quot;: &quot;cleanup was not successful&quot;
+  },
+  &quot;misc&quot;: false
+}
+</code></pre>
+<h2 id="cookiecancel"><a class="header" href="#cookiecancel">CookieCancel</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func CookieCancel(c C.uintptr_t) *C.char
+</code></pre>
+<p>CookieCancel cancels the cookie</p>
+<p>This means that functions which take this as first argument, return if
+they're still running The error cause is always context.Canceled for that
+cancelled function: https://pkg.go.dev/context#pkg-variables</p>
+<p>This CookieCancel function can also return an error if cancelling was
+unsuccessful Example Input: <code>CookieCancel(myCookie)</code></p>
+<p>Example Output: null</p>
+<h2 id="cookiedelete"><a class="header" href="#cookiedelete">CookieDelete</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func CookieDelete(c C.uintptr_t) *C.char
+</code></pre>
+<p>CookieDelete deletes the cookie by cancelling it and deleting the underlying
+cgo handle</p>
+<p>This function MUST be called when the cookie that is created using
+<code>CookieNew</code> is no longer needed. Example Input: <code>CookieDelete(myCookie)</code></p>
+<p>Example Output: null</p>
+<h2 id="cookienew"><a class="header" href="#cookienew">CookieNew</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func CookieNew() C.uintptr_t
+</code></pre>
+<p>CookieNew creates a new cookie and returns it</p>
+<p>This value should not be parsed or converted somehow by the client This
+value is simply to pass back to the Go library This value has two purposes:</p>
+<ul>
+<li>
+<p>Cancel a long running function</p>
+</li>
+<li>
+<p>Send a reply to a state transition (ASK_PROFILE and ASK_LOCATION)</p>
+</li>
+</ul>
+<h1 id="functions-that-take-a-cookie-have-it-as-the-first-argument"><a class="header" href="#functions-that-take-a-cookie-have-it-as-the-first-argument">Functions that take a cookie have it as the first argument</a></h1>
+<p>Example Input: <code>CookieNew()</code></p>
+<p>Example Output: <code>5</code></p>
+<h2 id="cookiereply"><a class="header" href="#cookiereply">CookieReply</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func CookieReply(c C.uintptr_t, data *C.char) *C.char
+</code></pre>
+<p>CookieReply replies to a state transition using the cookie</p>
+<p>The data that is sent to the Go library is the second argument of this
+function</p>
+<ul>
+<li>
+<p><code>c</code> is the Cookie</p>
+</li>
+<li>
+<p><code>data</code> is the data to send, e.g. a profile ID</p>
+</li>
+</ul>
+<p>Example Input: <code>CookieReply(myCookie, &quot;split-tunnel-profile&quot;)</code></p>
+<p>Example Output: <code>null</code></p>
+<h2 id="currentserver"><a class="header" href="#currentserver">CurrentServer</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func CurrentServer() (*C.char, *C.char)
+</code></pre>
+<p>CurrentServer gets the current server from eduvpn-common</p>
+<p>In eduvpn-common, a server is marked as 'current' if you have gotten a VPN
+configuration for it</p>
+<p>It returns the server as JSON, defined in types/server/server.go Current</p>
+<p>If there is no current server or some other, e.g. there is no current state,
+an error is returned with a nil string</p>
+<p>Example Input: <code>CurrentServer()</code></p>
+<p>Example Output:</p>
+<pre><code>{
+  &quot;institute_access_server&quot;: {
+    &quot;display_name&quot;: {
+      &quot;en&quot;: &quot;Demo&quot;
+    },
+    &quot;identifier&quot;: &quot;https://demo.eduvpn.nl/&quot;,
+    &quot;profiles&quot;: {
+      &quot;map&quot;: {
+        &quot;internet&quot;: {
+          &quot;display_name&quot;: {
+            &quot;en&quot;: &quot;Internet&quot;
+          },
+          &quot;supported_protocols&quot;: [
+            1,
+            2
+          ]
+        },
+        &quot;internet-split&quot;: {
+          &quot;display_name&quot;: {
+            &quot;en&quot;: &quot;No rfc1918 routes&quot;
+          },
+          &quot;supported_protocols&quot;: [
+            1,
+            2
+          ]
+        }
+      },
+      &quot;current&quot;: &quot;internet&quot;
+    },
+    &quot;support_contacts&quot;: [
+      &quot;mailto:eduvpn@surf.nl&quot;
+    ],
+    &quot;delisted&quot;: false
+  },
+  &quot;server_type&quot;: 1
+}, null
+</code></pre>
+<h2 id="deregister"><a class="header" href="#deregister">Deregister</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func Deregister() *C.char
+</code></pre>
+<p>Deregister cleans up the state for the client.</p>
+<p>This function SHOULD be called when the application exits such that the
+configuration file is saved correctly. Note that saving of the configuration
+file also happens in other cases, such as after getting a VPN configuration.
+Thus it is often not problematic if this function cannot be called due to a
+client crash</p>
+<p>If no client is available or deregistering fails, it returns an error.</p>
+<p>Example Input: <code>Deregister()</code></p>
+<p>Example Output:</p>
+<pre><code>{
+  &quot;message&quot;: {
+    &quot;en&quot;: &quot;failed to deregister&quot;
+  },
+  &quot;misc&quot;: false
+}
+</code></pre>
+<h2 id="discoorganizations"><a class="header" href="#discoorganizations">DiscoOrganizations</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func DiscoOrganizations(c C.uintptr_t) (*C.char, *C.char)
+</code></pre>
+<p>DiscoOrganizations gets the organizations from discovery, returned as
+types/discovery/discovery.go Organizations marshalled as JSON</p>
+<p><code>c</code> is the Cookie that needs to be passed. Create a new Cookie using
+<code>CookieNew</code></p>
+<p>If it was unsuccessful, it returns an error. Note that when the lib was
+built in release mode the data is almost always non-nil, even when an error
+has occurred This means it has just returned the cached list</p>
+<p>Example Input: <code>DiscoOrganizations(myCookie)</code></p>
+<p>Example Output:</p>
+<pre><code>{
+ &quot;v&quot;: 1695291170,
+ &quot;organization_list&quot;: [
+   {
+     &quot;display_name&quot;: {
+       &quot;en&quot;: &quot;Academic Network of Albania - RASH&quot;
+     },
+     &quot;org_id&quot;: &quot;https://idp.rash.al/simplesaml/saml2/idp/metadata.php&quot;,
+     &quot;secure_internet_home&quot;: &quot;https://eduvpn.rash.al/&quot;
+   },
+   {
+     &quot;display_name&quot;: {
+       &quot;da&quot;: &quot;Dansk Sprognævn&quot;,
+       &quot;en&quot;: &quot;Danish Language Council&quot;
+     },
+     &quot;org_id&quot;: &quot;http://idp.dsn.dk/adfs/services/trust&quot;,
+     &quot;secure_internet_home&quot;: &quot;https://eduvpn.deic.dk/&quot;
+   },
+   {
+     &quot;display_name&quot;: {
+       &quot;da&quot;: &quot;Erhvervsakademi Aarhus&quot;,
+       &quot;en&quot;: &quot;Business Academy Aarhus&quot;
+     },
+     &quot;org_id&quot;: &quot;http://adfs.eaaa.dk/adfs/services/trust&quot;,
+     &quot;secure_inte .....................
+}, null
+</code></pre>
+<h2 id="discoservers"><a class="header" href="#discoservers">DiscoServers</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func DiscoServers(c C.uintptr_t) (*C.char, *C.char)
+</code></pre>
+<p>DiscoServers gets the servers from discovery, returned as
+types/discovery/discovery.go Servers marshalled as JSON</p>
+<p><code>c</code> is the Cookie that needs to be passed. Create a new Cookie using
+<code>CookieNew</code></p>
+<p>If it was unsuccessful, it returns an error. Note that when the lib was
+built in release mode the data is almost always non-nil, even when an error
+has occurred This means it has just returned the cached list</p>
+<p>Example Input: <code>DiscoServers(myCookie)</code></p>
+<p>Example Output:</p>
+<pre><code>{
+ &quot;v&quot;: 1695291170,
+ &quot;server_list&quot;: [
+   {
+     &quot;base_url&quot;: &quot;https://eduvpn.rash.al/&quot;,
+     &quot;country_code&quot;: &quot;AL&quot;,
+     &quot;public_key_list&quot;: [
+       &quot;k7.pub.S4j5JJiTEz1fWMkI.hzU_xJasWzD6Da2WR7hgbobx9n3o4XSDeqFh03tgM-0&quot;
+     ],
+     &quot;server_type&quot;: &quot;secure_internet&quot;,
+     &quot;support_contact&quot;: [
+       &quot;mailto:helpdesk@rash.al&quot;
+     ]
+   },
+   {
+     &quot;base_url&quot;: &quot;https://eduvpn.deic.dk/&quot;,
+     &quot;country_code&quot;: &quot;DK&quot;,
+     &quot;public_key_list&quot;: [
+       &quot;k7.pub.RNOJIYbemlfsE7EL.BxmV2l2UV7pCqz135ofBgyG9-xLg0R9rILQedZrfLtE&quot;
+     ], ..................
+} , null
+</code></pre>
+<h2 id="expirytimes"><a class="header" href="#expirytimes">ExpiryTimes</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func ExpiryTimes() (*C.char, *C.char)
+</code></pre>
+<p>ExpiryTimes gets the expiry times for the current server</p>
+<p>Expiry times are just fields that represent unix timestamps at which to
+do certain events regarding expiry, e.g. when to show the renew button,
+when to show expiry notifications</p>
+<p>The expiry times structure is defined in types/server/server.go <code>Expiry</code> If
+some error occurs, it is returned as types/error/error.go Error</p>
+<p>Example Input: <code>ExpiryTimes()</code></p>
+<p>Example Output (1...4 are unix timestamps):</p>
+<pre><code>{
+     &quot;start_time&quot;: 1,
+     &quot;end_time&quot;: 2,
+     &quot;button_time&quot;: 3,
+     &quot;countdown_time&quot;: 4,
+     &quot;notification_times&quot;: [
+         1,
+         2,
+     ],
+}, null
+</code></pre>
+<h2 id="freestring"><a class="header" href="#freestring">FreeString</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func FreeString(addr *C.char)
+</code></pre>
+<p>FreeString frees a string that was allocated by the eduvpn-common Go library</p>
+<p>This happens when we return strings, such as errors from the Go lib back to
+the client. The client MUST thus ensure that this memory is freed using this
+function. Simply pass the pointer to the string in here</p>
+<p>Example Input: <code>FreeString(strPtr)</code></p>
+<h2 id="getconfig"><a class="header" href="#getconfig">GetConfig</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func GetConfig(c C.uintptr_t, _type C.int, id *C.char, pTCP C.int, startup C.int) (*C.char, *C.char)
+</code></pre>
+<p>GetConfig gets a configuration for the server. It returns additional
+information in case WireGuard over Proxyguard is used (see the last example)</p>
+<p><code>c</code> is the cookie that is used for cancellation. Create a cookie first with
+CookieNew, this same cookie is also used for replying to state transitions</p>
+<p><code>_type</code> is the type of server that needs to be added. This type is defined
+in types/server/server.go Type</p>
+<p><code>id</code> is the identifier of the string</p>
+<ul>
+<li>In case of secure internet: The organization ID</li>
+<li>In case of custom server: The base URL</li>
+<li>In case of institute access: The base URL</li>
+</ul>
+<p><code>pTCP</code> is if we prefer TCP or not to get the configuration, non-zero means
+yes</p>
+<p><code>startup</code> is if the client is just starting up, set this to true (non-zero)
+if you autoconnect to a server on startup. If this startup value is true
+(non-zero) then any authorization or other callacks (profile/location) are
+not triggered</p>
+<p>After getting a configuration, the FSM moves to the GOT_CONFIG state
+The return data is the configuration, marshalled as JSON and defined in
+types/server/server.go Configuration</p>
+<p>If the config cannot be retrieved it returns an error as
+types/error/error.go Error.</p>
+<p>The current state callbacks MUST be handled:</p>
+<h3 id="ask_profile"><a class="header" href="#ask_profile">ASK_PROFILE</a></h3>
+<p>This asks the client for profile.</p>
+<p>This is called when the user/client has not set a profile for this server
+before, or the current profile is invalid</p>
+<p>When the user has selected a profile, reply with the choice using the
+<code>CookieReply</code> function and the profile ID e.g. CookieReply(cookie,
+&quot;wireguard&quot;). CookieReply can be done in the background as the Go library
+waits for a reply</p>
+<p>The data for this transition is defined in types/server/server.go
+RequiredAskTransition with embedded data Profiles in types/server/server.go.
+Note that RequiredTransition contains the cookie to be used for the
+CookieReply</p>
+<p>So a client would:</p>
+<ul>
+<li>
+<p>Parse the data to get the cookie and data</p>
+</li>
+<li>
+<p>get the cookie</p>
+</li>
+<li>
+<p>get the profiles from the data</p>
+</li>
+<li>
+<p>show it in the UI and then reply with CookieReply using the choice</p>
+</li>
+</ul>
+<h3 id="ask_location"><a class="header" href="#ask_location">ASK_LOCATION</a></h3>
+<p>This asks the client for a location. Note that under normal circumstances,
+this callback is not actually called as the home organization for the
+secure internet server is set as the current if for some reason, an invalid
+location has been configured, the library will ask the client for a new one</p>
+<p>When the user has selected a location, reply with the choice using the
+<code>CookieReply</code> function and the location ID e.g. CookieReply(cookie, &quot;nl&quot;)</p>
+<p>CookieReply can be done in the background as the Go library waits for a
+reply The data for this transition is defined in types/server/server.go
+RequiredAskTransition with embedded data a list of strings ([]string)</p>
+<p>Note that RequiredTransition contains the cookie to be used for the
+CookieReply,</p>
+<p>So a client would:</p>
+<ul>
+<li>
+<p>Parse the data to get the cookie and data</p>
+</li>
+<li>
+<p>get the cookie</p>
+</li>
+<li>
+<p>get the list of locations from the data</p>
+</li>
+<li>
+<p>show it in the UI and then reply with CookieReply using the choice</p>
+</li>
+</ul>
+<h3 id="oauth_started"><a class="header" href="#oauth_started">OAUTH_STARTED</a></h3>
+<ul>
+<li>OAUTH_STARTED: This indicates that the OAuth procedure has been started,
+it returns the URL as the data. The client should open the webbrowser
+with this URL and continue the authorization process. Note: For mobile
+platforms this returns a Cookie and data (json: <code>{&quot;cookie&quot;: x, &quot;data&quot;: url}</code>). This <code>url</code> should also be opened in the browser like desktop
+platforms. But these platforms also need to reply to the library to give
+back the full authorization code URI with <code>CookieReply(x, uri)</code>. E.g.
+<code>CookieReply(x, &quot;/callback?code=...&amp;state=...&amp;iss=...&quot;)</code> this is the
+path of the request that the apps get back when the user clicks approve.
+For this, apps need to register an app url or sorts. For the valid
+values for app URLs, see the redirect URIs for mobile platforms here
+https://git.sr.ht/~fkooman/vpn-user-portal/tree/v3/item/src/OAuth/VpnClientDb.php</li>
+</ul>
+<p>The client should open the webbrowser with this URL and continue the
+authorization process. This is only called if authorization needs to be
+retriggered</p>
+<p>Example Input (3=custom server): <code>GetConfig(myCookie, 3, &quot;https://demo.eduvpn.nl/&quot;, 0, 0)</code></p>
+<p>Example Output (2=WireGuard):</p>
+<pre><code>{
+ &quot;config&quot;: &quot;[Interface]\nPrivateKey = ...\nAddress = ...\nDNS = ...\n\n[Peer]\nPublicKey = ...=\nAllowedIPs = 0.0.0.0/0,::/0\nEndpoint = ...&quot;,
+ &quot;protocol&quot;: 2,
+ &quot;default_gateway&quot;: true,
+ &quot;should_failover&quot;: true, &lt;- whether or not the failover procedure should happen
+}
+</code></pre>
+<p>Example Output (3=WireGuard + Proxyguard):</p>
+<pre><code>{
+&quot;config&quot;:&quot;[Interface]\nMTU = ...\nAddress = ...\nDNS = ...\nPrivateKey = ...\n[Peer]\nPublicKey = ...\nAllowedIPs = ...\nEndpoint = 127.0.0.1:x\n&quot;,
+&quot;protocol&quot;:3,
+&quot;default_gateway&quot;:true,
+&quot;should_failover&quot;:true,
+&quot;proxy&quot;:{&quot;source_port&quot;:38683,&quot;listen&quot;:&quot;127.0.0.1:59812&quot;,&quot;peer&quot;:&quot;https://...&quot;}
+}
+</code></pre>
+<h2 id="instate"><a class="header" href="#instate">InState</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func InState(fsmState C.int) (C.int, *C.char)
+</code></pre>
+<p>InState checks if the FSM is in <code>fsmState</code></p>
+<p>Example Input: <code>InState(5)</code></p>
+<p>Example Output: <code>1, null</code></p>
+<h2 id="register"><a class="header" href="#register">Register</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func Register(
+</code></pre>
+<pre><code>name *C.char,
+version *C.char,
+configDirectory *C.char,
+cb C.StateCB,
+debug C.int,
+</code></pre>
+<p>) *C.char
+Register creates a new client and also registers the FSM to go to the
+initial state</p>
+<p><code>Name</code> is the name of the client, must be a valid client ID</p>
+<p><code>Version</code> is the version of the client. This version field is used for the
+user agent in all HTTP requests</p>
+<p><code>cb</code> is the state callback. It takes three arguments: The old state, the new
+state and the data for the state as JSON</p>
+<ul>
+<li>
+<p>Note that the states are defined in client/fsm.go, e.g. NO_SERVER (in
+Go: StateNoServer), ASK_PROFILE (in Go: StateAskProfile)</p>
+</li>
+<li>
+<p>This callback returns non-zero if the state transition is handled.
+This is used to check if the client handles the needed transitions</p>
+</li>
+</ul>
+<p>debug, if non-zero, enables debugging mode for the library, this means:</p>
+<ul>
+<li>
+<p>Log everything in debug mode, so you can get more detail of what is
+going on</p>
+</li>
+<li>
+<p>Write the state graph to a file in the configDirectory. This can be used
+to create a FSM png file with mermaid https://mermaid.js.org/</p>
+</li>
+</ul>
+<p>After registering, the FSM is initialized and the state transition NO_SERVER
+should have been completed If some error occurs during registering, it is
+returned as a types/error/error.go Error</p>
+<p>Example Input: <code>Register(&quot;org.eduvpn.app.linux&quot;, &quot;0.0.1&quot;, &quot;/tmp/eduvpn-common&quot;, myCallbackFunc, 1)</code></p>
+<p>Example Output:</p>
+<pre><code>{
+  &quot;message&quot;: {
+    &quot;en&quot;: &quot;failed to register, a VPN state is already present&quot;
+  },
+  &quot;misc&quot;: false
+}
+</code></pre>
+<h2 id="removeserver"><a class="header" href="#removeserver">RemoveServer</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func RemoveServer(_type C.int, id *C.char) *C.char
+</code></pre>
+<p>RemoveServer removes a server from the eduvpn-common server list</p>
+<p><code>_type</code> is the type of server that needs to be added. This type is defined
+in types/server/server.go Type</p>
+<p><code>id</code> is the identifier of the string:</p>
+<ul>
+<li>
+<p>In case of secure internet: The organization ID</p>
+</li>
+<li>
+<p>In case of custom server: The base URL</p>
+</li>
+<li>
+<p>In case of institute access: The base URL</p>
+</li>
+</ul>
+<p>If the server cannot be removed it returns the error types/error/error.go
+Error.</p>
+<p>Example Input (3=custom server): <code>RemoveServer(3, &quot;bogus&quot;)</code></p>
+<p>Example Output:</p>
+<pre><code>{
+  &quot;message&quot;: {
+    &quot;en&quot;: &quot;failed to remove server&quot;
+  },
+  &quot;misc&quot;: false
+}
+</code></pre>
+<h2 id="renewsession"><a class="header" href="#renewsession">RenewSession</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func RenewSession(c C.uintptr_t) *C.char
+</code></pre>
+<p>RenewSession renews the session of the VPN</p>
+<p>This essentially means that the OAuth tokens are deleted. And it also
+possibly re-runs every state callback you need when getting a config.
+So least you MUST handle the OAuth started transition</p>
+<p>It returns an error if unsuccessful. Example Input:
+<code>RenewSession(myCookie)</code></p>
+<p>Example Output:</p>
+<pre><code>{
+  &quot;message&quot;: {
+    &quot;en&quot;: &quot;could not renew session&quot;
+  },
+  &quot;misc&quot;: false
+}
+</code></pre>
+<h2 id="serverlist"><a class="header" href="#serverlist">ServerList</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func ServerList() (*C.char, *C.char)
+</code></pre>
+<p>ServerList gets the list of servers that are currently added</p>
+<p>This is NOT the discovery list, but the servers that have previously been
+added with <code>AddServer</code></p>
+<p>It returns the server list as a JSON string defined in
+types/server/server.go List. If the server list cannot be retrieved it
+returns a nil string and an error</p>
+<p>Example Input: <code>ServerList()</code></p>
+<p>Example Output (current profile here is empty as none has been chosen yet):</p>
+<pre><code>{
+  &quot;institute_access_servers&quot;: [
+    {
+      &quot;display_name&quot;: {
+        &quot;en&quot;: &quot;Demo&quot;
+      },
+      &quot;identifier&quot;: &quot;https://demo.eduvpn.nl/&quot;,
+      &quot;profiles&quot;: {
+        &quot;current&quot;: &quot;&quot;
+      },
+      &quot;support_contacts&quot;: [
+        &quot;mailto:eduvpn@surf.nl&quot;
+      ],
+      &quot;delisted&quot;: false
+    }
+  ]
+}, null
+</code></pre>
+<h2 id="setprofileid"><a class="header" href="#setprofileid">SetProfileID</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func SetProfileID(data *C.char) *C.char
+</code></pre>
+<p>SetProfileID sets the profile ID of the current serrver</p>
+<p>This MUST only be called if the user/client wishes to manually set a profile
+instead of the common lib asking for one using a transition</p>
+<p><code>Data</code> is the profile ID</p>
+<p>It returns an error if unsuccessful. Example Input:
+<code>SetProfileID(&quot;splittunnel&quot;)</code></p>
+<p>Example Output:</p>
+<pre><code>{
+  &quot;message&quot;: {
+    &quot;en&quot;: &quot;profile does not exist&quot;
+  },
+  &quot;misc&quot;: false
+}
+</code></pre>
+<h2 id="setsecurelocation"><a class="header" href="#setsecurelocation">SetSecureLocation</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func SetSecureLocation(orgID *C.char, cc *C.char) *C.char
+</code></pre>
+<p>SetSecureLocation sets the location for the secure internet server if it
+exists</p>
+<p>This MUST only be called if the user/client wishes to manually set a
+location instead of the common lib asking for one using a transition</p>
+<p><code>orgID</code> is the organisation ID for the secure internet server <code>cc</code> is the
+location ID/country code</p>
+<p>It returns an error if unsuccessful. Example Input:
+<code>SetSecureLocation(&quot;http://idp.geant.org/&quot;, &quot;nl&quot;)</code></p>
+<p>Example Output:</p>
+<pre><code>{
+  &quot;message&quot;: {
+    &quot;en&quot;: &quot;location does not exist&quot;
+  },
+  &quot;misc&quot;: false
+}
+</code></pre>
+<h2 id="setstate"><a class="header" href="#setstate">SetState</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func SetState(fsmState C.int) *C.char
+</code></pre>
+<p>SetState sets the state of the statemachine</p>
+<p>Note: this transitions the FSM into the new state without passing any data
+to it. Example Input: <code>SetState(5)</code></p>
+<p>Example Output: <code>null</code></p>
+<h2 id="setsupportwireguard"><a class="header" href="#setsupportwireguard">SetSupportWireguard</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func SetSupportWireguard(support C.int) *C.char
+</code></pre>
+<p>SetSupportWireguard enables or disables WireGuard for the client. <em>WARNING:
+This function will be removed</em></p>
+<p>By default WireGuard support is enabled To disable it you can pass a 0 int
+to this</p>
+<p><code>support</code> thus indicates whether or not to enable WireGuard An error is
+returned if this is not possible</p>
+<h2 id="settokenhandler"><a class="header" href="#settokenhandler">SetTokenHandler</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func SetTokenHandler(getter C.TokenGetter, setter C.TokenSetter) *C.char
+</code></pre>
+<p>SetTokenHandler sets the token getters and token setters for OAuth</p>
+<p>Because the data that is saved does not contain OAuth tokens for server,
+the common lib asks and sets the tokens using these callback functions.
+The client can thus pass callbacks to this function so that the tokens can
+be securely stored in a keyring</p>
+<p>Client must pass two arguments to these functions</p>
+<ul>
+<li>
+<p>getter is the void function that gets tokens from the client. It takes
+three arguments:</p>
+</li>
+<li>
+<p>The <code>server</code> for which to get the tokens for, marshalled as JSON and
+defined in types/server/server.go <code>Current</code></p>
+</li>
+<li>
+<p>The <code>output</code> buffer</p>
+</li>
+<li>
+<p>The <code>length</code> of the output buffer. This 'output buffer' must contain the
+tokens, marshalled as JSON that is defined in types/server/server.go
+<code>Tokens</code></p>
+</li>
+</ul>
+<p>setter is the void function that sets tokens. It takes two arguments:</p>
+<ul>
+<li>
+<p>The <code>server</code> for which to get the tokens for, marshalled as JSON and
+defined in types/server/server.go <code>Current</code></p>
+</li>
+<li>
+<p>The <code>tokens</code>, defined in types/server/server.go <code>Tokens</code> marshalled as
+JSON</p>
+</li>
+</ul>
+<p>It returns an error when the tokens cannot be set. Example Input:
+<code>SetTokenHandler(getterFunc, setterFunc)</code></p>
+<p>Example Output: <code>null</code></p>
+<h2 id="startfailover"><a class="header" href="#startfailover">StartFailover</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func StartFailover(c C.uintptr_t, gateway *C.char, mtu C.int, readRxBytes C.ReadRxBytes) (C.int, *C.char)
+</code></pre>
+<p>StartFailover starts the 'failover' procedure in eduvpn-common</p>
+<p>Failover has one primary goal: check if the VPN can reach the gateway.
+This can be used to check whether or not the client needs to 'failover' to
+prefer TCP (if currently using UDP). Which is useful to go from a broken
+WireGuard connection to OpenVPN over TCP</p>
+<ul>
+<li><code>c</code> is the cookie that is passed for cancellation. To create a cookie,
+use the <code>CookieNew</code> function</li>
+<li><code>gateway</code> is the gateway IP of the VPN</li>
+<li><code>readRxBytes</code> is a function that returns the current rx bytes of the VPN
+interface, this should return a <code>long long int</code> in c</li>
+</ul>
+<p>It returns a boolean whether or not the common lib has determined
+that it cannot reach the gateway. Non-zero=dropped, zero=not dropped.
+It also returns an error, if it fails to indicate if it has dropped or not.
+In this case, dropped is also set to zero</p>
+<p>Example Input: <code>StartFailover(myCookie, &quot;10.10.10.1&quot;, 1400, myRxBytesReader)</code></p>
+<p>Example Output: <code>1, null</code></p>
+<h2 id="startproxyguard"><a class="header" href="#startproxyguard">StartProxyguard</a></h2>
+<p>Signature:</p>
+<pre><code class="language-go">func StartProxyguard(c C.uintptr_t, listen *C.char, tcpsp C.int, peer *C.char, proxyFD C.ProxyFD) *C.char
+</code></pre>
+<p>StartProxyguard starts the 'proxyguard' procedure in
+eduvpn-common. This proxies WireGuard UDP connections over HTTP:
+https://codeberg.org/eduvpn/proxyguard. These input variables can be gotten
+from the configuration that is retrieved using the <code>proxy</code> JSON key</p>
+<ul>
+<li><code>c</code> is the cookie</li>
+<li><code>listen</code> is the ip:port of the local udp connection, this is what is set
+to the WireGuard endpoint</li>
+<li><code>tcpsp</code> is the TCP source port</li>
+<li><code>peer</code> is the ip:port of the remote server</li>
+<li><code>proxyFD</code> is a callback with the file descriptor as only argument.
+It can be used to set certain socket option, e.g. to exclude the proxy
+connection from going over the VPN</li>
+</ul>
+<p>If the proxy cannot be started it returns an error</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+            </nav>
+
+        </div>
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        <script type="text/javascript" src="mermaid.min.js"></script>
+        <script type="text/javascript" src="mermaid-init.js"></script>
+        <script type="text/javascript">
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+    </body>
+</html>

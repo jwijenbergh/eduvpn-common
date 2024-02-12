@@ -1,0 +1,406 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js light">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Code examples - eduVPN-common documentation</title>
+        <!-- Custom HTML head -->
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="icon" href="../favicon.svg">
+        <link rel="shortcut icon" href="../favicon.png">
+        <link rel="stylesheet" href="../css/variables.css">
+        <link rel="stylesheet" href="../css/general.css">
+        <link rel="stylesheet" href="../css/chrome.css">
+        <link rel="stylesheet" href="../css/print.css" media="print">
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../fonts/fonts.css">
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../highlight.css">
+        <link rel="stylesheet" href="../tomorrow-night.css">
+        <link rel="stylesheet" href="../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="../custom.css">
+    </head>
+    <body>
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('no-js')
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add('js');
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded "><a href="../about.html"><strong aria-hidden="true">1.</strong> About</a></li><li class="chapter-item expanded "><a href="../gettingstarted/index.html"><strong aria-hidden="true">2.</strong> Getting Started</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../gettingstarted/building/index.html"><strong aria-hidden="true">2.1.</strong> Building</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../gettingstarted/building/go.html"><strong aria-hidden="true">2.1.1.</strong> Go library</a></li><li class="chapter-item expanded "><a href="../gettingstarted/building/python.html"><strong aria-hidden="true">2.1.2.</strong> Python wrapper</a></li><li class="chapter-item expanded "><a href="../gettingstarted/building/example.html"><strong aria-hidden="true">2.1.3.</strong> Example from scratch</a></li><li class="chapter-item expanded "><a href="../gettingstarted/building/packageformats.html"><strong aria-hidden="true">2.1.4.</strong> Package Formats</a></li><li class="chapter-item expanded "><a href="../gettingstarted/building/release.html"><strong aria-hidden="true">2.1.5.</strong> Building for release</a></li></ol></li><li class="chapter-item expanded "><a href="../gettingstarted/testing.html"><strong aria-hidden="true">2.2.</strong> Testing</a></li></ol></li><li class="chapter-item expanded "><a href="../api/index.html"><strong aria-hidden="true">3.</strong> API</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../api/languageinterop.html"><strong aria-hidden="true">3.1.</strong> Language Interop</a></li><li class="chapter-item expanded "><a href="../api/architecture.html"><strong aria-hidden="true">3.2.</strong> Architecture</a></li><li class="chapter-item expanded "><a href="../api/typicalflow.html"><strong aria-hidden="true">3.3.</strong> Typical flow</a></li><li class="chapter-item expanded "><a href="../api/wheretofinddocs.html"><strong aria-hidden="true">3.4.</strong> Where to find docs</a></li><li class="chapter-item expanded "><a href="../api/statemachine.html"><strong aria-hidden="true">3.5.</strong> State Machine</a></li><li class="chapter-item expanded "><a href="../api/letsbuildaclient.html"><strong aria-hidden="true">3.6.</strong> Let's build a client</a></li><li class="chapter-item expanded "><a href="../api/codeexamples.html" class="active"><strong aria-hidden="true">3.7.</strong> Code examples</a></li><li class="chapter-item expanded "><a href="../api/functiondocs.html"><strong aria-hidden="true">3.8.</strong> Function docs</a></li></ol></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky bordered">
+                    <div class="left-buttons">
+                        <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </button>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">eduVPN-common documentation</h1>
+
+                    <div class="right-buttons">
+                        <a href="../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="code-examples"><a class="header" href="#code-examples">Code examples</a></h1>
+<p>This chapter contains code examples that use the API</p>
+<h2 id="go-command-line-client"><a class="header" href="#go-command-line-client">Go command line client</a></h2>
+<p>The following is an example <a href="https://github.com/eduvpn/eduvpn-common/blob/v2/cmd/cli/main.go">in the repository</a>. It is a command line client with the following flags</p>
+<pre><code>  -get-custom string
+        The url of a custom server to connect to
+  -get-institute string
+        The url of an institute to connect to
+  -get-secure string
+        Gets secure internet servers
+</code></pre>
+<pre><code class="language-go">// Package main implements an example CLI client
+package main
+
+import (
+	&quot;context&quot;
+	&quot;flag&quot;
+	&quot;fmt&quot;
+	&quot;os&quot;
+	&quot;reflect&quot;
+	&quot;strings&quot;
+
+	&quot;github.com/eduvpn/eduvpn-common/client&quot;
+	&quot;github.com/eduvpn/eduvpn-common/internal/version&quot;
+	&quot;github.com/eduvpn/eduvpn-common/types/cookie&quot;
+	srvtypes &quot;github.com/eduvpn/eduvpn-common/types/server&quot;
+
+	&quot;github.com/pkg/browser&quot;
+)
+
+// Open a browser with xdg-open.
+func openBrowser(data interface{}) {
+	str, ok := data.(string)
+	if !ok {
+		return
+	}
+	fmt.Printf(&quot;OAuth: Authorization URL: %s\n&quot;, str)
+	fmt.Println(&quot;Opening browser...&quot;)
+	go func() {
+		err := browser.OpenURL(str)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, &quot;failed to open browser with error:&quot;, err)
+			fmt.Println(&quot;Please open your browser manually&quot;)
+		}
+	}()
+}
+
+// GetLanguageMatched uses a map from language tags to strings to extract the right language given the tag
+// It implements it according to https://github.com/eduvpn/documentation/blob/dc4d53c47dd7a69e95d6650eec408e16eaa814a2/SERVER_DISCOVERY.md#language-matching
+func GetLanguageMatched(langMap map[string]string, langTag string) string {
+	// If no map is given, return the empty string
+	if len(langMap) == 0 {
+		return &quot;&quot;
+	}
+	// Try to find the exact match
+	if val, ok := langMap[langTag]; ok {
+		return val
+	}
+	// Try to find a key that starts with the OS language setting
+	for k := range langMap {
+		if strings.HasPrefix(k, langTag) {
+			return langMap[k]
+		}
+	}
+	// Try to find a key that starts with the first part of the OS language (e.g. de-)
+	pts := strings.Split(langTag, &quot;-&quot;)
+	// We have a &quot;-&quot;
+	if len(pts) &gt; 1 {
+		for k := range langMap {
+			if strings.HasPrefix(k, pts[0]+&quot;-&quot;) {
+				return langMap[k]
+			}
+		}
+	}
+	// search for just the language (e.g. de)
+	for k := range langMap {
+		if k == pts[0] {
+			return langMap[k]
+		}
+	}
+
+	// Pick one that is deemed best, e.g. en-US or en, but note that not all languages are always available!
+	// We force an entry that is english exactly or with an english prefix
+	for k := range langMap {
+		if k == &quot;en&quot; || strings.HasPrefix(k, &quot;en-&quot;) {
+			return langMap[k]
+		}
+	}
+
+	// Otherwise just return one
+	for k := range langMap {
+		return langMap[k]
+	}
+
+	return &quot;&quot;
+}
+
+// Ask for a profile in the command line.
+func sendProfile(state *client.Client, data interface{}) {
+	fmt.Printf(&quot;Multiple VPN profiles found. Please select a profile by entering e.g. 1&quot;)
+	d, ok := data.(*srvtypes.RequiredAskTransition)
+	if !ok {
+		fmt.Fprintf(os.Stderr, &quot;\ninvalid data type: %v\n&quot;, reflect.TypeOf(data))
+		return
+	}
+	sps, ok := d.Data.(srvtypes.Profiles)
+	if !ok {
+		fmt.Fprintf(os.Stderr, &quot;\ninvalid data type for profiles: %v\n&quot;, reflect.TypeOf(d.Data))
+		return
+	}
+
+	ps := &quot;&quot;
+	var options []string
+	i := 0
+	for k, v := range sps.Map {
+		ps += fmt.Sprintf(&quot;\n%d - %s&quot;, i+1, GetLanguageMatched(v.DisplayName, &quot;en&quot;))
+		options = append(options, k)
+		i++
+	}
+
+	// Show the profiles
+	fmt.Println(ps)
+
+	var idx int
+	if _, err := fmt.Scanf(&quot;%d&quot;, &amp;idx); err != nil || idx &lt;= 0 ||
+		idx &gt; len(sps.Map) {
+		fmt.Fprintln(os.Stderr, &quot;invalid profile chosen, please retry&quot;)
+		sendProfile(state, data)
+		return
+	}
+
+	p := options[idx-1]
+	fmt.Println(&quot;Sending profile ID&quot;, p)
+	if err := d.C.Send(p); err != nil {
+		fmt.Fprintln(os.Stderr, &quot;failed setting profile with error&quot;, err)
+	}
+}
+
+// The callback function
+// If OAuth is started we open the browser with the Auth URL
+// If we ask for a profile, we send the profile using command line input
+// Note that this has an additional argument, the vpn state which was wrapped into this callback function below.
+func stateCallback(state *client.Client, _ client.FSMStateID, newState client.FSMStateID, data interface{}) {
+	if newState == client.StateOAuthStarted {
+		openBrowser(data)
+	}
+
+	if newState == client.StateAskProfile {
+		sendProfile(state, data)
+	}
+}
+
+// Get a config for Institute Access or Secure Internet Server.
+func getConfig(state *client.Client, url string, srvType srvtypes.Type) (*srvtypes.Configuration, error) {
+	if !strings.HasPrefix(url, &quot;http&quot;) {
+		url = &quot;https://&quot; + url
+	}
+	ck := cookie.NewWithContext(context.Background())
+	defer ck.Cancel() //nolint:errcheck
+	err := state.AddServer(ck, url, srvType, false)
+	if err != nil {
+		return nil, err
+	}
+	return state.GetConfig(ck, url, srvType, false, false)
+}
+
+// Get a config for a single server, Institute Access or Secure Internet.
+func printConfig(url string, srvType srvtypes.Type) {
+	var c *client.Client
+	c, err := client.New(
+		&quot;org.eduvpn.app.linux&quot;,
+		fmt.Sprintf(&quot;%s-cli&quot;, version.Version),
+		&quot;configs&quot;,
+		func(old client.FSMStateID, new client.FSMStateID, data interface{}) bool {
+			stateCallback(c, old, new, data)
+			return true
+		},
+		true,
+	)
+	if err != nil {
+		fmt.Printf(&quot;Register error: %v&quot;, err)
+		return
+	}
+	_ = c.Register()
+
+	ck := cookie.NewWithContext(context.Background())
+	_, err = c.DiscoOrganizations(ck)
+	if err != nil {
+		panic(err)
+	}
+	_, err = c.DiscoServers(ck)
+	if err != nil {
+		panic(err)
+	}
+
+	defer c.Deregister()
+
+	cfg, err := getConfig(c, url, srvType)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, &quot;failed getting a config: %v\n&quot;, err)
+		return
+	}
+	fmt.Println(cfg.Protocol)
+	fmt.Println(&quot;Obtained config:&quot;, cfg.VPNConfig)
+}
+
+// The main function
+// It parses the arguments and executes the correct functions.
+func main() {
+	cu := flag.String(&quot;get-custom&quot;, &quot;&quot;, &quot;The url of a custom server to connect to&quot;)
+	u := flag.String(&quot;get-institute&quot;, &quot;&quot;, &quot;The url of an institute to connect to&quot;)
+	sec := flag.String(&quot;get-secure&quot;, &quot;&quot;, &quot;Gets secure internet servers&quot;)
+	flag.Parse()
+
+	// Connect to a VPN by getting an Institute Access config
+	switch {
+	case *cu != &quot;&quot;:
+		printConfig(*cu, srvtypes.TypeCustom)
+	case *u != &quot;&quot;:
+		printConfig(*u, srvtypes.TypeInstituteAccess)
+	case *sec != &quot;&quot;:
+		printConfig(*sec, srvtypes.TypeSecureInternet)
+	default:
+		flag.PrintDefaults()
+	}
+}
+</code></pre>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../api/letsbuildaclient.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+                            <a rel="next" href="../api/functiondocs.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../api/letsbuildaclient.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+                    <a rel="next" href="../api/functiondocs.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+        <script type="text/javascript">
+            window.playground_copyable = true;
+        </script>
+        <script src="../elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../searcher.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="../book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        <script type="text/javascript" src="../mermaid.min.js"></script>
+        <script type="text/javascript" src="../mermaid-init.js"></script>
+    </body>
+</html>
