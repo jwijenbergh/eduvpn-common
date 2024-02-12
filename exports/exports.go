@@ -569,13 +569,13 @@ func ServerList() (*C.char, *C.char) {
 //
 // Example Output (3=WireGuard + Proxyguard):
 //
-//      {
-//       "config":"[Interface]\nMTU = ...\nAddress = ...\nDNS = ...\nPrivateKey = ...\n[Peer]\nPublicKey = ...\nAllowedIPs = ...\nEndpoint = 127.0.0.1:x\n",
-//	 "protocol":3,
-//	 "default_gateway":true,
-//	 "should_failover":true,
-//       "proxy":{"source_port":38683,"listen":"127.0.0.1:59812","peer":"https://..."}
-//      }
+//	{
+//	"config":"[Interface]\nMTU = ...\nAddress = ...\nDNS = ...\nPrivateKey = ...\n[Peer]\nPublicKey = ...\nAllowedIPs = ...\nEndpoint = 127.0.0.1:x\n",
+//	"protocol":3,
+//	"default_gateway":true,
+//	"should_failover":true,
+//	"proxy":{"source_port":38683,"listen":"127.0.0.1:59812","peer":"https://..."}
+//	}
 //
 //export GetConfig
 func GetConfig(c C.uintptr_t, _type C.int, id *C.char, pTCP C.int, startup C.int) (*C.char, *C.char) {
