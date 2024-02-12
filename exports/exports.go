@@ -475,7 +475,7 @@ func ServerList() (*C.char, *C.char) {
 	return C.CString(ret), nil
 }
 
-// GetConfig gets a configuration for the server
+// GetConfig gets a configuration for the server. It returns additional information in case WireGuard over Proxyguard is used (see the last example)
 //
 // `c` is the cookie that is used for cancellation. Create a cookie first with CookieNew, this same cookie is also used for replying to state transitions
 //
@@ -561,10 +561,21 @@ func ServerList() (*C.char, *C.char) {
 // Example Output (2=WireGuard):
 //
 //	{
-//	 "config": "https://demo.eduvpn.nl/\n# Profile: ...\n# Expires: ...\n\n[Interface]\nPrivateKey = ...\nAddress = ...\nDNS = ...\n\n[Peer]\nPublicKey = ...=\nAllowedIPs = 0.0.0.0/0,::/0\nEndpoint = ...",
+//	 "config": "[Interface]\nPrivateKey = ...\nAddress = ...\nDNS = ...\n\n[Peer]\nPublicKey = ...=\nAllowedIPs = 0.0.0.0/0,::/0\nEndpoint = ...",
 //	 "protocol": 2,
-//	 "default_gateway": true
+//	 "default_gateway": true,
+//	 "should_failover": true, <- whether or not the failover procedure should happen
 //	}
+//
+// Example Output (3=WireGuard + Proxyguard):
+//
+//      {
+//       "config":"[Interface]\nMTU = ...\nAddress = ...\nDNS = ...\nPrivateKey = ...\n[Peer]\nPublicKey = ...\nAllowedIPs = ...\nEndpoint = 127.0.0.1:x\n",
+//	 "protocol":3,
+//	 "default_gateway":true,
+//	 "should_failover":true,
+//       "proxy":{"source_port":38683,"listen":"127.0.0.1:59812","peer":"https://..."}
+//      }
 //
 //export GetConfig
 func GetConfig(c C.uintptr_t, _type C.int, id *C.char, pTCP C.int, startup C.int) (*C.char, *C.char) {
