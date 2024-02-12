@@ -527,21 +527,21 @@ Example Input (3=custom server): ```GetConfig(myCookie, 3,
 
 Example Output (2=WireGuard):
 
-    	{
-    	 "config": "[Interface]\nPrivateKey = ...\nAddress = ...\nDNS = ...\n\n[Peer]\nPublicKey = ...=\nAllowedIPs = 0.0.0.0/0,::/0\nEndpoint = ...",
-    	 "protocol": 2,
-    	 "default_gateway": true,
-          "should_failover": true, <- whether or not the failover procedure should happen
-    	}
+    {
+     "config": "[Interface]\nPrivateKey = ...\nAddress = ...\nDNS = ...\n\n[Peer]\nPublicKey = ...=\nAllowedIPs = 0.0.0.0/0,::/0\nEndpoint = ...",
+     "protocol": 2,
+     "default_gateway": true,
+     "should_failover": true, <- whether or not the failover procedure should happen
+    }
 
 Example Output (3=WireGuard + Proxyguard):
 
     {
-     "config":"[Interface]\nMTU = ...\nAddress = ...\nDNS = ...\nPrivateKey = ...\n[Peer]\nPublicKey = ...\nAllowedIPs = ...\nEndpoint = 127.0.0.1:x\n",
-     "protocol":3,
-     "default_gateway":true,
-     "should_failover":true,
-     "proxy":{"source_port":38683,"listen":"127.0.0.1:59812","peer":"https://..."}
+    "config":"[Interface]\nMTU = ...\nAddress = ...\nDNS = ...\nPrivateKey = ...\n[Peer]\nPublicKey = ...\nAllowedIPs = ...\nEndpoint = 127.0.0.1:x\n",
+    "protocol":3,
+    "default_gateway":true,
+    "should_failover":true,
+    "proxy":{"source_port":38683,"listen":"127.0.0.1:59812","peer":"https://..."}
     }
 
 ## InState
