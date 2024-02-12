@@ -18,145 +18,70 @@ The following is an example of the FSM when the client has obtained a Wireguard/
 graph TD
 
 style Deregistered fill:cyan
-Deregistered(Deregistered) -->|Client registers| No_Server
+Deregistered(Deregistered) -->|Register| Main
 
-style No_Server fill:white
-No_Server(No_Server) -->|Reload list| No_Server
+style Main fill:white
+Main(Main) -->|Deregister| Deregistered
 
-style No_Server fill:white
-No_Server(No_Server) -->|The client wants to ask for a location on the main screen| Ask_Location
+style Main fill:white
+Main(Main) -->|Add a server| AddingServer
 
-style No_Server fill:white
-No_Server(No_Server) -->|User clicks a server in the UI| Loading_Server
+style Main fill:white
+Main(Main) -->|Get a VPN config| GettingConfig
 
-style No_Server fill:white
-No_Server(No_Server) -->|The VPN is still active| Connected
+style Main fill:white
+Main(Main) -->|Already connected| Connected
 
-style Ask_Location fill:white
-Ask_Location(Ask_Location) -->|Location chosen| Chosen_Location
+style AddingServer fill:white
+AddingServer(AddingServer) -->|Authorize| OAuthStarted
 
-style Ask_Location fill:white
-Ask_Location(Ask_Location) -->|Go back or Error| No_Server
+style OAuthStarted fill:white
+OAuthStarted(OAuthStarted) -->|Authorized| Main
 
-style Ask_Location fill:white
-Ask_Location(Ask_Location) -->|Go back or Error| Got_Config
+style GettingConfig fill:white
+GettingConfig(GettingConfig) -->|Invalid location| AskLocation
 
-style Chosen_Location fill:white
-Chosen_Location(Chosen_Location) -->|Server has been chosen| Chosen_Server
+style GettingConfig fill:white
+GettingConfig(GettingConfig) -->|Invalid or no profile| AskProfile
 
-style Chosen_Location fill:white
-Chosen_Location(Chosen_Location) -->|Go back or Error| No_Server
+style GettingConfig fill:white
+GettingConfig(GettingConfig) -->|Successfully got a configuration| GotConfig
 
-style Chosen_Location fill:white
-Chosen_Location(Chosen_Location) -->|Go back or Error| Got_Config
+style GettingConfig fill:white
+GettingConfig(GettingConfig) -->|Authorize| OAuthStarted
 
-style Loading_Server fill:white
-Loading_Server(Loading_Server) -->|Server info loaded| Chosen_Server
+style AskLocation fill:white
+AskLocation(AskLocation) -->|Location chosen| GettingConfig
 
-style Loading_Server fill:white
-Loading_Server(Loading_Server) -->|User chooses a Secure Internet server but no location is configured| Ask_Location
+style AskProfile fill:white
+AskProfile(AskProfile) -->|Profile chosen| GettingConfig
 
-style Loading_Server fill:white
-Loading_Server(Loading_Server) -->|Go back or Error| No_Server
+style GotConfig fill:white
+GotConfig(GotConfig) -->|Get a VPN config again| GettingConfig
 
-style Loading_Server fill:white
-Loading_Server(Loading_Server) -->|Go back or Error| Got_Config
-
-style Chosen_Server fill:white
-Chosen_Server(Chosen_Server) -->|Found tokens in config| Authorized
-
-style Chosen_Server fill:white
-Chosen_Server(Chosen_Server) -->|No tokens found in config| OAuth_Started
-
-style Chosen_Server fill:white
-Chosen_Server(Chosen_Server) -->|Go back or Error| No_Server
-
-style Chosen_Server fill:white
-Chosen_Server(Chosen_Server) -->|Go back or Error| Got_Config
-
-style OAuth_Started fill:white
-OAuth_Started(OAuth_Started) -->|User authorizes with browser| Authorized
-
-style OAuth_Started fill:white
-OAuth_Started(OAuth_Started) -->|Go back or Error| No_Server
-
-style OAuth_Started fill:white
-OAuth_Started(OAuth_Started) -->|Go back or Error| Got_Config
-
-style Authorized fill:white
-Authorized(Authorized) -->|Re-authorize with OAuth| OAuth_Started
-
-style Authorized fill:white
-Authorized(Authorized) -->|Client requests a config| Request_Config
-
-style Authorized fill:white
-Authorized(Authorized) -->|Load the server again| Loading_Server
-
-style Authorized fill:white
-Authorized(Authorized) -->|Go back or Error| No_Server
-
-style Authorized fill:white
-Authorized(Authorized) -->|Go back or Error| Got_Config
-
-style Request_Config fill:white
-Request_Config(Request_Config) -->|Multiple profiles found and no profile chosen| Ask_Profile
-
-style Request_Config fill:white
-Request_Config(Request_Config) -->|Only one profile or profile already chosen| Chosen_Profile
-
-style Request_Config fill:white
-Request_Config(Request_Config) -->|Re-authorize| OAuth_Started
-
-style Request_Config fill:white
-Request_Config(Request_Config) -->|Go back or Error| No_Server
-
-style Request_Config fill:white
-Request_Config(Request_Config) -->|Go back or Error| Got_Config
-
-style Ask_Profile fill:white
-Ask_Profile(Ask_Profile) -->|Cancel or Error| No_Server
-
-style Ask_Profile fill:white
-Ask_Profile(Ask_Profile) -->|Profile has been chosen| Chosen_Profile
-
-style Ask_Profile fill:white
-Ask_Profile(Ask_Profile) -->|Go back or Error| No_Server
-
-style Ask_Profile fill:white
-Ask_Profile(Ask_Profile) -->|Go back or Error| Got_Config
-
-style Chosen_Profile fill:white
-Chosen_Profile(Chosen_Profile) -->|Config has been obtained| Got_Config
-
-style Chosen_Profile fill:white
-Chosen_Profile(Chosen_Profile) -->|Go back or Error| No_Server
-
-style Chosen_Profile fill:white
-Chosen_Profile(Chosen_Profile) -->|Go back or Error| Got_Config
-
-style Got_Config fill:white
-Got_Config(Got_Config) -->|Choose a new server| No_Server
-
-style Got_Config fill:white
-Got_Config(Got_Config) -->|Get a new configuration| Loading_Server
-
-style Got_Config fill:white
-Got_Config(Got_Config) -->|VPN is connecting| Connecting
+style GotConfig fill:white
+GotConfig(GotConfig) -->|VPN is connecting| Connecting
 
 style Connecting fill:white
-Connecting(Connecting) -->|Go back or Error| Got_Config
+Connecting(Connecting) -->|VPN is connected| Connected
 
 style Connecting fill:white
-Connecting(Connecting) -->|Done connecting| Connected
-
-style Disconnecting fill:white
-Disconnecting(Disconnecting) -->|Done disconnecting| Got_Config
-
-style Disconnecting fill:white
-Disconnecting(Disconnecting) -->|Go back or Error| Connected
+Connecting(Connecting) -->|Cancel connecting| Disconnecting
 
 style Connected fill:white
-Connected(Connected) -->|The VPN is disconnecting| Disconnecting
+Connected(Connected) -->|VPN is disconnecting| Disconnecting
+
+style Disconnecting fill:white
+Disconnecting(Disconnecting) -->|VPN is disconnected| Disconnected
+
+style Disconnecting fill:white
+Disconnecting(Disconnecting) -->|Cancel disconnecting| Connected
+
+style Disconnected fill:white
+Disconnected(Disconnected) -->|Connect again| GettingConfig
+
+style Disconnected fill:white
+Disconnected(Disconnected) -->|Renew| OAuthStarted
 ```
 
 </div>
