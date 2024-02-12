@@ -63,9 +63,7 @@ DNS = 9.9.9.9,2620:fe::fe
 [Peer]
 PublicKey =
 AllowedIPs = 0.0.0.0/0,::/0
-# TCPEndpoint is a proprietary eduVPN / Let's Connect! extension
-# See https://docs.eduvpn.org/server/v3/proxyguard.html#client on how to use the TCP proxy
-TCPEndpoint = vpn.example.org:51820
+ProxyEndpoint = vpn.example.org:51820
 `,
 			want: fmt.Sprintf(`[Interface]
 MTU = 1392
